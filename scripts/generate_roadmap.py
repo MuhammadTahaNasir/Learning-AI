@@ -1,0 +1,2711 @@
+import os
+import shutil
+import json
+
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Define the roadmap data with clean names, no dashes, and no course resources
+ROADMAP_DATA = [
+    {
+        "dir_name": "PHASE_01_Python_Fundamentals",
+        "title": "Phase 1: Python Fundamentals",
+        "description": "Essential Python coding foundation for Machine Learning. Skip if already strong, skim if rusty.",
+        "topics": [
+            ("Values, expressions, statements, numbers, booleans, strings", "Core Data Types & Operators"),
+            ("String operations, input, type casting, comments", "User Inputs & Types"),
+            ("Data structures: Lists, Tuples", "Sequential Containers"),
+            ("Dictionaries, Sets", "Key-Value Pairs & Unique Sets"),
+            ("Conditional execution: if, elif, else, break, continue, pass", "Control Flow"),
+            ("While, for loops, nested loops, list comprehension, iterators", "Iteration & Loops"),
+            ("Functions, variable scope, lambda, map, filter", "Functional Programming"),
+            ("File handling, exception handling", "File IO & Robust Handling"),
+            ("Classes & Objects, instance, class variables, constructors", "Object-Oriented Programming"),
+            ("Inheritance: multilevel, hierarchical, multiple, MRO", "Inheritance Models & MRO"),
+            ("Access specifiers, name mangling, inner classes", "Encapsulation & Nested Classes"),
+            ("Polymorphism, operator overloading, magic, dunder functions", "Polymorphism & Magic Methods"),
+            ("Abstract methods, data classes, keyword arguments", "Advanced OOP & Dataclasses")
+        ]
+    },
+    {
+        "dir_name": "PHASE_02_Math_Stats_Probability",
+        "title": "Phase 2: Math, Statistics & Probability",
+        "description": "The foundation everything else builds on, including essential Linear Algebra and Calculus.",
+        "topics": [
+            ("Intro to ML and History", "ML Overview"),
+            ("What is ML and Real life examples", "ML Overview"),
+            ("AI vs ML vs DL", "ML Overview"),
+            ("Types of ML: Supervised, Unsupervised, RL", "ML Overview"),
+            ("Batch vs Online Learning", "ML Design"),
+            ("Instance vs Model Based Learning", "ML Design"),
+            ("Challenges in ML", "ML Design"),
+            ("Applications of ML", "ML Applications"),
+            ("ML Development Life Cycle", "ML Lifecycle"),
+            ("Stanford CS229 Lec 1: Full ML intro, framing problems", "Stanford CS229"),
+            ("Linear Algebra: Vectors, Dot Product, Vector Norms, Matrix Operations", "Linear Algebra"),
+            ("Linear Algebra: Systems of Linear Equations, Matrix Inverse, Transpose", "Linear Algebra"),
+            ("Linear Algebra: Determinants, Orthogonality, Eigenvalues and Eigenvectors", "Linear Algebra"),
+            ("Calculus: Limits, Derivatives, and Differentiation Rules", "Calculus"),
+            ("Calculus: Partial Derivatives, Gradients, and Chain Rule", "Calculus"),
+            ("Calculus: Optimization Basics (Maxima, Minima, Convexity)", "Calculus"),
+            ("Data types: structured or unstructured, quantitative or qualitative", "Data Types"),
+            ("Statistics and its types", "Descriptive Stats"),
+            ("Mean, Median, Mode", "Descriptive Stats"),
+            ("Variance and Standard Deviation", "Descriptive Stats"),
+            ("Coefficient of variation, Z score, Percentile, Quartile", "Descriptive Stats"),
+            ("Skewness and Kurtosis", "Descriptive Stats"),
+            ("Correlation Coefficient: Pearson's", "Descriptive Stats"),
+            ("Covariance", "Descriptive Stats"),
+            ("Probability basics", "Probability"),
+            ("Joint, Marginal and Conditional Probability", "Probability"),
+            ("Bayes Theorem", "Probability"),
+            ("Probability distributions: Discrete and Continuous", "Probability"),
+            ("Bayesian Probability deep dive", "Probability"),
+            ("Univariate, Bivariate, Multivariate Analysis", "EDA Theory"),
+            ("Sampling techniques", "Inferential Stats"),
+            ("Point and Interval Estimate", "Inferential Stats"),
+            ("Margin of Error", "Inferential Stats"),
+            ("Confidence Interval", "Inferential Stats"),
+            ("Hypothesis Testing full series", "Inferential Stats"),
+            ("Chi Square Test", "Inferential Stats"),
+            ("IQR and Outliers (stats perspective)", "Descriptive Stats")
+        ]
+    },
+    {
+        "dir_name": "PHASE_03_NumPy",
+        "title": "Phase 3: NumPy",
+        "description": "Essential before any ML coding.",
+        "topics": [
+            ("Intro to NumPy", "NumPy Basics"),
+            ("Creating arrays: from list, built in methods, random", "Array Creation"),
+            ("Array attributes: shape, dtype, size, ndim", "Array Attributes"),
+            ("Array methods: reshape, max, min, argmax, argmin", "Array Methods"),
+            ("Array operations: copy, append, insert, sort, delete", "Array Manipulation"),
+            ("Concatenating, splitting, searching", "Array Manipulation"),
+            ("NumPy indexing, slicing, logical selection", "Indexing & Slicing"),
+            ("Broadcasting", "Broadcasting Operations"),
+            ("Type casting, arithmetic operations", "Array Math"),
+            ("Universal array functions: sqrt, exp, sin, etc.", "Mathematical Functions")
+        ]
+    },
+    {
+        "dir_name": "PHASE_04_Pandas_Data_Loading",
+        "title": "Phase 4: Pandas & Data Loading",
+        "description": "Real data handling starts here.",
+        "topics": [
+            ("Intro to Pandas: Series and DataFrame", "Pandas Basics"),
+            ("Data input, selection, indexing", "Data Access"),
+            ("DataFrame operations: head, unique, value_counts, sort, null check", "DataFrame Operations"),
+            ("Missing data and handling", "Data Cleaning"),
+            ("Merging, joining, concatenation: inner, outer, left, right", "Data Merging"),
+            ("GroupBy, discretization, binning", "Data Aggregation"),
+            ("Data output/saving, working with CSV, JSON, SQL", "Data Storage"),
+            ("Pandas for plotting", "Pandas Plotting"),
+            ("Fetching from API and Web Scraping", "Data Ingestion"),
+            ("Correlation in Pandas", "Correlation Analysis"),
+            ("Loading data with Pandas deep dive", "Data Loading"),
+            ("Understanding your data and EDA", "EDA Basics")
+        ]
+    },
+    {
+        "dir_name": "PHASE_05_Data_Visualization",
+        "title": "Phase 5: Data Visualization",
+        "description": "See your data before modeling it.",
+        "topics": [
+            ("Matplotlib Part 1", "Matplotlib"),
+            ("Matplotlib Part 2", "Matplotlib"),
+            ("Pandas Profiling", "Automated EDA"),
+            ("Seaborn: Distribution plots (distplot, jointplot, kdeplot)", "Seaborn"),
+            ("Seaborn: Categorical plots (boxplot, violinplot, barplot, countplot)", "Seaborn"),
+            ("Seaborn: Matrix plots, Heatmap", "Seaborn"),
+            ("EDA using Univariate Analysis", "EDA Visualization"),
+            ("EDA using Bivariate and Multivariate Analysis", "EDA Visualization")
+        ]
+    },
+    {
+        "dir_name": "PHASE_06_Data_Preprocessing_Feature_Engineering",
+        "title": "Phase 6: Data Preprocessing & Feature Engineering",
+        "description": "The most time-consuming phase in real projects.",
+        "topics": [
+            ("Data Science Life Cycle", "DS Lifecycle"),
+            ("Data in ML and How much data needed", "Data Volume"),
+            ("Handling Missing Data: CCA, Imputers, MICE", "Data Cleaning"),
+            ("Managing Missing Features", "Data Cleaning"),
+            ("Outlier detection: Z score, IQR, Percentile, Winsorization", "Outlier Management"),
+            ("Feature Scaling: Standardization", "Feature Scaling"),
+            ("Feature Scaling: Normalization, MinMax, MaxAbs, Robust", "Feature Scaling"),
+            ("Feature Scaling deep dive", "Feature Scaling"),
+            ("Managing Categorical Data", "Categorical Encoding"),
+            ("Encoding: Label, Ordinal", "Categorical Encoding"),
+            ("One Hot Encoding", "Categorical Encoding"),
+            ("Fit and Transform method", "Scikit-Learn API"),
+            ("Column Transformer and Pipelines", "ML Pipelines"),
+            ("Function Transforms: Log, Reciprocal, Square Root", "Feature Transformation"),
+            ("Power Transformer: Box Cox, Yeo Johnson", "Feature Transformation"),
+            ("Binning and Binarization: Quantile, KMeans", "Discretization"),
+            ("Handling Mixed and Date/Time Variables", "Feature Extraction"),
+            ("Feature Construction and Splitting", "Feature Construction"),
+            ("What is Feature Engineering", "Feature Engineering"),
+            ("Feature Selection Techniques", "Feature Selection"),
+            ("Feature Extraction", "Feature Selection"),
+            ("Curse of Dimensionality", "Dimensionality Basics"),
+            ("Data Preprocessing and Cleaning overview", "Data Cleaning"),
+            ("Normalization with Python", "Feature Scaling"),
+            ("Standardization with Python", "Feature Scaling"),
+            ("Binarization with Python", "Discretization"),
+            ("Training and Testing data split with Python", "Data Splitting")
+        ]
+    },
+    {
+        "dir_name": "PHASE_07_Regression_Algorithms",
+        "title": "Phase 7: Regression Algorithms",
+        "description": "Pure regression, from simplest to most regularized.",
+        "topics": [
+            ("Regression intro and dependent/independent variables", "Regression Basics"),
+            ("Stanford CS229 Lec 2: Linear Regression and GD full math", "Stanford CS229"),
+            ("Simple Linear Regression: intuition and code", "Linear Regression"),
+            ("Linear Regression solved numericals", "Linear Regression"),
+            ("Linear Regression using Least Squares", "Linear Regression"),
+            ("Linear Regression single variable Python", "Linear Regression"),
+            ("Regression Metrics: MSE, MAE, RMSE, R2, Adjusted R2", "Model Evaluation"),
+            ("SST, SSR, SSE", "Model Evaluation"),
+            ("Multiple Linear Regression: intuition and math", "Linear Regression"),
+            ("Linear Regression multiple variables Python", "Linear Regression"),
+            ("Assumptions of Linear Regression", "Linear Regression"),
+            ("Multiple Dependent Variables", "Regression Variations"),
+            ("Multiple Linear Regression solved numerical", "Linear Regression"),
+            ("Gradient Descent end to end", "Gradient Descent"),
+            ("Batch GD, SGD, Mini Batch GD", "Gradient Descent"),
+            ("Learning Rate", "Gradient Descent"),
+            ("Univariate Linear Regression with GD (without vectorization)", "Gradient Descent"),
+            ("Univariate Linear Regression with GD (with vectorization)", "Gradient Descent"),
+            ("Multivariate Linear Regression implementation", "Linear Regression"),
+            ("Polynomial Regression", "Non-linear Regression"),
+            ("Bias Variance Tradeoff and Overfitting/Underfitting", "Model Validation"),
+            ("Ridge Regression full series", "Regularization"),
+            ("Lasso Regression", "Regularization"),
+            ("ElasticNet Regression", "Regularization"),
+            ("Stanford CS229 Lec 3: Locally Weighted Regression", "Stanford CS229"),
+            ("Locally Weighted Regression", "Locally Weighted"),
+            ("KNN Regression", "KNN"),
+            ("Regression Trees", "Decision Trees")
+        ]
+    },
+    {
+        "dir_name": "PHASE_08_Classification_Algorithms",
+        "title": "Phase 8: Classification Algorithms",
+        "description": "The most used ML algorithms in industry.",
+        "topics": [
+            ("Linear vs Logistic Regression", "Classification Intro"),
+            ("Stanford CS229 Lec 3: Logistic Regression math", "Stanford CS229"),
+            ("Logistic Regression full series: Perceptron, Sigmoid, Loss, GD", "Logistic Regression"),
+            ("Logistic Regression with Python", "Logistic Regression"),
+            ("Logistic Regression solved numerical", "Logistic Regression"),
+            ("Logistic Regression hyperparameters", "Logistic Regression"),
+            ("Binary Classification: full implementation", "Classification Implementation"),
+            ("Stanford CS229 Lec 4: Perceptron and GLM", "Stanford CS229"),
+            ("Softmax / Multinomial Logistic Regression", "Multiclass Classification"),
+            ("Multiclass Classification: One vs All, One vs One", "Multiclass Classification"),
+            ("Confusion Matrix, Accuracy, Type 1 & 2 errors", "Classification Metrics"),
+            ("Precision, Recall, F1 Score", "Classification Metrics"),
+            ("ROC AUC full", "Classification Metrics"),
+            ("Specificity and Sensitivity", "Classification Metrics"),
+            ("Multiclass Confusion Matrix", "Classification Metrics"),
+            ("Accuracy vs F1 Score", "Classification Metrics"),
+            ("Dataset imbalance and remedies: Augmentation", "Imbalanced Data"),
+            ("Conditional Probability", "Probability Basics"),
+            ("Bayes Theorem", "Probability Basics"),
+            ("Stanford CS229 Lec 5: GDA and Naive Bayes", "Stanford CS229"),
+            ("Naive Bayes full series", "Naive Bayes"),
+            ("Naive Bayes variants: Bernoulli, Multinomial, Gaussian", "Naive Bayes"),
+            ("Naive Bayes solved numerical", "Naive Bayes"),
+            ("Bayesian Belief Network", "Bayesian Networks"),
+            ("Bayes Optimal Classifier", "Bayesian Learning"),
+            ("Concept Learning", "Machine Learning Theory"),
+            ("Stanford CS229 Lec 6: SVM", "Stanford CS229"),
+            ("SVM geometric intuition", "SVM"),
+            ("SVM hard margin and soft margin math", "SVM"),
+            ("Stanford CS229 Lec 7: Kernels", "Stanford CS229"),
+            ("Kernel trick and Non linear SVM", "SVM"),
+            ("SVM implementation", "SVM"),
+            ("Decision Tree intuition and Entropy and Info Gain", "Decision Trees"),
+            ("ID3, C4.5, CART algorithms", "Decision Trees"),
+            ("Decision Tree hyperparameters and overfitting", "Decision Trees"),
+            ("Decision Tree visualization", "Decision Trees"),
+            ("Decision Tree implementation", "Decision Trees"),
+            ("KNN Classification and finding K", "KNN"),
+            ("KNN full overview", "KNN"),
+            ("Linear Discriminant Analysis (LDA)", "Linear Discriminant"),
+            ("Inductive Bias", "Machine Learning Theory")
+        ]
+    },
+    {
+        "dir_name": "PHASE_09_Model_Evaluation_Validation",
+        "title": "Phase 9: Model Evaluation & Validation",
+        "description": "Know if your model is actually good.",
+        "topics": [
+            ("Training & Testing phase", "Model Validation"),
+            ("Classic vs Adaptive Machine", "Model Validation"),
+            ("Basics of Training and Testing", "Model Validation"),
+            ("Stanford CS229 Lec 8: Data splits and Cross Validation theory", "Stanford CS229"),
+            ("Stanford CS229 Discussion: Learning Theory", "Stanford CS229"),
+            ("Cross Validation", "Cross Validation"),
+            ("K Fold Cross Validation", "Cross Validation"),
+            ("LOOCV and Leave P Out", "Cross Validation"),
+            ("Overfitting and Underfitting deep dive", "Bias-Variance"),
+            ("Model Complexity vs Error", "Bias-Variance"),
+            ("Bias Variance Tradeoff", "Bias-Variance"),
+            ("Imbalanced Data and SMOTE and Oversampling", "Data Imbalance"),
+            ("Hyperparameter Tuning with Optuna", "Hyperparameter Tuning"),
+            ("Random State", "General"),
+            ("Accuracy Score explained", "Classification Metrics"),
+            ("Steps to build any ML model", "ML Pipeline"),
+            ("Stanford CS229 Lec 12: Debugging ML and Error Analysis", "Stanford CS229")
+        ]
+    },
+    {
+        "dir_name": "PHASE_10_Dimensionality_Reduction",
+        "title": "Phase 10: Dimensionality Reduction",
+        "description": "Reduce noise, keep signal.",
+        "topics": [
+            ("PCA Part 1: Geometric intuition", "PCA"),
+            ("PCA Part 2: Math and step by step", "PCA"),
+            ("PCA Part 3: Code and visualization", "PCA"),
+            ("Stanford CS229 Lec 15: PCA and ICA", "Stanford CS229"),
+            ("PCA explained", "PCA"),
+            ("LDA", "LDA"),
+            ("Feature Importance", "Feature Selection")
+        ]
+    },
+    {
+        "dir_name": "PHASE_11_Ensemble_Methods",
+        "title": "Phase 11: Ensemble Methods",
+        "description": "The most powerful classical ML phase, heaviest and most industry-relevant.",
+        "topics": [
+            ("Intro to Ensemble Learning", "Ensemble Basics"),
+            ("Stanford CS229 Lec 9: Decision Trees and Ensemble theory", "Stanford CS229"),
+            ("Voting Classifier: Hard and Soft", "Voting Classifiers"),
+            ("Voting Regressor", "Voting Classifiers"),
+            ("Bagging full series", "Bagging"),
+            ("Random Forest intuition and bias variance", "Random Forests"),
+            ("Bagging vs Random Forest", "Ensemble Differences"),
+            ("Random Forest hyperparameters and tuning", "Random Forests"),
+            ("OOB Score", "Random Forests"),
+            ("Feature Importance using RF and DT", "Feature Importance"),
+            ("AdaBoost intuition and math and code", "Boosting"),
+            ("Bagging vs Boosting", "Ensemble Differences"),
+            ("Boosting implementation", "Boosting"),
+            ("Gradient Boosting full series", "Boosting"),
+            ("XGBoost full series", "Boosting"),
+            ("Stacking and Blending", "Stacking"),
+            ("Bagging vs Boosting vs Stacking", "Ensemble Summary"),
+            ("Random Forest: Step wise explanation", "Random Forests")
+        ]
+    },
+    {
+        "dir_name": "PHASE_12_Unsupervised_Learning_Clustering",
+        "title": "Phase 12: Unsupervised Learning (Clustering)",
+        "description": "Find hidden patterns without labels.",
+        "topics": [
+            ("K Means intuition and code and from scratch", "K-Means"),
+            ("K Means++", "K-Means"),
+            ("Elbow Method", "K-Means"),
+            ("K Means Python implementation", "K-Means"),
+            ("Hierarchical Clustering: Agglomerative and Divisive", "Hierarchical Clustering"),
+            ("Single Linkage full", "Hierarchical Clustering"),
+            ("Complete Linkage full", "Hierarchical Clustering"),
+            ("Agglomerative full code", "Hierarchical Clustering"),
+            ("K Medoids", "K Medoids"),
+            ("DBSCAN", "DBSCAN"),
+            ("Recommendation Systems", "Recommendation"),
+            ("Stanford CS229 Lec 13: EM Algorithm", "Stanford CS229"),
+            ("Stanford CS229 Lec 14: EM and Factor Analysis", "Stanford CS229")
+        ]
+    }
+]
+
+# Write detailed, complete notebook cells for the 13 Python Fundamentals notebooks
+PHASE_1_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Values, Expressions, Statements, Numbers, Booleans, Strings",
+        "summary": "Introduction to Python basic types (integers, floats, booleans, and strings), mathematical operations, statements, expressions, and dynamic typing.",
+        "theory": [
+            "### 1. Values & Types\n",
+            "A **value** is one of the basic things a program works with, like a letter or a number. Values belong to different **types**:\n",
+            "- `int`: Integers (e.g., `10`, `-5`)\n",
+            "- `float`: Floating-point numbers (e.g., `3.14`, `-0.001`)\n",
+            "- `bool`: Boolean values (`True` and `False`)\n",
+            "- `str`: Strings of characters (e.g., `\"Hello, ML!\"`)\n",
+            "\n",
+            "### 2. Operators & Expressions\n",
+            "An **expression** is a combination of values, variables, and operators that evaluates to a single value. Python supports standard arithmetic operators:\n",
+            "- Addition (`+`), Subtraction (`-`), Multiplication (`*`)\n",
+            "- Floating-Point Division (`/`): Evaluates to a float (e.g., `5 / 2 = 2.5`)\n",
+            "- Floor Division (`//`): Truncates the fractional part, returning an int (e.g., `5 // 2 = 2`)\n",
+            "- Modulo (`%`): Returns the remainder of division (e.g., `5 % 2 = 1`)\n",
+            "- Exponentiation (`**`): Raises a base to a power (e.g., `2 ** 3 = 8`)\n",
+            "\n",
+            "### 3. Variable Assignment & Statements\n",
+            "A **statement** is an instruction that the Python interpreter can execute. An assignment statement (`x = 5`) binds a name (variable) to a value in memory. Python is **dynamically typed**, meaning you do not need to declare a variable's type before using it; its type is determined at runtime based on the value bound to it."
+        ],
+        "code": [
+            "# 1. Explore data types\n",
+            "a = 15\n",
+            "b = 3.14\n",
+            "c = True\n",
+            "d = \"Antigravity AI\"\n",
+            "\n",
+            "print(\"Type of a:\", type(a))\n",
+            "print(\"Type of b:\", type(b))\n",
+            "print(\"Type of c:\", type(c))\n",
+            "print(\"Type of d:\", type(d))\n",
+            "\n",
+            "# 2. Expressions and Operator Precedence\n",
+            "val1 = 10 + 3 * 2 ** 3  # Precedence: **, *, +\n",
+            "val2 = (10 + 3) * 2 ** 3\n",
+            "print(\"val1:\", val1)  # 10 + 3 * 8 = 34\n",
+            "print(\"val2:\", val2)  # 13 * 8 = 104\n",
+            "\n",
+            "# 3. Division types\n",
+            "print(\"Float Division 7/3:\", 7 / 3)\n",
+            "print(\"Floor Division 7//3:\", 7 // 3)\n",
+            "print(\"Modulo 7%3:\", 7 % 3)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Swap two variables `x` and `y` without using a third temporary variable.\n",
+            "2. Calculate the volume of a sphere with radius $r = 5$ using the formula: $V = \\frac{4}{3} \\pi r^3$ (Use `3.14159` for $\\pi$)."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Swap variables\n",
+            "x = 10\n",
+            "y = 20\n",
+            "x, y = y, x\n",
+            "print(f\"x: {x}, y: {y}\")\n",
+            "\n",
+            "# Exercise 2: Sphere Volume\n",
+            "r = 5\n",
+            "pi = 3.14159\n",
+            "volume = (4/3) * pi * (r ** 3)\n",
+            "print(f\"Volume: {volume}\")\n"
+        ]
+    },
+    2: {
+        "title": "String Operations, Input, Type Casting, Comments",
+        "summary": "String indexing, slicing, concatenation, multiplication, comments, keyboard inputs, and conversions between data types.",
+        "theory": [
+            "### 1. String Slicing & Operations\n",
+            "Strings are sequences of characters. You can access individual characters using **indexing** (0-based) or a range of characters using **slicing**:\n",
+            "`string[start:stop:step]`\n",
+            "- Slicing is *inclusive* of the `start` index and *exclusive* of the `stop` index.\n",
+            "- Negative indexes count backward from the end of the string (e.g., `-1` is the last character).\n",
+            "- Strings are **immutable**; they cannot be altered in-place.\n",
+            "\n",
+            "### 2. User Input & Casting\n",
+            "- `input(prompt)` always returns user input as a **string** (`str`).\n",
+            "- To perform math on inputs, you must explicitly cast them using type conversion functions: `int()`, `float()`, or `str()`.\n",
+            "\n",
+            "### 3. Comments\n",
+            "- `#` for single-line comments.\n",
+            "- Triple quotes `\"\"\"` or `'''` for docstrings and multi-line explanations."
+        ],
+        "code": [
+            "# 1. Slicing and Concatenation\n",
+            "text = \"Machine Learning\"\n",
+            "print(\"First character:\", text[0])\n",
+            "print(\"Last character:\", text[-1])\n",
+            "print(\"Slice [0:7]:\", text[0:7])\n",
+            "print(\"Reverse string:\", text[::-1])\n",
+            "\n",
+            "# 2. String repetition and checks\n",
+            "print(\"ML \" * 3)\n",
+            "print(\"Machine\" in text)\n",
+            "\n",
+            "# 3. Type Casting example\n",
+            "num_str = \"123\"\n",
+            "num_int = int(num_str)\n",
+            "print(\"Cast to int:\", num_int + 7)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Write a script that prompts a user to enter their birth year, converts it to an integer, calculates their age, and prints it in an f-string.\n",
+            "2. Given a string `filename = \"data_source.csv\"`, extract the extension (e.g., `csv`) using slicing."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Age Calculator\n",
+            "birth_year = 2004\n",
+            "current_year = 2026\n",
+            "age = current_year - int(birth_year)\n",
+            "print(f\"Age: {age}\")\n",
+            "\n",
+            "# Exercise 2: File Extension Extraction\n",
+            "filename = \"data_source.csv\"\n",
+            "extension = filename.split(\"_\")[-1].split(\".\")[-1]\n",
+            "print(f\"Extension: {extension}\")\n"
+        ]
+    },
+    3: {
+        "title": "Data structures: Lists, Tuples",
+        "summary": "Comprehensive guide to Python lists and tuples, covering indexing, slicing, common methods, packing/unpacking, and mutability vs immutability.",
+        "theory": [
+            "### 1. Lists (Mutable Sequences)\n",
+            "A **list** is an ordered, mutable sequence of values. Lists are defined using square brackets `[]`:\n",
+            "- **Mutable**: Elements can be added, changed, or removed in-place.\n",
+            "- **Common Methods**:\n",
+            "  - `.append(x)`: Adds item `x` to the end.\n",
+            "  - `.extend(iterable)`: Appends elements from another iterable.\n",
+            "  - `.insert(i, x)`: Inserts item `x` at index `i`.\n",
+            "  - `.pop(i)`: Removes and returns the item at index `i`.\n",
+            "  - `.remove(x)`: Removes the first occurrence of item `x`.\n",
+            "\n",
+            "### 2. Tuples (Immutable Sequences)\n",
+            "A **tuple** is an ordered, immutable sequence of values. Defined using parentheses `()`:\n",
+            "- **Immutable**: Once created, elements cannot be added, changed, or deleted.\n",
+            "- Faster and safer than lists for read-only datasets.\n",
+            "- **Tuple Unpacking**: Assigning individual elements of a tuple to variables in one line."
+        ],
+        "code": [
+            "# 1. List Mutability and Operations\n",
+            "fruits = [\"apple\", \"banana\", \"cherry\"]\n",
+            "fruits.append(\"date\")\n",
+            "fruits[1] = \"blueberry\"\n",
+            "print(\"List after modification:\", fruits)\n",
+            "\n",
+            "# 2. Tuple Immutability & Unpacking\n",
+            "coordinates = (40.7128, -74.0060)\n",
+            "try:\n",
+            "    coordinates[0] = 34.0522\n",
+            "except TypeError as e:\n",
+            "    print(\"Error:\", e)  # Tuples cannot be modified\n",
+            "\n",
+            "# Unpacking coordinates\n",
+            "lat, lon = coordinates\n",
+            "print(f\"Latitude: {lat}, Longitude: {lon}\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Given a list `numbers = [3, 1, 4, 1, 5, 9, 2]`, sort it in descending order and remove duplicates without using sets.\n",
+            "2. Combine two lists `keys = ['name', 'age']` and `values = ['Taha', 21]` into a list of tuples like `[('name', 'Taha'), ('age', 21)]` using `zip()`."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Sort and deduplicate list\n",
+            "numbers = [3, 1, 4, 1, 5, 9, 2]\n",
+            "unique_numbers = []\n",
+            "for n in numbers:\n",
+            "    if n not in unique_numbers:\n",
+            "        unique_numbers.append(n)\n",
+            "unique_numbers.sort(reverse=True)\n",
+            "print(unique_numbers)\n",
+            "\n",
+            "# Exercise 2: Zip lists\n",
+            "keys = ['name', 'age']\n",
+            "values = ['Taha', 21]\n",
+            "combined = list(zip(keys, values))\n",
+            "print(combined)\n"
+        ]
+    },
+    4: {
+        "title": "Dictionaries, Sets",
+        "summary": "Dictionaries for key-value storage and Sets for unique element algebra, covering access, mutations, keys, values, union, intersection, and difference.",
+        "theory": [
+            "### 1. Dictionaries (Hash Maps)\n",
+            "A **dictionary** is an unordered collection of key-value pairs. Keys must be unique and hashable (immutable):\n",
+            "- **Common Operations**:\n",
+            "  - `dict[key]`: Access value (throws error if key missing).\n",
+            "  - `dict.get(key, default)`: Safely access value without raising errors.\n",
+            "  - `dict.items()`: Iterates over `(key, value)` pairs.\n",
+            "  - `dict.keys()`, `dict.values()`: Retrieve collections of keys or values.\n",
+            "\n",
+            "### 2. Sets (Unique Elements)\n",
+            "A **set** is an unordered collection of unique elements. Defined using curly braces `{}` or `set()`:\n",
+            "- Sets are mutable, but their elements must be hashable.\n",
+            "- Useful for removing duplicates and calculating mathematical set relationships:\n",
+            "  - Union (`|` or `.union()`)\n",
+            "  - Intersection (`&` or `.intersection()`)\n",
+            "  - Difference (`-` or `.difference()`)\n",
+            "  - Symmetric Difference (`^` or `.symmetric_difference()`)"
+        ],
+        "code": [
+            "# 1. Dictionary creation and access\n",
+            "model_meta = {\n",
+            "    \"algorithm\": \"Random Forest\",\n",
+            "    \"n_estimators\": 100,\n",
+            "    \"max_depth\": 12\n",
+            "}\n",
+            "print(\"Algorithm:\", model_meta.get(\"algorithm\"))\n",
+            "print(\"Learning Rate:\", model_meta.get(\"learning_rate\", 0.01))  # Default fallback\n",
+            "\n",
+            "# 2. Set operations\n",
+            "group_a = {\"Python\", \"R\", \"SQL\", \"C++\"}\n",
+            "group_b = {\"Java\", \"C++\", \"Python\", \"Go\"}\n",
+            "\n",
+            "print(\"Union:\", group_a | group_b)\n",
+            "print(\"Intersection:\", group_a & group_b)\n",
+            "print(\"Difference (A - B):\", group_a - group_b)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Given a dictionary representing word counts: `counts = {'the': 4, 'ml': 12, 'data': 8}`. Increment the count of `'ml'` by 1, and add `'python'` with a count of 5.\n",
+            "2. Given a list of user IDs `ids = [101, 102, 101, 105, 102, 108]`, convert it to a set to filter duplicates, then check if `105` is in the set."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Dict updates\n",
+            "counts = {'the': 4, 'ml': 12, 'data': 8}\n",
+            "counts['ml'] += 1\n",
+            "counts['python'] = 5\n",
+            "print(counts)\n",
+            "\n",
+            "# Exercise 2: Set filtration\n",
+            "ids = [101, 102, 101, 105, 102, 108]\n",
+            "unique_ids = set(ids)\n",
+            "is_present = 105 in unique_ids\n",
+            "print(f\"Set: {unique_ids}, 105 Present: {is_present}\")\n"
+        ]
+    },
+    5: {
+        "title": "Conditional execution: if, elif, else, break, continue, pass",
+        "summary": "Branching control structures in Python using logical constraints and loop interrupts.",
+        "theory": [
+            "### 1. Conditional Branching\n",
+            "Python executes code block conditional branches using `if`, `elif` (else if), and `else` blocks:\n",
+            "- Code blocks are defined via **indentation** (typically 4 spaces).\n",
+            "- Uses comparison operators (`==`, `!=`, `<`, `>`, `<=`, `>=`) and boolean operators (`and`, `or`, `not`).\n",
+            "\n",
+            "### 2. Loop Interrupts\n",
+            "- `break`: Terminates the innermost loop immediately.\n",
+            "- `continue`: Skips the rest of the current loop iteration and moves to the next.\n",
+            "- `pass`: A null statement/placeholder used when statement block syntactically requires code but you want no action."
+        ],
+        "code": [
+            "# 1. Conditional structure example\n",
+            "accuracy = 0.88\n",
+            "if accuracy >= 0.95:\n",
+            "    print(\"Model performance: Excellent\")\n",
+            "elif accuracy >= 0.80:\n",
+            "    print(\"Model performance: Good\")\n",
+            "else:\n",
+            "    print(\"Model performance: Needs tuning\")\n",
+            "\n",
+            "# 2. Loop Control Statement\n",
+            "print(\"Checking loop interrupts:\")\n",
+            "for i in range(1, 6):\n",
+            "    if i == 3:\n",
+            "        continue  # Skip 3\n",
+            "    if i == 5:\n",
+            "        break  # Abort loop at 5\n",
+            "    print(i)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Write a program that classifies a triangle based on the lengths of its three sides `a`, `b`, and `c` (Equilateral, Isosceles, Scalene).\n",
+            "2. Write a loop iterating from 1 to 10. Use `pass` as a placeholder for odd numbers, and print even numbers."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Triangle classifier\n",
+            "a, b, c = 5, 5, 8\n",
+            "if a == b == c:\n",
+            "    print(\"Equilateral\")\n",
+            "elif a == b or b == c or a == c:\n",
+            "    print(\"Isosceles\")\n",
+            "else:\n",
+            "    print(\"Scalene\")\n",
+            "\n",
+            "# Exercise 2: Loop with pass\n",
+            "for i in range(1, 11):\n",
+            "    if i % 2 != 0:\n",
+            "        pass\n",
+            "    else:\n",
+            "        print(i)\n"
+        ]
+    },
+    6: {
+        "title": "While, for loops, nested loops, list comprehension, iterators",
+        "summary": "Loop constructs, iterator internals, and pythonic list comprehension syntax.",
+        "theory": [
+            "### 1. Loop Structures\n",
+            "- `for` loops: Iterate over collections, ranges, or generator expressions.\n",
+            "- `while` loops: Execute as long as a boolean constraint remains `True`.\n",
+            "- Nested loops: Loops within loops (e.g., iterating through a 2D matrix).\n",
+            "\n",
+            "### 2. List Comprehension\n",
+            "An elegant, faster syntax to build lists from existing iterables:\n",
+            "`[expression for item in iterable if condition]`\n",
+            "\n",
+            "### 3. Iterators & Iterables\n",
+            "- An **iterable** is any object capable of returning its members one at a time (e.g., list, tuple, string).\n",
+            "- An **iterator** is the stream object returned by calling `iter()` on an iterable. It yields items sequentially via `next()`."
+        ],
+        "code": [
+            "# 1. Nested loops for matrix traversal\n",
+            "matrix = [[1, 2], [3, 4]]\n",
+            "for row in matrix:\n",
+            "    for val in row:\n",
+            "        print(val, end=\" \")\n",
+            "print(\"\")\n",
+            "\n",
+            "# 2. List Comprehension vs For-Loop\n",
+            "squares = [x**2 for x in range(1, 6)]\n",
+            "print(\"Squares list comprehension:\", squares)\n",
+            "\n",
+            "# 3. Iterators\n",
+            "iterable_list = [10, 20]\n",
+            "iterator_obj = iter(iterable_list)\n",
+            "print(next(iterator_obj))\n",
+            "print(next(iterator_obj))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Rewrite the following code using a single line of list comprehension:\n",
+            "   `words = ['data', 'science', 'python', 'ai']; long_words = []`\n",
+            "   `for w in words: if len(w) > 2: long_words.append(w.upper())`\n",
+            "2. Implement a simple while loop that prints the Fibonacci sequence up to 50."
+        ],
+        "exercise_code": [
+            "# Exercise 1: List Comprehension\n",
+            "words = ['data', 'science', 'python', 'ai']\n",
+            "long_words = [w.upper() for w in words if len(w) > 2]\n",
+            "print(long_words)\n",
+            "\n",
+            "# Exercise 2: Fibonacci sequence\n",
+            "a, b = 0, 1\n",
+            "while a <= 50:\n",
+            "    print(a, end=\" \")\n",
+            "    a, b = b, a + b\n"
+        ]
+    },
+    7: {
+        "title": "Functions, variable scope, lambda, map, filter",
+        "summary": "Function definitions, local/global variable scoping rules (LEGB), anonymous functions, and map/filter operators.",
+        "theory": [
+            "### 1. Function Scope (LEGB Rule)\n",
+            "Variable lookup resolution in Python follows the **LEGB** order:\n",
+            "- **Local**: Defined inside current function.\n",
+            "- **Enclosing**: Defined in nested/outer functions.\n",
+            "- **Global**: Declared at the top level of the module.\n",
+            "- **Built-in**: Python's pre-loaded keywords (e.g., `len`, `range`).\n",
+            "Use `global x` or `nonlocal x` to modify variables outside local scope.\n",
+            "\n",
+            "### 2. Lambda Functions\n",
+            "Anonymous, single-expression functions: `lambda arg1, arg2: expression`.\n",
+            "\n",
+            "### 3. Map & Filter\n",
+            "- `map(func, iterable)`: Applies a function to all elements in the sequence.\n",
+            "- `filter(func, iterable)`: Filters items that evaluate to `True` for the function."
+        ],
+        "code": [
+            "# 1. LEGB Scope demonstration\n",
+            "x = \"global\"\n",
+            "def outer_func():\n",
+            "    x = \"enclosing\"\n",
+            "    def inner_func():\n",
+            "        x = \"local\"\n",
+            "        print(\"Inner level:\", x)\n",
+            "    inner_func()\n",
+            "    print(\"Outer level:\", x)\n",
+            "outer_func()\n",
+            "\n",
+            "# 2. Lambda, Map, and Filter\n",
+            "numbers = [1, 2, 3, 4, 5]\n",
+            "squared = list(map(lambda x: x**2, numbers))\n",
+            "evens = list(filter(lambda x: x % 2 == 0, numbers))\n",
+            "print(\"Squared:\", squared)\n",
+            "print(\"Evens:\", evens)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Write a function `compute_stats(data_list)` that calculates and returns both the sum and the mean of a list of numbers as a tuple.\n",
+            "2. Using `filter()` and `lambda`, extract all words that start with 's' from the list: `words = ['stats', 'probability', 'statistics', 'math', 'sample']`."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Sum and Mean\n",
+            "def compute_stats(data_list):\n",
+            "    s = sum(data_list)\n",
+            "    m = s / len(data_list) if data_list else 0\n",
+            "    return s, m\n",
+            "print(compute_stats([10, 20, 30]))\n",
+            "\n",
+            "# Exercise 2: Words filtering\n",
+            "words = ['stats', 'probability', 'statistics', 'math', 'sample']\n",
+            "s_words = list(filter(lambda w: w.startswith('s'), words))\n",
+            "print(s_words)\n"
+        ]
+    },
+    8: {
+        "title": "File handling, exception handling",
+        "summary": "File input/output pipelines, context managers, exceptions, handling runtime anomalies, and custom errors.",
+        "theory": [
+            "### 1. File Handling (Context Managers)\n",
+            "Always use the `with` statement when opening files. It acts as a **context manager**, automatically closing the file stream when execution exits the block, preventing memory leaks:\n",
+            "`with open(file_path, mode) as f:`\n",
+            "Modes: `'r'` (read), `'w'` (write/overwrite), `'a'` (append).\n",
+            "\n",
+            "### 2. Exception Handling\n",
+            "Errors are handled dynamically using `try`, `except`, `else`, and `finally` blocks:\n",
+            "- `try`: Block containing code that might throw an error.\n",
+            "- `except ExceptionType`: Code to execute if specific error occurs.\n",
+            "- `else`: Executes if **no** exception occurred in the try block.\n",
+            "- `finally`: Executes unconditionally at the end (useful for closing connections/cleanup).\n",
+            "\n",
+            "### 3. Custom Exceptions\n",
+            "Declare custom error structures by inheriting from the base `Exception` class."
+        ],
+        "code": [
+            "# 1. Writing and Reading Files\n",
+            "filepath = \"sample_notes.txt\"\n",
+            "with open(filepath, \"w\") as f:\n",
+            "    f.write(\"Python for ML Roadmap\\nFirst Topic: Foundational Core\")\n",
+            "\n",
+            "with open(filepath, \"r\") as f:\n",
+            "    print(\"File Contents:\\n\", f.read())\n",
+            "\n",
+            "# 2. Exception Handling Example\n",
+            "try:\n",
+            "    result = 10 / 0\n",
+            "except ZeroDivisionError as e:\n",
+            "    print(\"Caught error:\", e)\n",
+            "finally:\n",
+            "    print(\"Cleanup actions complete.\")\n",
+            "    if os.path.exists(filepath):\n",
+            "        os.remove(filepath)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Implement a custom exception class named `NegativeValueError`. Write a function `square_root(val)` that raises this exception if the input is negative.\n",
+            "2. Write a script that safely attempts to read a non-existent file, catches the `FileNotFoundError`, and prints a user-friendly error message."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Custom Exception\n",
+            "class NegativeValueError(Exception):\n",
+            "    pass\n",
+            "\n",
+            "def square_root(val):\n",
+            "    if val < 0:\n",
+            "        raise NegativeValueError(\"Negative numbers are not allowed.\")\n",
+            "    return val ** 0.5\n",
+            "\n",
+            "try:\n",
+            "    square_root(-4)\n",
+            "except NegativeValueError as e:\n",
+            "    print(\"Error raised:\", e)\n",
+            "\n",
+            "# Exercise 2: File Not Found Catch\n",
+            "try:\n",
+            "    with open(\"ghost.csv\", \"r\") as f:\n",
+            "        data = f.read()\n",
+            "except FileNotFoundError:\n",
+            "    print(\"Notice: File was not found. Initializing empty dataset.\")\n"
+        ]
+    },
+    9: {
+        "title": "Classes & Objects, instance, class variables, constructors",
+        "summary": "Core Object-Oriented structures, class creation, self references, attributes, instance vs class namespace scopes.",
+        "theory": [
+            "### 1. Classes, Objects, and Constructors\n",
+            "- **Class**: A user-defined template or blueprint for creating objects.\n",
+            "- **Object**: An instance of a class.\n",
+            "- **Constructor (`__init__`)**: The initialization method called automatically when creating a new object. Initializes instance variables.\n",
+            "- **`self`**: Refers to the current instance of the class.\n",
+            "\n",
+            "### 2. Instance vs Class Variables\n",
+            "- **Instance Variables**: Defined inside constructor methods with `self.`. Unique to each instance object.\n",
+            "- **Class Variables**: Defined directly inside the class body, outside any methods. Shared across all instance objects of that class."
+        ],
+        "code": [
+            "class MachineLearningModel:\n",
+            "    # Class variable: Shared by all instances\n",
+            "    framework = \"Scikit-Learn\"\n",
+            "    \n",
+            "    def __init__(self, name, model_type):\n",
+            "        # Instance variables: Unique to each instance\n",
+            "        self.name = name\n",
+            "        self.model_type = model_type\n",
+            "        \n",
+            "    def display_details(self):\n",
+            "        return f\"{self.name} is a {self.model_type} model using {self.framework}.\"\n",
+            "\n",
+            "# Instantiate objects\n",
+            "model1 = MachineLearningModel(\"Ridge\", \"Regression\")\n",
+            "model2 = MachineLearningModel(\"SVC\", \"Classification\")\n",
+            "\n",
+            "print(model1.display_details())\n",
+            "print(model2.display_details())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Implement a `Circle` class with a class variable `PI = 3.14159`, an instance variable `radius`, and methods to calculate area and perimeter.\n",
+            "2. Modify a class variable using `ClassName.variable_name = new_value` and observe how it affects existing instances."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Circle class\n",
+            "class Circle:\n",
+            "    PI = 3.14159\n",
+            "    def __init__(self, radius):\n",
+            "        self.radius = radius\n",
+            "    def area(self): return self.PI * (self.radius ** 2)\n",
+            "    def perimeter(self): return 2 * self.PI * self.radius\n",
+            "\n",
+            "c = Circle(3)\n",
+            "print(f\"Area: {c.area()}, Perimeter: {c.perimeter()}\")\n"
+        ]
+    },
+    10: {
+        "title": "Inheritance: multilevel, hierarchical, multiple, MRO",
+        "summary": "Code reuse using class inheritance models, solving conflicts using Method Resolution Order (MRO) and super().",
+        "theory": [
+            "### 1. Types of Inheritance\n",
+            "- **Single**: Child inherits from a single parent.\n",
+            "- **Multilevel**: Parent -> Child -> Grandchild.\n",
+            "- **Hierarchical**: Multiple subclasses inherit from a single parent.\n",
+            "- **Multiple**: A subclass inherits from more than one parent.\n",
+            "\n",
+            "### 2. Method Resolution Order (MRO)\n",
+            "When using multiple inheritance, class namespaces can conflict (the Diamond Problem). Python solves this using the **C3 Linearization** algorithm to determine Method Resolution Order (MRO):\n",
+            "- Call `ClassName.mro()` or print `obj.__class__.__mro__` to view the hierarchy.\n",
+            "- Use `super()` to call parent constructors and methods safely according to MRO sequence."
+        ],
+        "code": [
+            "class Base:\n",
+            "    def show(self):\n",
+            "        print(\"Base execution\")\n",
+            "\n",
+            "class Left(Base):\n",
+            "    def show(self):\n",
+            "        print(\"Left start\")\n",
+            "        super().show()\n",
+            "        print(\"Left end\")\n",
+            "\n",
+            "class Right(Base):\n",
+            "    def show(self):\n",
+            "        print(\"Right start\")\n",
+            "        super().show()\n",
+            "        print(\"Right end\")\n",
+            "\n",
+            "class SubChild(Left, Right):\n",
+            "    def show(self):\n",
+            "        print(\"SubChild start\")\n",
+            "        super().show()\n",
+            "        print(\"SubChild end\")\n",
+            "\n",
+            "child = SubChild()\n",
+            "child.show()\n",
+            "print(\"\\nMRO order:\", SubChild.mro())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Implement a class structure: Parent class `Dataset` with attributes `filepath` and constructor. Subclass `TabularDataset` adding `delimiter`, and another subclass `ImageDataset` adding `dimensions` and overriding dataset loading statements.\n",
+            "2. Define three classes `A`, `B`, and `C` where `C` inherits from both `A` and `B`. Verify class `C`'s resolution sequence using `.mro()`."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Dataset structures\n",
+            "class Dataset:\n",
+            "    def __init__(self, filepath):\n",
+            "        self.filepath = filepath\n",
+            "\n",
+            "class TabularDataset(Dataset):\n",
+            "    def __init__(self, filepath, delimiter=','):\n",
+            "        super().__init__(filepath)\n",
+            "        self.delimiter = delimiter\n",
+            "\n",
+            "t = TabularDataset(\"data.csv\", ';')\n",
+            "print(f\"File: {t.filepath}, Delimiter: {t.delimiter}\")\n"
+        ]
+    },
+    11: {
+        "title": "Access specifiers, name mangling, inner classes",
+        "summary": "Encapsulation, public/protected/private variables, name mangling behavior, and nesting inner classes.",
+        "theory": [
+            "### 1. Encapsulation & Access Specifiers\n",
+            "Python doesn't enforce strict access controls like Java/C++, but relies on conventions:\n",
+            "- **Public**: `var`. Accessible from anywhere.\n",
+            "- **Protected**: `_var`. Convention indicating it shouldn't be accessed directly outside subclasses.\n",
+            "- **Private**: `__var`. Restricts external access using Name Mangling.\n",
+            "\n",
+            "### 2. Name Mangling\n",
+            "Python renames private attributes prefixing double underscores (e.g. `__attr` in `ClassName` becomes `_ClassName__attr`) to prevent accidental overrides in subclasses.\n",
+            "\n",
+            "### 3. Inner (Nested) Classes\n",
+            "Declaring a class inside another class. Useful for logical clustering and nested architectures."
+        ],
+        "code": [
+            "class Outer:\n",
+            "    def __init__(self):\n",
+            "        self.public_var = \"Public\"\n",
+            "        self._protected_var = \"Protected\"\n",
+            "        self.__private_var = \"Private\"\n",
+            "        self.inner = self.Inner()\n",
+            "        \n",
+            "    class Inner:\n",
+            "        def __init__(self):\n",
+            "            self.data = \"Nested Data\"\n",
+            "            \n",
+            "obj = Outer()\n",
+            "print(\"Public variable:\", obj.public_var)\n",
+            "print(\"Protected variable:\", obj._protected_var)\n",
+            "try:\n",
+            "    print(obj.__private_var)\n",
+            "except AttributeError as e:\n",
+            "    print(\"Private access failed:\", e)\n",
+            "\n",
+            "# Accessing mangled name\n",
+            "print(\"Mangled access:\", obj._Outer__private_var)\n",
+            "print(\"Inner Class data:\", obj.inner.data)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Implement a class `SecureConfig` that stores a private API token `__token`. Provide getter and setter methods to access and modify the token with length validation (>10 chars).\n",
+            "2. Instantiate an inner class directly from outer scope (i.e. without instantiating it inside Outer's constructor)."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Encapsulated secure config\n",
+            "class SecureConfig:\n",
+            "    def __init__(self, token):\n",
+            "        self.__token = token\n",
+            "    def get_token(self): return self.__token\n",
+            "    def set_token(self, token):\n",
+            "        if len(token) > 10:\n",
+            "            self.__token = token\n",
+            "        else:\n",
+            "            print(\"Invalid Token\")\n",
+            "\n",
+            "sc = SecureConfig(\"secret_token_123\")\n",
+            "print(\"Token:\", sc.get_token())\n"
+        ]
+    },
+    12: {
+        "title": "Polymorphism, operator overloading, magic, dunder functions",
+        "summary": "Dynamic polymorphism, customizing operator behavior using magic dunder methods.",
+        "theory": [
+            "### 1. Polymorphism\n",
+            "Polymorphism allows different classes to have methods with the same name but different behaviors, allowing a unified interface to process diverse object types.\n",
+            "\n",
+            "### 2. Operator Overloading & Magic Methods\n",
+            "Magic/Dunder (Double Underscore) methods allow you to define how custom objects behave with built-in operations (arithmetic, comparisons, length checks):\n",
+            "- `__add__(self, other)`: Overloads addition (`+`)\n",
+            "- `__sub__(self, other)`: Overloads subtraction (`-`)\n",
+            "- `__mul__(self, other)`: Overloads multiplication (`*`)\n",
+            "- `__len__(self)`: Custom return for `len()`\n",
+            "- `__str__(self)`: Human-readable string representation (`print(obj)`)\n",
+            "- `__repr__(self)`: Official string representation for debugging"
+        ],
+        "code": [
+            "class Vector2D:\n",
+            "    def __init__(self, x, y):\n",
+            "        self.x = x\n",
+            "        self.y = y\n",
+            "        \n",
+            "    # Overload addition (+)\n",
+            "    def __add__(self, other):\n",
+            "        return Vector2D(self.x + other.x, self.y + other.y)\n",
+            "        \n",
+            "    # Overload string representations\n",
+            "    def __str__(self):\n",
+            "        return f\"Vector({self.x}, {self.y})\"\n",
+            "        \n",
+            "    def __len__(self):\n",
+            "        # Custom length: magnitude (integer part)\n",
+            "        return int((self.x**2 + self.y**2)**0.5)\n",
+            "\n",
+            "v1 = Vector2D(3, 4)\n",
+            "v2 = Vector2D(1, 2)\n",
+            "v3 = v1 + v2\n",
+            "\n",
+            "print(\"Resulting Vector:\", v3)\n",
+            "print(\"Magnitude of v1:\", len(v1))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Implement a class `HypothesisParameter` that stores a float parameter value. Overload the equality operator `==` (`__eq__`) so that two parameters are considered equal if their values are within a tolerance of `1e-5`.\n",
+            "2. Overload the multiplication operator `*` (`__mul__`) for the `Vector2D` class to compute vector dot product: $v_1 \\cdot v_2 = x_1 x_2 + y_1 y_2$."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Parameters comparison\n",
+            "class HypothesisParameter:\n",
+            "    def __init__(self, val):\n",
+            "        self.val = val\n",
+            "    def __eq__(self, other):\n",
+            "        return abs(self.val - other.val) < 1e-5\n",
+            "\n",
+            "p1 = HypothesisParameter(0.500001)\n",
+            "p2 = HypothesisParameter(0.500002)\n",
+            "print(\"p1 == p2:\", p1 == p2)\n"
+        ]
+    },
+    13: {
+        "title": "Abstract methods, data classes, keyword arguments",
+        "summary": "Interface enforcement using Abstract Base Classes (ABCs), clean storage using dataclasses, and function signature positional/keyword limits.",
+        "theory": [
+            "### 1. Abstract Base Classes (ABCs)\n",
+            "Abstract classes act as blueprints for subclasses. They cannot be instantiated directly and can enforce that derived classes implement specific methods using the `@abstractmethod` decorator from the `abc` module.\n",
+            "\n",
+            "### 2. Data Classes (`@dataclass`)\n",
+            "Introduced in Python 3.7, the `@dataclass` decorator automatically generates common boilerplate methods like `__init__()`, `__repr__()`, and `__eq__()` based on type annotations.\n",
+            "\n",
+            "### 3. Argument Enforcement (`/`, `*`, `*args`, `**kwargs`)\n",
+            "- `/`: Arguments before this symbol are **positional-only**.\n",
+            "- `*`: Arguments after this symbol are **keyword-only**.\n",
+            "- `*args`: Captures variable positional arguments.\n",
+            "- `**kwargs`: Captures variable keyword arguments."
+        ],
+        "code": [
+            "from abc import ABC, abstractmethod\n",
+            "from dataclasses import dataclass\n",
+            "\n",
+            "# 1. Abstract Base Class\n",
+            "class Estimator(ABC):\n",
+            "    @abstractmethod\n",
+            "    def fit(self, X, y):\n",
+            "        pass\n",
+            "\n",
+            "class LinearEstimator(Estimator):\n",
+            "    def fit(self, X, y):\n",
+            "        print(\"Fitting linear weights...\")\n",
+            "\n",
+            "# 2. Dataclass Example\n",
+            "@dataclass\n",
+            "class Hyperparameters:\n",
+            "    learning_rate: float\n",
+            "    epochs: int\n",
+            "    optimizer: str = \"SGD\"\n",
+            "\n",
+            "# 3. Argument Restriction function\n",
+            "def train_model(X, y, /, *, verbose=False):\n",
+            "    # X and y are positional-only, verbose is keyword-only\n",
+            "    print(f\"Training. Verbose={verbose}\")\n",
+            "\n",
+            "est = LinearEstimator()\n",
+            "est.fit(None, None)\n",
+            "\n",
+            "params = Hyperparameters(0.01, 100)\n",
+            "print(\"Hyperparameters:\", params)\n",
+            "\n",
+            "train_model([1, 2], [3, 4], verbose=True)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Implement an abstract class `Metric` with an abstract method `compute(y_true, y_pred)`. Subclass `Accuracy` implementing the metric calculation.\n",
+            "2. Modify `train_model` to accept variable positional parameters (`*args`) and variable keyword parameters (`**kwargs`), printing out whatever gets captured."
+        ],
+        "exercise_code": [
+            "# Exercise 1: Metric ABC\n",
+            "from abc import ABC, abstractmethod\n",
+            "class Metric(ABC):\n",
+            "    @abstractmethod\n",
+            "    def compute(self, y_true, y_pred):\n",
+            "        pass\n",
+            "\n",
+            "class Accuracy(Metric):\n",
+            "    def compute(self, y_true, y_pred):\n",
+            "        correct = sum(1 for t, p in zip(y_true, y_pred) if t == p)\n",
+            "        return correct / len(y_true)\n",
+            "\n",
+            "acc = Accuracy()\n",
+            "print(\"Accuracy:\", acc.compute([1, 0, 1], [1, 0, 0]))\n"
+        ]
+    }
+}
+
+# Pre-defined complete notebook cells for the 37 Math/Stats/Probability notebooks
+PHASE_2_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Intro to ML and History",
+        "summary": "Overview of Machine Learning, its historical roots, major milestones, and evolution from standard statistics to modern AI systems.",
+        "theory": [
+            "### 1. What is Machine Learning?\n",
+            "Machine Learning (ML) is a branch of Artificial Intelligence (AI) that focuses on building systems that learn from data, identify patterns, and make decisions with minimal human intervention.\n",
+            "\n",
+            "### 2. Historical Milestones\n",
+            "- **1950**: Alan Turing proposes the *Turing Test* to check machine intelligence.\n",
+            "- **1952**: Arthur Samuel builds the first checkers-playing program that learns from games, coining the term **\"Machine Learning\"**.\n",
+            "- **1957**: Frank Rosenblatt invents the *Perceptron*, the ancestor of modern neural networks.\n",
+            "- **1986**: Geoffrey Hinton publishes the backpropagation algorithm for training multi-layer neural networks.\n",
+            "- **1997**: IBM's *Deep Blue* defeats world chess champion Garry Kasparov.\n",
+            "- **2012**: AlexNet wins the ImageNet competition, initiating the deep learning boom."
+        ],
+        "code": [
+            "# Print historical milestones\n",
+            "milestones = {\n",
+            "    1952: \"Arthur Samuel coins 'Machine Learning'\",\n",
+            "    1957: \"Rosenblatt Perceptron\",\n",
+            "    1986: \"Backpropagation popularized by Hinton\",\n",
+            "    2012: \"AlexNet wins ImageNet (Deep Learning revolution)\"\n",
+            "}\n",
+            "for year, event in milestones.items():\n",
+            "    print(f\"{year}: {event}\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. List three differences between traditional rule-based programming and Machine Learning."
+        ],
+        "exercise_code": [
+            "# Answer list\n",
+            "print(\"1. Rules vs Data-Driven: Traditional uses rules+data->answers; ML uses data+answers->rules.\")\n",
+            "print(\"2. Adaptability: ML models adapt automatically to new data.\")\n",
+            "print(\"3. Scalability: ML solves complex problems where human rules are impossible to write.\")\n"
+        ]
+    },
+    2: {
+        "title": "What is ML and Real Life Examples",
+        "summary": "Real-world applications of machine learning, framing tasks into inputs and targets.",
+        "theory": [
+            "### Real Life Examples of ML\n",
+            "ML is embedded in many modern services:\n",
+            "- **Spam Filtering**: Classifying emails as Spam or Ham based on words.\n",
+            "- **Recommendation Systems**: Netflix/YouTube recommending videos using your watch history.\n",
+            "- **Predictive Maintenance**: Predicting when a factory machine will fail based on sensor data.\n",
+            "- **Financial Fraud Detection**: Flagging suspicious transactions based on spending behavior patterns."
+        ],
+        "code": [
+            "# Map inputs and outputs for real-world tasks\n",
+            "tasks = [\n",
+            "    {\"task\": \"Spam Filtering\", \"input (X)\": \"Email text\", \"target (y)\": \"Spam/Not Spam\"},\n",
+            "    {\"task\": \"House Pricing\", \"input (X)\": \"Size, Rooms, Location\", \"target (y)\": \"Price in USD\"}\n",
+            "]\n",
+            "import pandas as pd\n",
+            "print(pd.DataFrame(tasks))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Frame an ML task of your own choice by listing the inputs (features) and target (labels)."
+        ],
+        "exercise_code": [
+            "# Frame your own task\n",
+            "print(\"Task: Customer Churn Prediction\")\n",
+            "print(\"Inputs (X): Usage frequency, support calls, contract length\")\n",
+            "print(\"Target (y): Churn (Yes/No)\")\n"
+        ]
+    },
+    3: {
+        "title": "AI vs ML vs DL",
+        "summary": "Understanding boundaries between Artificial Intelligence, Machine Learning, and Deep Learning.",
+        "theory": [
+            "### 1. Venn Diagram Hierarchy\n",
+            "```\n",
+            "+--------------------------------------------------+\n",
+            "| Artificial Intelligence (AI)                     |\n",
+            "|   (Programs that mimic human intelligence)        |\n",
+            "|                                                  |\n",
+            "|   +------------------------------------------+   |\n",
+            "|   | Machine Learning (ML)                    |   |\n",
+            "|   |   (Algorithms that learn from data)      |   |\n",
+            "|   |                                          |   |\n",
+            "|   |   +----------------------------------+   |   |\n",
+            "|   |   | Deep Learning (DL)               |   |   |\n",
+            "|   |   |   (Multi-layer Neural Networks)  |   |   |\n",
+            "|   |   +----------------------------------+   |   |\n",
+            "|   +------------------------------------------+   |\n",
+            "+--------------------------------------------------+\n",
+            "```\n",
+            "\n",
+            "### 2. Definitions\n",
+            "- **AI**: Broadest term. Covers anything simulating human intelligence (e.g. expert systems, pathfinding).\n",
+            "- **ML**: Subset of AI. Systems that learn parameters from data instead of hardcoded rules.\n",
+            "- **DL**: Subset of ML. Uses Deep Neural Networks with many hidden layers to automatically extract features from raw data (e.g. pixels, audio)."
+        ],
+        "code": [
+            "# Simple check\n",
+            "categories = [\"AI\", \"ML\", \"DL\"]\n",
+            "for c in categories:\n",
+            "    print(f\"{c} is a subset of the previous category (if any).\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Classify the following as AI-only, ML, or DL: (A) Chess engine using Alpha-Beta pruning, (B) Logistic Regression model, (C) Convolutional Neural Network (CNN) for face recognition."
+        ],
+        "exercise_code": [
+            "print(\"A: AI-only (uses search heuristics)\")\n",
+            "print(\"B: ML (classical machine learning)\")\n",
+            "print(\"C: DL (uses deep neural networks)\")\n"
+        ]
+    },
+    4: {
+        "title": "Types of ML: Supervised, Unsupervised, RL",
+        "summary": "Core paradigms of machine learning: learning from labeled data, finding patterns, or taking action in environments.",
+        "theory": [
+            "### 1. Supervised Learning\n",
+            "Learning with a teacher. The dataset consists of input-output pairs $(X, y)$. Goal: learn a mapping function $f: X \\rightarrow y$.\n",
+            "- **Regression**: Continuous output (e.g. predicting price).\n",
+            "- **Classification**: Discrete labels (e.g. predicting spam/ham).\n",
+            "\n",
+            "### 2. Unsupervised Learning\n",
+            "Learning without labels. Dataset consists only of inputs $X$. Goal: discover underlying structures or distributions.\n",
+            "- **Clustering**: Grouping similar items (e.g. customer segmentation).\n",
+            "- **Dimensionality Reduction**: Projecting data to fewer dimensions (e.g. PCA).\n",
+            "\n",
+            "### 3. Reinforcement Learning (RL)\n",
+            "Learning by trial and error. An **agent** interacts with an **environment** by performing **actions** to maximize cumulative **rewards**."
+        ],
+        "code": [
+            "paradigms = {\n",
+            "    \"Supervised\": \"Labeled data (X, y)\",\n",
+            "    \"Unsupervised\": \"Unlabeled data (X)\",\n",
+            "    \"Reinforcement\": \"Agent, Environment, Actions, Rewards\"\n",
+            "}\n",
+            "for p, desc in paradigms.items():\n",
+            "    print(f\"{p} Learning: {desc}\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Classify the task: Grouping news articles into topics. (Supervised or Unsupervised?)\n",
+            "2. Classify the task: Predicting future stock price based on historical price patterns. (Regression or Classification?)"
+        ],
+        "exercise_code": [
+            "print(\"1. Unsupervised (Clustering)\")\n",
+            "print(\"2. Supervised (Regression)\")\n"
+        ]
+    },
+    5: {
+        "title": "Batch vs Online Learning",
+        "summary": "Model updating strategies: offline batch training vs incremental updates from streaming data.",
+        "theory": [
+            "### 1. Batch (Offline) Learning\n",
+            "The model is trained on the entire dataset at once. \n",
+            "- If new data arrives, you must retrain a completely new model from scratch using old and new data.\n",
+            "- Computationally heavy; updates happen infrequently.\n",
+            "\n",
+            "### 2. Online (Incremental) Learning\n",
+            "The model is trained incrementally by feeding it data instances sequentially, either individually or in small groups (mini-batches).\n",
+            "- Rapid adaptation to new data streams.\n",
+            "- Low memory footprint.\n",
+            "- **Out-of-Core Learning**: Training on datasets that do not fit into RAM."
+        ],
+        "code": [
+            "print(\"Batch learning is standard for static datasets.\")\n",
+            "print(\"Online learning is used for streaming stock data, traffic patterns, etc.\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What is the risk associated with Online Learning when feeding it corrupted or noisy data? (Hint: Catastrophic forgetting / model drift)."
+        ],
+        "exercise_code": [
+            "print(\"Risk: If noisy/bad data is streamed in, model performance will degrade rapidly. Requires close monitoring.\")\n"
+        ]
+    },
+    6: {
+        "title": "Instance vs Model Based Learning",
+        "summary": "How ML systems generalize from training data to predict unseen data.",
+        "theory": [
+            "### 1. Instance-Based Learning\n",
+            "The system learns the training examples by heart, then generalizes to new cases by comparing them using a similarity metric (e.g. Euclidean distance).\n",
+            "- **Example**: k-Nearest Neighbors (k-NN).\n",
+            "- No training time (lazy learner), but high inference time.\n",
+            "\n",
+            "### 2. Model-Based Learning\n",
+            "The system builds a model (parameterized mathematical equation) from the training data, then uses that model to make predictions.\n",
+            "- **Example**: Linear Regression ($y = w_1 x + w_0$).\n",
+            "- Long training time (eager learner) to optimize weights, but instant inference time."
+        ],
+        "code": [
+            "# Simulate instance-based lookup\n",
+            "training_instances = {\"x\": [1, 2, 3], \"y\": [2, 4, 6]}\n",
+            "def predict_instance(new_x):\n",
+            "    # Simple nearest neighbor lookup\n",
+            "    dists = [abs(x - new_x) for x in training_instances[\"x\"]]\n",
+            "    min_idx = dists.index(min(dists))\n",
+            "    return training_instances[\"y\"][min_idx]\n",
+            "\n",
+            "print(\"Instance-based prediction for 2.2:\", predict_instance(2.2))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain why model-based learning is typically preferred over instance-based learning for low-latency web applications."
+        ],
+        "exercise_code": [
+            "print(\"Model-based requires only a single mathematical operation at inference, making it extremely fast compared to searching through millions of stored training records.\")\n"
+        ]
+    },
+    7: {
+        "title": "Challenges in ML",
+        "summary": "Common pitfalls in machine learning pipelines, including bad data, overfitting, and underfitting.",
+        "theory": [
+            "### Common Challenges\n",
+            "1. **Insufficient Quantity of Data**: Models need thousands of examples to learn patterns.\n",
+            "2. **Nonrepresentative Training Data**: Leads to sampling bias.\n",
+            "3. **Poor Quality Data**: Noisy data, outliers, or missing features degrade model capacity.\n",
+            "4. **Irrelevant Features**: 'Garbage in, garbage out'. Requires Feature Selection.\n",
+            "5. **Overfitting**: Model performs well on training data but poorly on test data. Fixed by regularization, simple models, or more data.\n",
+            "6. **Underfitting**: Model is too simple to learn the underlying structure. Fixed by complex models or better features."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "\n",
+            "# Visualizing underfitting vs overfitting conceptually\n",
+            "x = np.linspace(-3, 3, 20)\n",
+            "y = 0.5 * x**3 - x + np.random.normal(0, 0.5, 20)\n",
+            "\n",
+            "plt.scatter(x, y, color='red', label='Data points')\n",
+            "plt.plot(x, 0.5*x, label='Underfit (Linear)', color='blue')\n",
+            "plt.plot(x, 0.5*x**3 - x, label='Perfect Fit (Cubic)', color='green')\n",
+            "plt.legend()\n",
+            "plt.title(\"Concept: Underfitting vs Perfect Fit\")\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Mention two ways to combat overfitting in machine learning models."
+        ],
+        "exercise_code": [
+            "print(\"1. Regularization (L1/L2 penalty)\")\n",
+            "print(\"2. Gather more training data, or simplify the model architecture.\")\n"
+        ]
+    },
+    8: {
+        "title": "Applications of ML",
+        "summary": "Case studies of machine learning across healthcare, finance, transport, and language processing.",
+        "theory": [
+            "### Industry Applications\n",
+            "- **Healthcare**: Tumor detection from MRI scans, drug discovery.\n",
+            "- **Finance**: Algorithmic trading, credit scoring.\n",
+            "- **Autonomous Vehicles**: Pedestrian detection, lane tracking.\n",
+            "- **Natural Language Processing (NLP)**: Translation, sentiment analysis."
+        ],
+        "code": [
+            "print(\"Industrial ML requires high reliability and model monitoring metrics.\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Name one ethical concern associated with deploying ML in credit scoring or resume screening."
+        ],
+        "exercise_code": [
+            "print(\"Bias and Discrimination: If historical training data contains biases, the model will learn and perpetuate them.\")\n"
+        ]
+    },
+    9: {
+        "title": "ML Development Life Cycle",
+        "summary": "Step-by-step pipeline of building an ML product from problem definition to monitoring.",
+        "theory": [
+            "### The Lifecycle Pipeline\n",
+            "```\n",
+            "[1. Define Problem] -> [2. Collect Data] -> [3. Prepare/Clean Data] \n",
+            "                                                  |\n",
+            "                                                  v\n",
+            "[6. Monitor] <- [5. Deploy] <- [4. Train & Evaluate Model]\n",
+            "```\n",
+            "- **Problem Definition**: What are we trying to predict? How will we measure success?\n",
+            "- **Data Prep**: Handling missing values, scaling, encoding.\n",
+            "- **Model Training**: Hyperparameter tuning, validating models.\n",
+            "- **Deployment & Monitoring**: Serving model endpoints, tracking model drift over time."
+        ],
+        "code": [
+            "steps = [\n",
+            "    \"1. Define Problem\", \"2. Collect Data\", \"3. Prepare Data\",\n",
+            "    \"4. Train & Evaluate\", \"5. Deploy\", \"6. Monitor & Retrain\"\n",
+            "]\n",
+            "for idx, step in enumerate(steps, 1):\n",
+            "    print(f\"Step {idx}: {step}\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is monitoring crucial after deployment? (Hint: Data drift / Concept drift)."
+        ],
+        "exercise_code": [
+            "print(\"Data drift occurs when real-world data distribution changes over time, causing accuracy to degrade. Monitoring alerts us when to retrain the model.\")\n"
+        ]
+    },
+    10: {
+        "title": "Stanford CS229 Lec 1: Full ML intro, framing problems",
+        "summary": "Notes on Andrew Ng's CS229 Lecture 1 covering syllabus, problem framing, and linear classification vs regression.",
+        "theory": [
+            "### CS229 Lecture 1 Takeaways\n",
+            "- **Supervised Learning**: Learn mapping function from $X$ to $y$. Example: housing prediction.\n",
+            "- **Unsupervised Learning**: Learn structures, like grouping. Example: microarray gene grouping, social network analysis.\n",
+            "- **Reinforcement Learning**: Uses rewards. Example: helicopter autopilot.\n",
+            "- **Problem Formulation**: Choose features $x^{(i)}$ and target labels $y^{(i)}$ carefully. Ensure the data is clean and matches the task objective."
+        ],
+        "code": [
+            "print(\"CS229 is the gold standard course for ML mathematical foundations.\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. If we have a dataset of tumors labeled benign or malignant, which learning paradigm is this?"
+        ],
+        "exercise_code": [
+            "print(\"Supervised learning (specifically Classification)\")\n"
+        ]
+    },
+    11: {
+        "title": "Linear Algebra: Vectors, Dot Product, Vector Norms, Matrix Operations",
+        "summary": "Mathematical basics of vectors, matrices, dot products, matrix multiplication, and Vector Norms.",
+        "theory": [
+            "### 1. Vectors & Dot Product\n",
+            "A vector $\\mathbf{x} \\in \\mathbb{R}^n$ is an ordered sequence of numbers. \n",
+            "The **dot product** of two vectors $\\mathbf{u}, \\mathbf{v} \\in \\mathbb{R}^n$ is:\n",
+            "$$\\mathbf{u} \\cdot \\mathbf{v} = \\sum_{i=1}^n u_i v_i = \\mathbf{u}^T \\mathbf{v}$$\n",
+            "\n",
+            "### 2. Vector Norms\n",
+            "Norms measure vector magnitude (size):\n",
+            "- **$L_1$ Norm (Manhattan)**: $\\|\\mathbf{x}\\|_1 = \\sum |x_i|$\n",
+            "- **$L_2$ Norm (Euclidean)**: $\\|\\mathbf{x}\\|_2 = \\sqrt{\\sum x_i^2}$\n",
+            "\n",
+            "### 3. Matrix Multiplication\n",
+            "If $A$ is $m \\times n$ and $B$ is $n \\times p$, then $C = AB$ is $m \\times p$:\n",
+            "$$C_{ij} = \\sum_{k=1}^n A_{ik} B_{kj}$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "u = np.array([1, 2, 3])\n",
+            "v = np.array([4, 5, 6])\n",
+            "\n",
+            "print(\"Dot Product:\", np.dot(u, v))\n",
+            "print(\"L1 Norm of u:\", np.linalg.norm(u, 1))\n",
+            "print(\"L2 Norm of u:\", np.linalg.norm(u, 2))\n",
+            "\n",
+            "A = np.array([[1, 2], [3, 4]])\n",
+            "B = np.array([[5, 6], [7, 8]])\n",
+            "print(\"Matrix Multiplication AB:\\n\", np.dot(A, B))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "\n",
+            "1. Calculate by hand and write a NumPy block to compute the Euclidean distance between $\\mathbf{p} = [1, 1]$ and $\\mathbf{q} = [4, 5]$."
+        ],
+        "exercise_code": [
+            "p = np.array([1, 1])\n",
+            "q = np.array([4, 5])\n",
+            "dist = np.linalg.norm(p - q)\n",
+            "print(\"Distance:\", dist)  # Should be 5.0 (sqrt(3^2 + 4^2))\n"
+        ]
+    },
+    12: {
+        "title": "Linear Algebra: Systems of Linear Equations, Matrix Inverse, Transpose",
+        "summary": "Representing systems of linear equations in matrix form, matrix transposition, identity matrices, and matrix inverses.",
+        "theory": [
+            "### 1. Matrix Transpose\n",
+            "The transpose $A^T$ of matrix $A$ swaps rows with columns: $(A^T)_{ij} = A_{ji}$.\n",
+            "Properties: $(AB)^T = B^T A^T$.\n",
+            "\n",
+            "### 2. Systems of Linear Equations\n",
+            "A system of equations can be written as:\n",
+            "$$A\\mathbf{x} = \\mathbf{b}$$\n",
+            "\n",
+            "### 3. Matrix Inverse\n",
+            "If $A$ is square, its inverse $A^{-1}$ satisfies:\n",
+            "$$A A^{-1} = A^{-1} A = I$$\n",
+            "where $I$ is the Identity matrix. If $\\det(A) \\neq 0$, the inverse exists, and:\n",
+            "$$\\mathbf{x} = A^{-1}\\mathbf{b}$$\n",
+            "In ML, inverses are crucial for solving Normal Equations in Linear Regression."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "A = np.array([[2, 1], [1, 3]])\n",
+            "b = np.array([5, 5])\n",
+            "\n",
+            "# Solve Ax = b\n",
+            "x = np.linalg.solve(A, b)\n",
+            "print(\"Solution x:\", x)\n",
+            "\n",
+            "# Transpose and Inverse\n",
+            "print(\"A Transpose:\\n\", A.T)\n",
+            "print(\"A Inverse:\\n\", np.linalg.inv(A))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Solve the system $2x + y = 8$, $x - y = 1$ using matrix inverse."
+        ],
+        "exercise_code": [
+            "A = np.array([[2, 1], [1, -1]])\n",
+            "b = np.array([8, 1])\n",
+            "x = np.dot(np.linalg.inv(A), b)\n",
+            "print(\"x, y:\", x)  # x=3, y=2\n"
+        ]
+    },
+    13: {
+        "title": "Linear Algebra: Determinants, Orthogonality, Eigenvalues and Eigenvectors",
+        "summary": "Determinants, orthogonal vectors, matrix decomposition, eigenvalues, and eigenvectors.",
+        "theory": [
+            "### 1. Determinants\n",
+            "The determinant $\\det(A)$ of a square matrix describes its scaling factor. If $\\det(A) = 0$, the matrix is singular (no inverse).\n",
+            "\n",
+            "### 2. Orthogonality\n",
+            "Two vectors are orthogonal if their dot product is zero: $\\mathbf{u} \\cdot \\mathbf{v} = 0$.\n",
+            "\n",
+            "### 3. Eigenvalues & Eigenvectors\n",
+            "For a square matrix $A$, a non-zero vector $\\mathbf{v}$ is an **eigenvector** if:\n",
+            "$$A\\mathbf{v} = \\lambda\\mathbf{v}$$\n",
+            "where $\\lambda$ is a scalar called the **eigenvalue**.\n",
+            "- Critical for Dimensionality Reduction (PCA) and Spectral Clustering."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "A = np.array([[4, 2], [1, 3]])\n",
+            "eigenvalues, eigenvectors = np.linalg.eig(A)\n",
+            "\n",
+            "print(\"Eigenvalues:\", eigenvalues)\n",
+            "print(\"Eigenvectors:\\n\", eigenvectors)\n",
+            "print(\"Determinant of A:\", np.linalg.det(A))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Define a symmetric matrix $S = \\begin{bmatrix} 2 & 1 \\\\ 1 & 2 \\end{bmatrix}$ and compute its eigenvalues. Verify that eigenvectors of symmetric matrices are orthogonal."
+        ],
+        "exercise_code": [
+            "S = np.array([[2, 1], [1, 2]])\n",
+            "vals, vecs = np.linalg.eig(S)\n",
+            "# vecs[:, 0] is first eigenvector, vecs[:, 1] is second\n",
+            "dot_prod = np.dot(vecs[:, 0], vecs[:, 1])\n",
+            "print(\"Dot product of eigenvectors (orthogonal):\", np.round(dot_prod, 5))\n"
+        ]
+    },
+    14: {
+        "title": "Calculus: Limits, Derivatives, and Differentiation Rules",
+        "summary": "Fundamentals of single-variable calculus, derivatives, power rule, product rule, and quotient rule.",
+        "theory": [
+            "### 1. Limits and Derivatives\n",
+            "The derivative of $f(x)$ measures the instantaneous rate of change of $f$ with respect to $x$:\n",
+            "$$f'(x) = \\lim_{h \\to 0} \\frac{f(x+h) - f(x)}{h}$$\n",
+            "\n",
+            "### 2. Standard Rules of Differentiation\n",
+            "- **Power Rule**: $\\frac{d}{dx}[x^n] = n x^{n-1}$\n",
+            "- **Constant Factor**: $\\frac{d}{dx}[c \\cdot f(x)] = c \\cdot f'(x)$\n",
+            "- **Sum/Difference Rule**: $\\frac{d}{dx}[f(x) \\pm g(x)] = f'(x) \\pm g'(x)$\n",
+            "- **Product Rule**: $\\frac{d}{dx}[f(x)g(x)] = f'(x)g(x) + f(x)g'(x)$\n",
+            "- **Quotient Rule**: $\\frac{d}{dx}[\\frac{f(x)}{g(x)}] = \\frac{f'(x)g(x) - f(x)g'(x)}{(g(x))^2}$"
+        ],
+        "code": [
+            "# Numerical differentiation in python\n",
+            "def f(x):\n",
+            "    return x**2 + 3*x\n",
+            "\n",
+            "def derivative(func, x, h=1e-5):\n",
+            "    return (func(x + h) - func(x)) / h\n",
+            "\n",
+            "print(\"Numerical derivative at x=2:\", derivative(f, 2))\n",
+            "print(\"Analytical derivative at x=2 (2x + 3):\", 2*2 + 3)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Find the derivative of $f(x) = 3x^3 - 5x^2 + 2$ at $x = 1$ analytically and verify numerically."
+        ],
+        "exercise_code": [
+            "func = lambda x: 3*(x**3) - 5*(x**2) + 2\n",
+            "print(\"Numerical:\", derivative(func, 1))\n"
+        ]
+    },
+    15: {
+        "title": "Calculus: Partial Derivatives, Gradients, and Chain Rule",
+        "summary": "Multi-variable derivatives, partial derivatives, the Gradient vector, and Multi-variable Chain Rule.",
+        "theory": [
+            "### 1. Partial Derivatives\n",
+            "For a function of multiple variables $f(x, y)$, the partial derivative $\\frac{\\partial f}{\\partial x}$ is computed by treating all other variables (like $y$) as constants.\n",
+            "\n",
+            "### 2. The Gradient\n",
+            "The **gradient** $\\nabla f(\\mathbf{x})$ is a vector of all partial derivatives:\n",
+            "$$\\nabla f(x, y) = \\begin{bmatrix} \\frac{\\partial f}{\\partial x} \\\\ \\frac{\\partial f}{\\partial y} \\end{bmatrix}$$\n",
+            "- The gradient points in the direction of steepest ascent.\n",
+            "- Used to update weights in Gradient Descent: $\\mathbf{w} \\leftarrow \\mathbf{w} - \\alpha \\nabla L(\\mathbf{w})$.\n",
+            "\n",
+            "### 3. Chain Rule\n",
+            "For nested functions $y = f(g(x))$:\n",
+            "$$\\frac{dy}{dx} = f'(g(x)) \\cdot g'(x)$$\n",
+            "Critical for backpropagation in neural networks."
+        ],
+        "code": [
+            "# Compute numerical gradient of f(x, y) = x^2 + 3xy + y^2 at (1, 2)\n",
+            "def f(x, y):\n",
+            "    return x**2 + 3*x*y + y**2\n",
+            "\n",
+            "h = 1e-5\n",
+            "grad_x = (f(1 + h, 2) - f(1, 2)) / h\n",
+            "grad_y = (f(1, 2 + h) - f(1, 2)) / h\n",
+            "\n",
+            "print(\"Numerical Gradient at (1, 2):\", [grad_x, grad_y])\n",
+            "print(\"Analytical Gradient at (1, 2) [2x+3y, 3x+2y]:\", [2*1 + 3*2, 3*1 + 2*2])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Given loss function $L(w) = (y - (w x + b))^2$. Calculate partial derivatives $\\frac{\\partial L}{\\partial w}$ and $\\frac{\\partial L}{\\partial b}$ using the chain rule."
+        ],
+        "exercise_code": [
+            "print(\"dL/dw = -2 * x * (y - (w*x + b))\")\n",
+            "print(\"dL/db = -2 * (y - (w*x + b))\")\n"
+        ]
+    },
+    16: {
+        "title": "Calculus: Optimization Basics (Maxima, Minima, Convexity)",
+        "summary": "Finding critical points, second derivative tests, and convexity in optimization problems.",
+        "theory": [
+            "### 1. Critical Points (Local Maxima/Minima)\n",
+            "A critical point of $f(x)$ occurs where $f'(x) = 0$:\n",
+            "- **Local Minimum**: $f'(x) = 0$ and $f''(x) > 0$ (concave up).\n",
+            "- **Local Maximum**: $f'(x) = 0$ and $f''(x) < 0$ (concave down).\n",
+            "\n",
+            "### 2. Convexity\n",
+            "A function $f(x)$ is **convex** if the line segment between any two points on its graph lies above or on the graph. \n",
+            "- In multi-variable calculus, $f$ is convex if its Hessian matrix $H$ (second derivative matrix) is positive semi-definite.\n",
+            "- **Convex Optimization**: Crucial in ML because any local minimum is guaranteed to be the global minimum (e.g. Linear Regression, SVM)."
+        ],
+        "code": [
+            "# Plotting a convex function f(x) = x^2\n",
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "\n",
+            "x = np.linspace(-10, 10, 100)\n",
+            "y = x**2\n",
+            "\n",
+            "plt.plot(x, y, label='f(x) = x^2 (Convex)')\n",
+            "plt.scatter([0], [0], color='red', zorder=5, label='Global Min (0, 0)')\n",
+            "plt.title(\"Convex Optimization Space\")\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Find the global minimum of $f(x) = x^2 - 4x + 7$ by setting the first derivative to zero."
+        ],
+        "exercise_code": [
+            "# f'(x) = 2x - 4 = 0 => x = 2\n",
+            "print(\"Global minimum x coordinate:\", 2)\n"
+        ]
+    },
+    17: {
+        "title": "Data types: structured or unstructured, quantitative or qualitative",
+        "summary": "Introduction to data classification types: structured databases vs unstructured media, and numerical vs categorical properties.",
+        "theory": [
+            "### Data Classification Schema\n",
+            "\n",
+            "```\n",
+            "              DATA TYPES\n",
+            "              /        \\\n",
+            "     Structured        Unstructured\n",
+            "     (Tables, CSV)     (Text, Images, Audio)\n",
+            "       /      \\ \n",
+            " Quantitative  Qualitative (Categorical)\n",
+            " (Numerical)   |-- Nominal (No order: e.g. Red, Blue)\n",
+            "   |           |-- Ordinal (Ordered: e.g. Low, High)\n",
+            "   |-- Discrete (Counts: e.g. 5 children)\n",
+            "   |-- Continuous (Measurements: e.g. 1.75 meters)\n",
+            "```\n",
+            "- **Structured Data**: Fits in row-column database schemas.\n",
+            "- **Unstructured Data**: Raw media. Needs special preprocessing (feature extraction) to be used in ML.\n",
+            "- **Quantitative**: Numerical data (Discrete vs Continuous).\n",
+            "- **Qualitative**: Categorical data (Nominal vs Ordinal)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "df = pd.DataFrame({\n",
+            "    \"Height (Continuous)\": [1.75, 1.82, 1.68],\n",
+            "    \"Children (Discrete)\": [2, 0, 3],\n",
+            "    \"Education (Ordinal)\": [\"BSc\", \"PhD\", \"MSc\"],\n",
+            "    \"City (Nominal)\": [\"Karachi\", \"Lahore\", \"Islamabad\"]\n",
+            "})\n",
+            "print(df)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Classify the variable: Movie Rating (1 star, 2 stars, 3 stars...).\n",
+            "2. Classify the variable: Daily temperature in Celsius."
+        ],
+        "exercise_code": [
+            "print(\"1. Qualitative Ordinal\")\n",
+            "print(\"2. Quantitative Continuous\")\n"
+        ]
+    },
+    18: {
+        "title": "Statistics and its types",
+        "summary": "Boundaries and definition of Descriptive Statistics vs Inferential Statistics.",
+        "theory": [
+            "### Types of Statistics\n",
+            "\n",
+            "### 1. Descriptive Statistics\n",
+            "Methods to summarize and describe the features of a specific dataset:\n",
+            "- Measures of Central Tendency: Mean, Median, Mode.\n",
+            "- Measures of Dispersion: Variance, Standard Deviation, Range.\n",
+            "- Distribution shapes: Skewness, Kurtosis.\n",
+            "\n",
+            "### 2. Inferential Statistics\n",
+            "Methods to make predictions or draw conclusions about a larger population based on a sample of data:\n",
+            "- Hypothesis Testing (z-test, t-test, Chi square).\n",
+            "- Confidence Intervals.\n",
+            "- Point Estimations."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "data = [2, 4, 4, 4, 5, 5, 7, 9]\n",
+            "print(\"Descriptive Mean:\", np.mean(data))\n",
+            "print(\"Descriptive StdDev:\", np.std(data))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Classify: A survey of 100 voters shows 52% support candidate A, and we conclude candidate A has a 95% chance of winning the city-wide election. (Descriptive or Inferential?)"
+        ],
+        "exercise_code": [
+            "print(\"Inferential Statistics (making inferences about population from sample)\")\n"
+        ]
+    },
+    19: {
+        "title": "Mean, Median, Mode",
+        "summary": "Measures of central tendency: mathematical formulation and application to data.",
+        "theory": [
+            "### Measures of Central Tendency\n",
+            "\n",
+            "### 1. Mean (Arithmetic Average)\n",
+            "$$\\mu = \\frac{1}{N} \\sum_{i=1}^N x_i$$\n",
+            "- Sensitive to extreme outliers.\n",
+            "\n",
+            "### 2. Median (Middle Value)\n",
+            "The middle value when data is sorted in ascending order. If $N$ is even, it is the average of the two middle values.\n",
+            "- **Robust to outliers**.\n",
+            "\n",
+            "### 3. Mode (Most Frequent)\n",
+            "The value that occurs most frequently in the dataset.\n",
+            "- Useful for categorical data."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from scipy import stats\n",
+            "\n",
+            "dataset = [1, 2, 2, 3, 4, 100]  # 100 is an outlier\n",
+            "\n",
+            "print(\"Mean:\", np.mean(dataset))\n",
+            "print(\"Median:\", np.median(dataset))  # Much more representative middle\n",
+            "print(\"Mode:\", stats.mode(dataset, keepdims=True).mode[0])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the mean and median of the list: `[10, 20, 30, 40, 50, 1000]`. Discuss which metric is better here."
+        ],
+        "exercise_code": [
+            "vals = [10, 20, 30, 40, 50, 1000]\n",
+            "print(\"Mean:\", np.mean(vals))\n",
+            "print(\"Median:\", np.median(vals))\n"
+        ]
+    },
+    20: {
+        "title": "Variance and Standard Deviation",
+        "summary": "Measures of data dispersion: Variance and Standard Deviation formulations for populations and samples.",
+        "theory": [
+            "### 1. Population Variance ($\\sigma^2$)\n",
+            "Average of squared differences from the Mean:\n",
+            "$$\\sigma^2 = \\frac{1}{N} \\sum_{i=1}^N (x_i - \\mu)^2$$\n",
+            "\n",
+            "### 2. Sample Variance ($s^2$)\n",
+            "Uses Bessel's correction ($N-1$ in denominator) to provide an unbiased estimate:\n",
+            "$$s^2 = \\frac{1}{N-1} \\sum_{i=1}^n (x_i - \\bar{x})^2$$\n",
+            "\n",
+            "### 3. Standard Deviation ($\\sigma$ or $s$)\n",
+            "The square root of the variance, returning dispersion to the original measurement units:\n",
+            "$$\\sigma = \\sqrt{\\sigma^2}$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "data = [2, 4, 4, 6, 8]\n",
+            "\n",
+            "print(\"Population Variance:\", np.var(data))\n",
+            "print(\"Sample Variance (ddof=1):\", np.var(data, ddof=1))\n",
+            "print(\"Standard Deviation:\", np.std(data))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Given a dataset: `[5, 10, 15]`. Compute the sample variance and sample standard deviation by hand, then check with NumPy."
+        ],
+        "exercise_code": [
+            "data = [5, 10, 15]\n",
+            "print(\"Sample Variance:\", np.var(data, ddof=1))  # (5^2 + 0^2 + 5^2)/(3-1) = 50/2 = 25\n",
+            "print(\"Sample StdDev:\", np.std(data, ddof=1))    # sqrt(25) = 5\n"
+        ]
+    },
+    21: {
+        "title": "Coefficient of variation, Z score, Percentile, Quartile",
+        "summary": "Descriptive statistics measurements: relative variance, standardizing data, and positional splits.",
+        "theory": [
+            "### 1. Coefficient of Variation (CV)\n",
+            "Relative standard deviation (dimensionless): $CV = \\frac{\\sigma}{\\mu}$. Used to compare variance across different scales.\n",
+            "\n",
+            "### 2. Z Score\n",
+            "Measures how many standard deviations a data point $x$ is from the mean:\n",
+            "$$z = \\frac{x - \\mu}{\\sigma}$$\n",
+            "- Used to detect outliers (typically $|z| > 3$).\n",
+            "\n",
+            "### 3. Percentiles and Quartiles\n",
+            "- **Percentile**: The value below which a percentage of data falls (e.g. 90th percentile).\n",
+            "- **Quartiles**: Splits sorted data into four equal groups:\n",
+            "  - $Q_1$: 25th percentile (lower quartile).\n",
+            "  - $Q_2$: 50th percentile (Median).\n",
+            "  - $Q_3$: 75th percentile (upper quartile)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "data = [10, 12, 14, 15, 18, 20, 22, 100]  # 100 is outlier\n",
+            "\n",
+            "# Calculate Z scores\n",
+            "mean = np.mean(data)\n",
+            "std = np.std(data)\n",
+            "z_scores = [(x - mean) / std for x in data]\n",
+            "print(\"Z scores:\", np.round(z_scores, 2))\n",
+            "\n",
+            "# Percentiles\n",
+            "print(\"25th percentile (Q1):\", np.percentile(data, 25))\n",
+            "print(\"75th percentile (Q3):\", np.percentile(data, 75))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Using z-score threshold $>2$, find the outliers in `data = [10, 12, 14, 15, 18, 20, 22, 100]`."
+        ],
+        "exercise_code": [
+            "outliers = [x for x in data if abs((x - mean)/std) > 2]\n",
+            "print(\"Outliers:\", outliers)\n"
+        ]
+    },
+    22: {
+        "title": "Skewness and Kurtosis",
+        "summary": "Measures of distribution shape: asymmetry (skewness) and tail weight (kurtosis).",
+        "theory": [
+            "### 1. Skewness (Measure of Asymmetry)\n",
+            "- **Positive (Right) Skew**: Tail extends to the right. $\\text{Mean} > \\text{Median} > \\text{Mode}$.\n",
+            "- **Negative (Left) Skew**: Tail extends to the left. $\\text{Mean} < \\text{Median} < \\text{Mode}$.\n",
+            "- **Symmetric**: Skewness $\\approx 0$.\n",
+            "\n",
+            "### 2. Kurtosis (Measure of Tailedness)\n",
+            "Measures the thickness/weight of the tails of a distribution relative to a Normal distribution:\n",
+            "- **Mesokurtic**: Kurtosis $= 3$ (Normal distribution).\n",
+            "- **Leptokurtic**: Kurtosis $> 3$ (heavy tails, high peak).\n",
+            "- **Platykurtic**: Kurtosis $< 3$ (thin tails, flat peak)."
+        ],
+        "code": [
+            "from scipy.stats import skew, kurtosis\n",
+            "import numpy as np\n",
+            "\n",
+            "# Generate asymmetric right-skewed data\n",
+            "data = np.random.exponential(scale=2, size=1000)\n",
+            "print(\"Skewness:\", skew(data))\n",
+            "print(\"Kurtosis:\", kurtosis(data))  # excess kurtosis (kurtosis - 3)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. If a stock's returns have high positive Kurtosis, what does that mean for an investor? (Hint: extreme market movements / outliers)."
+        ],
+        "exercise_code": [
+            "print(\"High kurtosis indicates high probability of extreme values (outliers), indicating higher investment risk.\")\n"
+        ]
+    },
+    23: {
+        "title": "Correlation Coefficient: Pearson's",
+        "summary": "Quantifying the linear relationship between two variables using Pearson's correlation coefficient.",
+        "theory": [
+            "### Pearson Correlation Coefficient ($r$)\n",
+            "Measures the strength and direction of the linear relationship between two continuous variables:\n",
+            "$$r = \\frac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sqrt{\\sum (x_i - \\bar{x})^2 \\sum (y_i - \\bar{y})^2}}$$\n",
+            "- Range: $[-1, 1]$.\n",
+            "- $r = 1$: Perfect positive linear correlation.\n",
+            "- $r = -1$: Perfect negative linear correlation.\n",
+            "- $r = 0$: No linear correlation."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "x = np.array([1, 2, 3, 4, 5])\n",
+            "y = np.array([2.1, 3.9, 6.2, 8.1, 9.9])  # highly correlated\n",
+            "\n",
+            "r = np.corrcoef(x, y)[0, 1]\n",
+            "print(\"Pearson correlation coefficient r:\", r)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. If $y = -2x + 5$, what is the Pearson correlation coefficient between $x$ and $y$?"
+        ],
+        "exercise_code": [
+            "print(\"r = -1.0 (perfect negative linear relationship)\")\n"
+        ]
+    },
+    24: {
+        "title": "Covariance",
+        "summary": "Measures how two variables move together: direction of linear relationship.",
+        "theory": [
+            "### Covariance\n",
+            "Covariance measures the joint variability of two random variables:\n",
+            "$$\\text{Cov}(X, Y) = \\frac{1}{N} \\sum_{i=1}^N (x_i - \\mu_x)(y_i - \\mu_y)$$\n",
+            "- **Positive Covariance**: As $X$ increases, $Y$ tends to increase.\n",
+            "- **Negative Covariance**: As $X$ increases, $Y$ tends to decrease.\n",
+            "- Unlike correlation, covariance is **scale-dependent** (changing data units changes the covariance value)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "x = np.array([1, 2, 3, 4, 5])\n",
+            "y = np.array([2, 4, 6, 8, 10])\n",
+            "\n",
+            "cov_matrix = np.cov(x, y, ddof=0)\n",
+            "print(\"Covariance Matrix:\\n\", cov_matrix)\n",
+            "print(\"Cov(x, y):\", cov_matrix[0, 1])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Show mathematically that $\\text{Cov}(X, X) = \\text{Var}(X)$."
+        ],
+        "exercise_code": [
+            "print(\"Cov(X, X) = E[(X - ux)(X - ux)] = E[(X - ux)^2] = Var(X)\")\n"
+        ]
+    },
+    25: {
+        "title": "Probability basics",
+        "summary": "Fundamental rules of probability, sample spaces, and events.",
+        "theory": [
+            "### Probability Foundations\n",
+            "- **Sample Space ($S$)**: Set of all possible outcomes (e.g. for a coin toss: $\\{H, T\\}$).\n",
+            "- **Event ($A$)**: A subset of the sample space.\n",
+            "- **Probability of Event ($P(A)$)**:\n",
+            "  $$0 \\le P(A) \\le 1$$\n",
+            "  $$P(S) = 1$$\n",
+            "- **Complement Rule**: $P(A^c) = 1 - P(A)$.\n",
+            "- **Addition Rule**: $P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$."
+        ],
+        "code": [
+            "# Simulate roll of a fair die\n",
+            "import numpy as np\n",
+            "rolls = np.random.randint(1, 7, size=10000)\n",
+            "prob_even = np.sum(rolls % 2 == 0) / len(rolls)\n",
+            "print(\"Simulated Probability of rolling an even number:\", prob_even)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Two cards are drawn from a standard 52-card deck. What is the probability that both are Aces if the first card is replaced before drawing the second?"
+        ],
+        "exercise_code": [
+            "prob = (4/52) * (4/52)\n",
+            "print(\"Probability:\", prob)\n"
+        ]
+    },
+    26: {
+        "title": "Joint, Marginal and Conditional Probability",
+        "summary": "Multi-event spaces: calculating combined probabilities, slice probabilities, and dependencies.",
+        "theory": [
+            "### Probabilities in Multi-Event Spaces\n",
+            "\n",
+            "### 1. Joint Probability\n",
+            "The probability of two events occurring simultaneously: $P(A \\cap B)$ or $P(A, B)$.\n",
+            "\n",
+            "### 2. Marginal Probability\n",
+            "The probability of a single event occurring, ignoring other variables:\n",
+            "$$P(A) = \\sum_b P(A, B=b)$$\n",
+            "\n",
+            "### 3. Conditional Probability\n",
+            "The probability of event $A$ occurring given that event $B$ has already occurred:\n",
+            "$$P(A | B) = \\frac{P(A \\cap B)}{P(B)}$$\n",
+            "- **Independent Events**: If $A$ and $B$ are independent, $P(A | B) = P(A)$, and $P(A \\cap B) = P(A)P(B)$."
+        ],
+        "code": [
+            "# Simple contingency table simulation\n",
+            "# rows: Gender (0=Male, 1=Female), cols: Prefers Python (0=No, 1=Yes)\n",
+            "table = np.array([[30, 20], [10, 40]])  # sum = 100\n",
+            "\n",
+            "joint_prob_female_python = table[1, 1] / 100  # P(F, Yes)\n",
+            "marginal_prob_python = np.sum(table[:, 1]) / 100  # P(Yes)\n",
+            "conditional_female_given_python = table[1, 1] / np.sum(table[:, 1])  # P(F | Yes)\n",
+            "\n",
+            "print(\"Joint Probability P(Female, Yes):\", joint_prob_female_python)\n",
+            "print(\"Marginal Probability P(Yes):\", marginal_prob_python)\n",
+            "print(\"Conditional Probability P(Female | Yes):\", conditional_female_given_python)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Given $P(A) = 0.6$, $P(B) = 0.4$, and $P(A \\cap B) = 0.2$. Find $P(A | B)$."
+        ],
+        "exercise_code": [
+            "p_a_given_b = 0.2 / 0.4\n",
+            "print(\"P(A|B):\", p_a_given_b)  # 0.5\n"
+        ]
+    },
+    27: {
+        "title": "Bayes Theorem",
+        "summary": "Inverting conditional probabilities using prior belief and likelihood inputs.",
+        "theory": [
+            "### Bayes' Theorem\n",
+            "Allows us to update our probability beliefs for a hypothesis $H$ given new evidence $E$:\n",
+            "$$P(H | E) = \\frac{P(E | H) P(H)}{P(E)}$$\n",
+            "\n",
+            "- $P(H | E)$: **Posterior probability** (probability of hypothesis given evidence).\n",
+            "- $P(E | H)$: **Likelihood** (probability of evidence given hypothesis).\n",
+            "- $P(H)$: **Prior probability** (initial probability of hypothesis before evidence).\n",
+            "- $P(E)$: **Marginal likelihood** (normalizing constant): $P(E) = P(E|H)P(H) + P(E|H^c)P(H^c)$.\n",
+            "\n",
+            "Crucial for Bayesian Classifiers (Naive Bayes) in classification pipelines."
+        ],
+        "code": [
+            "# Cancer screening problem\n",
+            "# H: has cancer, E: positive test\n",
+            "# P(H) = 0.01 (prior)\n",
+            "# P(E | H) = 0.95 (sensitivity / likelihood)\n",
+            "# P(E | not H) = 0.05 (false positive rate)\n",
+            "\n",
+            "p_h = 0.01\n",
+            "p_e_given_h = 0.95\n",
+            "p_e_given_not_h = 0.05\n",
+            "\n",
+            "# P(E) = P(E|H)P(H) + P(E|not H)P(not H)\n",
+            "p_e = (p_e_given_h * p_h) + (p_e_given_not_h * (1 - p_h))\n",
+            "\n",
+            "p_h_given_e = (p_e_given_h * p_h) / p_e\n",
+            "print(\"Posterior Probability P(Cancer | Positive Test):\", round(p_h_given_e, 4))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. A spam filter detects 99% of spam emails. 1% of normal emails are falsely marked as spam. If 10% of all incoming emails are spam, what is the probability that an email marked as spam is actually spam?"
+        ],
+        "exercise_code": [
+            "p_spam = 0.10\n",
+            "p_s_given_spam = 0.99\n",
+            "p_s_given_ham = 0.01\n",
+            "p_s = (p_s_given_spam * p_spam) + (p_s_given_ham * (1 - p_spam))\n",
+            "p_spam_given_s = (p_s_given_spam * p_spam) / p_s\n",
+            "print(\"P(Spam | Marked Spam):\", round(p_spam_given_s, 4))  # ~91.6%\n"
+        ]
+    },
+    28: {
+        "title": "Probability distributions: Discrete and Continuous",
+        "summary": "Probability mass functions vs probability density functions, and common distributions.",
+        "theory": [
+            "### Probability Distributions\n",
+            "\n",
+            "### 1. Discrete Distributions\n",
+            "Variables take countable values. Described by a **Probability Mass Function (PMF)** where $\\sum P(X=x) = 1$.\n",
+            "- **Bernoulli**: Single trial with binary outcome (success $p$, failure $1-p$).\n",
+            "- **Binomial**: Number of successes in $n$ independent Bernoulli trials.\n",
+            "\n",
+            "### 2. Continuous Distributions\n",
+            "Variables take uncountable values in an interval. Described by a **Probability Density Function (PDF)** where $\\int_{-\\infty}^{\\infty} f(x) dx = 1$.\n",
+            "- **Normal (Gaussian)**: Bell-shaped curve centered at mean $\\mu$ with standard deviation $\\sigma$.\n",
+            "- **Uniform**: Equal probability density over an interval $[a, b]$."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "import scipy.stats as stats\n",
+            "\n",
+            "# Generate normal distribution PDF\n",
+            "x = np.linspace(-4, 4, 100)\n",
+            "y = stats.norm.pdf(x, 0, 1)\n",
+            "\n",
+            "plt.plot(x, y, label='Standard Normal PDF')\n",
+            "plt.title(\"Normal Distribution\")\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Generate a binomial distribution PMF for $n=10$ trials and $p=0.5$ using `scipy.stats.binom` and print probabilities of getting exactly 5 heads."
+        ],
+        "exercise_code": [
+            "import scipy.stats as stats\n",
+            "prob_5 = stats.binom.pmf(5, n=10, p=0.5)\n",
+            "print(\"P(X=5) for Binomial(10, 0.5):\", prob_5)\n"
+        ]
+    },
+    29: {
+        "title": "Bayesian Probability deep dive",
+        "summary": "Theoretical contrast between Frequentist and Bayesian philosophies, and conjugate priors.",
+        "theory": [
+            "### Frequentist vs Bayesian Views\n",
+            "- **Frequentist**: Probability represents the limit of relative frequency in infinite repeated trials. Parameters are fixed but unknown.\n",
+            "- **Bayesian**: Probability measures degrees of belief or certainty. Parameters are treated as random variables with distributions.\n",
+            "\n",
+            "### Conjugate Priors\n",
+            "In Bayesian inference, if the posterior distribution is in the same probability family as the prior distribution, the prior is called a **conjugate prior** for the likelihood.\n",
+            "- **Example**: Beta prior is conjugate to Binomial likelihood (Beta-Binomial update: $\\alpha_{post} = \\alpha_{prior} + \\text{successes}$, $\\beta_{post} = \\beta_{prior} + \\text{failures}$)."
+        ],
+        "code": [
+            "# Beta-Binomial Conjugate Update\n",
+            "# Prior: Beta(2, 2) (Uniform-ish)\n",
+            "# Experiment: 8 successes, 2 failures\n",
+            "prior_alpha, prior_beta = 2, 2\n",
+            "successes, failures = 8, 2\n",
+            "\n",
+            "post_alpha = prior_alpha + successes\n",
+            "post_beta = prior_beta + failures\n",
+            "print(f\"Posterior Distribution parameters: Beta({post_alpha}, {post_beta})\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain why treating parameters as random variables (the Bayesian approach) is useful when training models on small datasets."
+        ],
+        "exercise_code": [
+            "print(\"It allows us to incorporate prior domain knowledge (via the prior) which prevents the model from overfitting to the small dataset.\")\n"
+        ]
+    },
+    30: {
+        "title": "Univariate, Bivariate, Multivariate Analysis",
+        "summary": "Exploring datasets by analyzing one, two, or multiple variables simultaneously.",
+        "theory": [
+            "### Exploratory Data Analysis (EDA) Dimensions\n",
+            "\n",
+            "### 1. Univariate Analysis\n",
+            "Analyzing a single variable in isolation. Looks at shape, central tendency, frequency.\n",
+            "- **Plots**: Histograms, box plots, count plots.\n",
+            "\n",
+            "### 2. Bivariate Analysis\n",
+            "Analyzing the relationship between two variables.\n",
+            "- **Plots**: Scatter plots, line plots, bar plots, cross-tabs.\n",
+            "\n",
+            "### 3. Multivariate Analysis\n",
+            "Analyzing relationships between three or more variables simultaneously.\n",
+            "- **Plots**: Pair plots, 3D scatter plots, heatmaps of correlation matrices."
+        ],
+        "code": [
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "import pandas as pd\n",
+            "import numpy as np\n",
+            "\n",
+            "# Generate dummy dataset\n",
+            "np.random.seed(42)\n",
+            "df = pd.DataFrame({\n",
+            "    \"Size\": np.random.normal(150, 20, 100),\n",
+            "    \"Price\": np.random.normal(300, 50, 100),\n",
+            "    \"Rooms\": np.random.choice([2, 3, 4], 100)\n",
+            "})\n",
+            "\n",
+            "# Bivariate Scatter Plot\n",
+            "sns.scatterplot(data=df, x=\"Size\", y=\"Price\", hue=\"Rooms\", palette=\"viridis\")\n",
+            "plt.title(\"Bivariate/Multivariate Plot\")\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Use `sns.heatmap` to plot the correlation matrix of the generated dataframe `df`."
+        ],
+        "exercise_code": [
+            "sns.heatmap(df.corr(), annot=True, cmap=\"coolwarm\")\n",
+            "plt.show()\n"
+        ]
+    },
+    31: {
+        "title": "Sampling techniques",
+        "summary": "Methods of selecting subsets of data to represent populations: probability vs non-probability sampling.",
+        "theory": [
+            "### Probability Sampling Techniques\n",
+            "1. **Simple Random Sampling (SRS)**: Every member of the population has an equal chance of selection.\n",
+            "2. **Stratified Sampling**: Population is divided into subgroups (strata), and SRS is applied to each stratum (critical for ML train/test splits to avoid class imbalance biases).\n",
+            "3. **Systematic Sampling**: Members are selected at regular intervals (e.g. every $k$-th item).\n",
+            "4. **Cluster Sampling**: Population is divided into clusters, and random clusters are chosen entirely."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "df = pd.DataFrame({\n",
+            "    \"ID\": range(1, 11),\n",
+            "    \"Class\": ['A', 'A', 'A', 'A', 'B', 'B', 'B', 'B', 'B', 'B']\n",
+            "})\n",
+            "\n",
+            "# Stratified Sample using pandas groupby\n",
+            "stratified_sample = df.groupby('Class', group_keys=False).apply(lambda x: x.sample(2))\n",
+            "print(\"Stratified Sample (2 from each class):\\n\", stratified_sample)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is stratified sampling preferred over simple random sampling when dealing with highly imbalanced classification targets (e.g., fraud detection)?"
+        ],
+        "exercise_code": [
+            "print(\"Stratified sampling ensures the train/test sets preserve the minority class ratio, preventing training/testing sets from having zero fraud cases.\")\n"
+        ]
+    },
+    32: {
+        "title": "Point and Interval Estimate",
+        "summary": "Estimating population parameters: single value points vs range intervals.",
+        "theory": [
+            "### Estimation Theory\n",
+            "\n",
+            "### 1. Point Estimate\n",
+            "A single value calculated from sample data that serves as the best guess for an unknown population parameter.\n",
+            "- **Example**: The sample mean $\\bar{x}$ is a point estimate of the population mean $\\mu$.\n",
+            "\n",
+            "### 2. Interval Estimate (Confidence Interval)\n",
+            "A range of values, derived from sample statistics, that is likely to contain the population parameter.\n",
+            "- Form: $\\text{Point Estimate} \\pm \\text{Margin of Error}$."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "sample = [1.2, 1.5, 1.4, 1.8, 1.6]\n",
+            "print(\"Point Estimate of Mean:\", np.mean(sample))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. True or False: A larger sample size generally decreases the margin of error of an interval estimate."
+        ],
+        "exercise_code": [
+            "print(\"True (standard error decreases as sample size increases)\")\n"
+        ]
+    },
+    33: {
+        "title": "Margin of Error",
+        "summary": "Determining sample deviation bounds and precision limits.",
+        "theory": [
+            "### Margin of Error (MoE)\n",
+            "Represents the maximum expected difference between the sample statistic and the true population parameter:\n",
+            "$$MoE = z^* \\times \\left(\\frac{\\sigma}{\\sqrt{n}}\\right)$$\n",
+            "where:\n",
+            "- $z^*$ is the critical value (z-score matching confidence level).\n",
+            "- $\\frac{\\sigma}{\\sqrt{n}}$ is the standard error.\n",
+            "- $n$ is the sample size."
+        ],
+        "code": [
+            "# Calculate MoE for 95% confidence (z*=1.96), sample size n=100, std=5\n",
+            "import math\n",
+            "z_critical = 1.96\n",
+            "std_dev = 5\n",
+            "n = 100\n",
+            "moe = z_critical * (std_dev / math.sqrt(n))\n",
+            "print(\"Margin of Error:\", moe)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. How does doubling the sample size $n$ affect the Margin of Error?"
+        ],
+        "exercise_code": [
+            "print(\"It reduces the Margin of Error by a factor of sqrt(2) (~1.414)\")\n"
+        ]
+    },
+    34: {
+        "title": "Confidence Interval",
+        "summary": "Constructing confidence intervals for population parameters.",
+        "theory": [
+            "### Confidence Interval (CI)\n",
+            "A confidence interval specifies the range of values within which a population parameter is expected to fall with a certain probability (confidence level, e.g. 95%):\n",
+            "$$CI = \\bar{x} \\pm z^* \\left(\\frac{s}{\\sqrt{n}}\\right)$$\n",
+            "- **95% Confidence interpretation**: If we take 100 independent samples and construct a 95% CI for each, approximately 95 of those intervals will contain the true population mean."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import scipy.stats as stats\n",
+            "\n",
+            "data = [12, 15, 14, 16, 18, 15, 13, 14, 15, 16]\n",
+            "mean = np.mean(data)\n",
+            "sem = stats.sem(data)  # standard error of the mean\n",
+            "ci = stats.t.interval(0.95, df=len(data)-1, loc=mean, scale=sem)\n",
+            "print(\"95% Confidence Interval for mean:\", ci)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the 99% confidence interval for the same data using `stats.t.interval`."
+        ],
+        "exercise_code": [
+            "ci_99 = stats.t.interval(0.99, df=len(data)-1, loc=mean, scale=sem)\n",
+            "print(\"99% Confidence Interval:\", ci_99)\n"
+        ]
+    },
+    35: {
+        "title": "Hypothesis Testing full series",
+        "summary": "Formulating hypotheses, significance levels, type 1 and 2 errors, z-tests, and t-tests.",
+        "theory": [
+            "### Hypothesis Testing Framework\n",
+            "\n",
+            "### 1. Formulate Hypotheses\n",
+            "- **Null Hypothesis ($H_0$)**: Statement of no effect or no difference.\n",
+            "- **Alternative Hypothesis ($H_a$)**: What we want to prove.\n",
+            "\n",
+            "### 2. Error Types\n",
+            "- **Type I Error ($\\alpha$)**: Rejecting $H_0$ when it is actually true (false positive).\n",
+            "- **Type II Error ($\\beta$)**: Failing to reject $H_0$ when it is actually false (false negative).\n",
+            "\n",
+            "### 3. Z-test vs T-test\n",
+            "- **Z-test**: Used when sample size is large ($n \\ge 30$) or population variance $\\sigma$ is known.\n",
+            "- **T-test**: Used when sample size is small ($n < 30$) and population variance is unknown (uses sample standard deviation $s$)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import scipy.stats as stats\n",
+            "\n",
+            "# One-sample t-test\n",
+            "# H0: mean = 100\n",
+            "# Ha: mean != 100\n",
+            "scores = [102, 105, 98, 103, 101, 105, 99]\n",
+            "t_stat, p_value = stats.ttest_1samp(scores, 100)\n",
+            "print(\"T-statistic:\", t_stat)\n",
+            "print(\"p-value:\", p_value)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. If significance level $\\alpha = 0.05$, do we reject the null hypothesis $H_0$ based on the p-value computed above?"
+        ],
+        "exercise_code": [
+            "alpha = 0.05\n",
+            "print(\"Reject Null?\", p_value < alpha)  # If True, reject\n"
+        ]
+    },
+    36: {
+        "title": "Chi Square Test",
+        "summary": "Chi square test of independence and goodness-of-fit.",
+        "theory": [
+            "### Chi Square Test ($\\chi^2$)\n",
+            "Used to analyze categorical variables:\n",
+            "\n",
+            "### 1. Goodness-of-Fit Test\n",
+            "Determines if an observed frequency distribution matches an expected distribution.\n",
+            "\n",
+            "### 2. Test of Independence\n",
+            "Determines whether two categorical variables are independent or associated:\n",
+            "$$\\chi^2 = \\sum \\frac{(O - E)^2}{E}$$\n",
+            "where $O$ is observed frequencies, $E$ is expected frequencies."
+        ],
+        "code": [
+            "import scipy.stats as stats\n",
+            "import numpy as np\n",
+            "\n",
+            "# Contingency table: Columns=Smoking (Yes/No), Rows=Exercise (Low/High)\n",
+            "observed = np.array([[10, 30], [20, 40]])\n",
+            "chi2, p_val, dof, expected = stats.chi2_contingency(observed)\n",
+            "print(\"Chi2 Statistic:\", chi2)\n",
+            "print(\"p-value:\", p_val)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. At $\\alpha = 0.05$, are Smoking and Exercise level significantly associated based on the p-value above?"
+        ],
+        "exercise_code": [
+            "print(\"Significant Association?\", p_val < 0.05)\n"
+        ]
+    },
+    37: {
+        "title": "IQR and Outliers (stats perspective)",
+        "summary": "Detecting outliers using Interquartile Range boundaries.",
+        "theory": [
+            "### Outlier Detection using IQR\n",
+            "The **Interquartile Range (IQR)** measures statistical dispersion:\n",
+            "$$IQR = Q_3 - Q_1$$\n",
+            "\n",
+            "### Outlier Boundaries\n",
+            "Data points are classified as outliers if they fall outside the boundaries:\n",
+            "- **Lower Bound**: $Q_1 - 1.5 \\times IQR$\n",
+            "- **Upper Bound**: $Q_3 + 1.5 \\times IQR$\n",
+            "- In Box Plots, the whiskers represent these limits."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "data = [3, 5, 6, 7, 7, 8, 9, 25]  # 25 is outlier\n",
+            "\n",
+            "q1 = np.percentile(data, 25)\n",
+            "q3 = np.percentile(data, 75)\n",
+            "iqr = q3 - q1\n",
+            "lower_bound = q1 - 1.5 * iqr\n",
+            "upper_bound = q3 + 1.5 * iqr\n",
+            "\n",
+            "outliers = [x for x in data if x < lower_bound or x > upper_bound]\n",
+            "print(f\"IQR: {iqr}, Outlier Limits: [{lower_bound}, {upper_bound}]\")\n"
+            "print(\"Outliers identified:\", outliers)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Write a function `remove_outliers_iqr(dataset)` that takes a list, computes the IQR boundaries, and returns a new list with outliers removed."
+        ],
+        "exercise_code": [
+            "def remove_outliers_iqr(dataset):\n",
+            "    arr = np.array(dataset)\n",
+            "    q1, q3 = np.percentile(arr, [25, 75])\n",
+            "    iqr = q3 - q1\n",
+            "    filtered = arr[(arr >= q1 - 1.5*iqr) & (arr <= q3 + 1.5*iqr)]\n",
+            "    return list(filtered)\n",
+            "\n",
+            "print(\"Deduplicated dataset:\", remove_outliers_iqr([3, 5, 6, 7, 7, 8, 9, 25]))\n"
+        ]
+    }
+}
+
+def sanitize_filename(name):
+    """Clean the topic name to make it a valid filename."""
+    chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
+    cleaned = name.lower()
+    for char in chars_to_replace:
+        cleaned = cleaned.replace(char, "_")
+    while "__" in cleaned:
+        cleaned = cleaned.replace("__", "_")
+    return cleaned.strip("_")
+
+def migrate_completed_projects():
+    """Locate and move completed projects to their new locations."""
+    print("Migrating completed projects...")
+    
+    # 1. ThinkBoard
+    old_thinkboard = os.path.join(REPO_ROOT, "PHASE_1_Foundational_Core", "Projects", "ThinkBoard")
+    new_thinkboard_dir = os.path.join(REPO_ROOT, "PHASE_05_Data_Visualization", "Projects")
+    new_thinkboard = os.path.join(new_thinkboard_dir, "ThinkBoard")
+    if os.path.exists(old_thinkboard):
+        os.makedirs(new_thinkboard_dir, exist_ok=True)
+        if os.path.exists(new_thinkboard):
+            shutil.rmtree(new_thinkboard)
+        shutil.move(old_thinkboard, new_thinkboard)
+        print(f"Moved ThinkBoard to: {new_thinkboard}")
+        
+    # 2. Linear Algebra Operations
+    old_la = os.path.join(REPO_ROOT, "PHASE_1_Foundational_Core", "Projects", "Mini_Projects", "Linear_Algebra_Operations")
+    new_la_dir = os.path.join(REPO_ROOT, "PHASE_02_Math_Stats_Probability", "Projects")
+    new_la = os.path.join(new_la_dir, "Linear_Algebra_Operations")
+    if os.path.exists(old_la):
+        os.makedirs(new_la_dir, exist_ok=True)
+        if os.path.exists(new_la):
+            shutil.rmtree(new_la)
+        shutil.move(old_la, new_la)
+        print(f"Moved Linear_Algebra_Operations to: {new_la}")
+
+    # 3. Gradient Descent Simulation
+    old_gd = os.path.join(REPO_ROOT, "PHASE_1_Foundational_Core", "Projects", "Mini_Projects", "Gradient_Descent_Simulation")
+    new_gd_dir = os.path.join(REPO_ROOT, "PHASE_07_Regression_Algorithms", "Projects")
+    new_gd = os.path.join(new_gd_dir, "Gradient_Descent_Simulation")
+    if os.path.exists(old_gd):
+        os.makedirs(new_gd_dir, exist_ok=True)
+        if os.path.exists(new_gd):
+            shutil.rmtree(new_gd)
+        shutil.move(old_gd, new_gd)
+        print(f"Moved Gradient_Descent_Simulation to: {new_gd}")
+
+    # 4. Titanic Survival Predictor
+    old_titanic = os.path.join(REPO_ROOT, "PHASE_2_ML_Data_Science_Fundamentals", "Projects", "Mini_Projects", "Titanic_Survival_Predictor")
+    new_titanic_dir = os.path.join(REPO_ROOT, "PHASE_08_Classification_Algorithms", "Projects")
+    new_titanic = os.path.join(new_titanic_dir, "Titanic_Survival_Predictor")
+    if os.path.exists(old_titanic):
+        os.makedirs(new_titanic_dir, exist_ok=True)
+        if os.path.exists(new_titanic):
+            shutil.rmtree(new_titanic)
+        shutil.move(old_titanic, new_titanic)
+        print(f"Moved Titanic_Survival_Predictor to: {new_titanic}")
+
+def clean_old_folders():
+    """Deletes the old deprecated Phase folders."""
+    print("Cleaning up old directories...")
+    old_p1 = os.path.join(REPO_ROOT, "PHASE_1_Foundational_Core")
+    old_p2 = os.path.join(REPO_ROOT, "PHASE_2_ML_Data_Science_Fundamentals")
+    
+    if os.path.exists(old_p1):
+        shutil.rmtree(old_p1)
+        print(f"Removed old folder: {old_p1}")
+    if os.path.exists(old_p2):
+        shutil.rmtree(old_p2)
+        print(f"Removed old folder: {old_p2}")
+
+def make_template_notebook(title, idx, category):
+    """Generates standard Jupyter template for later phases without the Status field."""
+    notebook = {
+        "cells": [
+            {
+                "cell_type": "markdown",
+                "metadata": {},
+                "source": [
+                    f"# Topic {idx}: {title}\n",
+                    "\n",
+                    f"- **Domain:** {category}\n",
+                    "\n",
+                    "## 📋 Learning Objectives & Overview\n",
+                    "Write down your key learnings and key takeaways here.\n",
+                    "\n",
+                    "## 📝 Core Concepts & Mathematical Formulation\n",
+                    "Detail the core concepts and equations (e.g., in LaTeX) related to this topic.\n",
+                    "\n",
+                    "## 💻 Implementation & Exercises\n",
+                    "Write your implementation or exercises inside the cells below.\n"
+                ]
+            },
+            {
+                "cell_type": "code",
+                "execution_count": None,
+                "metadata": {},
+                "outputs": [],
+                "source": [
+                    "# Start coding your implementation here\n",
+                    "print(\"Jupyter Notebook template for: " + title + "\")\n"
+                ]
+            }
+        ],
+        "metadata": {
+            "kernelspec": {
+                "display_name": "Python 3 (ipykernel)",
+                "language": "python",
+                "name": "python3"
+            },
+            "language_info": {
+                "name": "python"
+            }
+        },
+        "nbformat": 4,
+        "nbformat_minor": 2
+    }
+    return notebook
+
+def make_populated_notebook(phase_num, topic_num, details):
+    """Generates fully populated notebooks for Phase 1 & Phase 2 without the Status field."""
+    cells = []
+    
+    # Emoji based on phase
+    emoji = "🐍" if phase_num == 1 else "📊"
+    
+    # 1. Header & Summary
+    cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            f"# {emoji} Topic {topic_num}: {details['title']}\n",
+            "\n",
+            f"**Summary:** {details['summary']}\n",
+            "\n",
+            "---"
+        ]
+    })
+    
+    # 2. Theory notes
+    cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "## 📝 Core Concepts & Explanations\n\n"
+        ] + details['theory']
+    })
+    
+    # 3. Code demonstration
+    cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": [
+            "## 💻 Code Demonstration\n",
+            "Run the cells below to see the concepts in action:"
+        ]
+    })
+    
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": details['code']
+    })
+    
+    # 4. Exercises
+    cells.append({
+        "cell_type": "markdown",
+        "metadata": {},
+        "source": details['exercises']
+    })
+    
+    cells.append({
+        "cell_type": "code",
+        "execution_count": None,
+        "metadata": {},
+        "outputs": [],
+        "source": details['exercise_code']
+    })
+    
+    notebook = {
+        "cells": cells,
+        "metadata": {
+            "kernelspec": {
+                "display_name": "Python 3 (ipykernel)",
+                "language": "python",
+                "name": "python3"
+            },
+            "language_info": {
+                "codemirror_mode": {
+                    "name": "ipython",
+                    "version": 3
+                },
+                "file_extension": ".py",
+                "mimetype": "text/x-python",
+                "name": "python",
+                "nbconvert_exporter": "python",
+                "pygments_lexer": "ipython3",
+                "version": "3.10.0"
+            }
+        },
+        "nbformat": 4,
+        "nbformat_minor": 2
+    }
+    return notebook
+
+def generate_roadmap():
+    """Generates the new roadmap structure, including directories, local READMEs, and Jupyter Notebook templates."""
+    print("Generating new roadmap folders and notebooks...")
+    
+    for phase_idx, phase in enumerate(ROADMAP_DATA, 1):
+        phase_dir = os.path.join(REPO_ROOT, phase["dir_name"])
+        os.makedirs(phase_dir, exist_ok=True)
+        print(f"Created/Verified Phase directory: {phase_dir}")
+        
+        # Write Notebooks
+        for idx, (title, category) in enumerate(phase["topics"], 1):
+            clean_title = sanitize_filename(title)
+            filename = f"{idx:02d}_{clean_title}.ipynb"
+            file_path = os.path.join(phase_dir, filename)
+            
+            # Create either fully populated notebooks (for Phase 1 and Phase 2) or template notebooks (for later phases)
+            if phase["dir_name"] == "PHASE_01_Python_Fundamentals" and idx in PHASE_1_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(1, idx, PHASE_1_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_02_Math_Stats_Probability" and idx in PHASE_2_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(2, idx, PHASE_2_NOTEBOOK_CONTENTS[idx])
+            else:
+                nb_json = make_template_notebook(title, idx, category)
+                
+            with open(file_path, "w", encoding="utf-8") as f:
+                json.dump(nb_json, f, indent=2)
+        
+        # Create local README.md
+        readme_path = os.path.join(readme_path := os.path.join(phase_dir, "README.md"))
+        with open(readme_path, "w", encoding="utf-8") as f:
+            f.write(f"# {phase['title']}\n\n")
+            f.write(f"{phase['description']}\n\n")
+            f.write("## 📚 Topics\n\n")
+            f.write("| Order | Topic | Domain | Status |\n")
+            f.write("|---|---|---|---|\n")
+            for idx, (title, category) in enumerate(phase["topics"], 1):
+                clean_title = sanitize_filename(title)
+                nb_link = f"./{idx:02d}_{clean_title}.ipynb"
+                
+                # Check status
+                if phase["dir_name"] == "PHASE_01_Python_Fundamentals":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_02_Math_Stats_Probability":
+                    # Mark math-stats projects completed but other items planned
+                    if idx in [11]: # Linear algebra operations project matches vector math
+                        status = "🚧 In Progress (Project Done)"
+                    else:
+                        status = "📋 Planned"
+                else:
+                    status = "📋 Planned"
+                    
+                f.write(f"| {idx} | [{title}]({nb_link}) | {category} | {status} |\n")
+            
+            # Add section for projects in this phase if they exist
+            projects_dir = os.path.join(phase_dir, "Projects")
+            if os.path.exists(projects_dir):
+                f.write("\n## 🛠️ Projects\n\n")
+                f.write("Completed projects in this phase:\n")
+                for item in os.listdir(projects_dir):
+                    if os.path.isdir(os.path.join(projects_dir, item)):
+                        f.write(f"- [{item}](./Projects/{item})\n")
+
+    # Clean up outdated notebooks that are no longer in the topics list
+    valid_paths = set()
+    for p in ROADMAP_DATA:
+        p_dir = os.path.join(REPO_ROOT, p["dir_name"])
+        for idx, (title, category) in enumerate(p["topics"], 1):
+            clean_title = sanitize_filename(title)
+            valid_paths.add(os.path.normpath(os.path.join(p_dir, f"{idx:02d}_{clean_title}.ipynb")).lower())
+            
+    for p in ROADMAP_DATA:
+        p_dir = os.path.join(REPO_ROOT, p["dir_name"])
+        if os.path.exists(p_dir):
+            for filename in os.listdir(p_dir):
+                if filename.endswith(".ipynb"):
+                    full_path = os.path.normpath(os.path.join(p_dir, filename))
+                    if full_path.lower() not in valid_paths:
+                        os.remove(full_path)
+                        print(f"Cleaned up outdated notebook: {full_path}")
+
+    print("Generation complete!")
+
+if __name__ == "__main__":
+    # Perform migration of completed projects first to keep files safe
+    migrate_completed_projects()
+    
+    # Delete old folders
+    clean_old_folders()
+    
+    # Generate new roadmap folders and files
+    generate_roadmap()
