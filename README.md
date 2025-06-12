@@ -19,4 +19,12 @@ An 8-week AI learning journey with hands-on projects and resources, covering Pyt
 - 🚧 Currently working on Week 2
 - 🔜 Coming Soon: Machine Learning Projects
 
+
+## Contact  
+
+💬 **Questions, suggestions, or collaborations?** Connect with me:  
+- **Email**: m.tahanasircs@gmail.com  
+- **Linkedin**: [muhammadtahanasir](https://www.linkedin.com/in/muhammadtahanasir/)  
+
+---
 Stay tuned for updates and detailed project descriptions!
