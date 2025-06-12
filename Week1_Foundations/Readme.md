@@ -47,11 +47,14 @@ A Python-powered web application designed to simplify data analysis and visualiz
 
 ---
 
+
 ## Tech Stack
 
-**Backend**: Python, Flask, Pandas, NumPy
-
-**Frontend**: HTML, Tailwind CSS, Chart.js, JavaScript
+| Layer      | Technology                     |
+|------------|--------------------------------|
+| Backend    | Python, Flask, Pandas, NumPy   |
+| Frontend   | HTML, Tailwind CSS, Chart.js   |
+| Other      | REST API, JavaScript           |
 
 ---
 
