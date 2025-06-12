@@ -116,6 +116,26 @@ Before setting up the project, ensure you have:
 
 ---
 
+## Screenshots  
+
+### Dashboard  
+Overview of uploaded data with interactive features.  
+![Dashboard](assets/dashboard.png)
+
+### File Upload  
+Upload your CSV files for quick analysis.  
+![File Upload](assets/upload_feature.png)
+
+### Data Visualization  
+Customizable charts to explore your data.  
+![Data Visualization](assets/visualization.png)
+
+### Sorting and Searching  
+Sort and search data efficiently.  
+![Sorting and Searching](assets/sorting.png)
+
+---
+
 ## Future Enhancements
 
 - Add support for advanced chart types (scatter, doughnut, etc.).
