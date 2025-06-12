@@ -124,19 +124,19 @@ Before setting up the project, ensure you have:
 
 ### Dashboard  
 Overview of uploaded data with interactive features.  
-![Dashboard](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/dashboard.png)
+![Dashboard](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/thinkboard/assets/dashboard.png)
 
 ### File Upload  
 Upload your CSV files for quick analysis.  
-![File Upload](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/upload_feature.png)
+![File Upload](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/thinkboard/assets/upload_feature.png)
 
 ### Data Visualization  
 Customizable charts to explore your data.  
-![Data Visualization](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/visualization.png)
+![Data Visualization](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/thinkboard/assets/visualization.png)
 
 ### Sorting and Searching  
 Sort and search data efficiently.  
-![Sorting and Searching](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/sorting.png)
+![Sorting and Searching](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/thinkboard/assets/sorting.png)
 
 ---
 
