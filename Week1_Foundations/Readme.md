@@ -49,4 +49,4 @@ This project is licensed under the **MIT License**. See the LICENSE file for det
 
 ## Acknowledgments  
 
-Gratitude to the open-source community and creators of tools like Pandas, NumPy, Flask, and Chart.js for enabling this journey into AI.  
+A big thank you to everyone who made this journey possible. To the incredible creators of tools like Pandas, NumPy, Flask, and Chart.js—your work inspires us to push boundaries. And to the open-source community, educators, and peers—your support and resources have been invaluable. Here's to learning, sharing, and growing together!  
