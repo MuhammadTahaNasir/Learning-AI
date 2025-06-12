@@ -28,6 +28,7 @@ A Python-powered web application designed to simplify data analysis and visualiz
   - [Visualization](#visualization)
   - [Sorting and Searching](#sorting-and-searching)
   - [Calculus Features](#calculus-features)
+- [Screenshots](#screenshots)
 - [Future Enhancements](#future-enhancements)
 - [Contributing](#contributing)
 - [License](#license)
@@ -120,19 +121,19 @@ Before setting up the project, ensure you have:
 
 ### Dashboard  
 Overview of uploaded data with interactive features.  
-![Dashboard](https://github.com/MuhammadTahaNasir/AI-Journey/raw/main/Week1_Foundations/assets/dashboard.png)
+![Dashboard](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/dashboard.png)
 
 ### File Upload  
 Upload your CSV files for quick analysis.  
-![File Upload](https://github.com/MuhammadTahaNasir/AI-Journey/raw/main/Week1_Foundations/assets/upload_feature.png)
+![File Upload](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/upload_feature.png)
 
 ### Data Visualization  
 Customizable charts to explore your data.  
-![Data Visualization](https://github.com/MuhammadTahaNasir/AI-Journey/raw/main/Week1_Foundations/assets/visualization.png)
+![Data Visualization](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/visualization.png)
 
 ### Sorting and Searching  
 Sort and search data efficiently.  
-![Sorting and Searching](https://github.com/MuhammadTahaNasir/AI-Journey/raw/main/Week1_Foundations/assets/sorting.png)
+![Sorting and Searching](https://raw.githubusercontent.com/MuhammadTahaNasir/AI-Journey/main/Week1_Foundations/techboard/assets/sorting.png)
 
 ---
 
