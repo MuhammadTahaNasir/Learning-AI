@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkBoard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #0A192F, #1E3A8A, #4B6CB7);
+            background-attachment: fixed;
+            color: #ffffff;
+        }
+        
+        /* Ensure text readability over gradient */
+        .bg-gray-800,
+        .bg-gray-700,
+        .bg-gray-600 {
+            background-color: rgba(31, 41, 55, 0.9) !important;
+            /* Slightly transparent gray for contrast */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 text-white">
+    <header class="p-6 bg-gray-800 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-green-400">ThinkBoard</h1>
+            <nav>
+                <ul class="flex space-x-4">
+                    <li><a href="#" class="hover:text-green-400">Home</a></li>
+                    <li><a href="#features" class="hover:text-green-400">Features</a></li>
+                    <li><a href="#analytics" class="hover:text-green-400">Analytics</a></li>
+                    <li><a href="#about" class="hover:text-green-400">About</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mx-auto mt-8 p-6">
+        <section id="intro" class="text-center">
+            <h2 class="text-3xl font-bold mb-4">Data Made Easy</h2>
+            <p class="text-lg mb-6">Upload datasets, analyze statistics, visualize data, and explore sorting/searching
+                algorithms all in one place.</p>
+            <button class="px-6 py-2 bg-green-500 hover:bg-green-600 rounded text-white font-bold" onclick="scrollToAnalytics()">Get Started</button>
+        </section>
+
+        <section id="features" class="mt-12">
+            <h3 class="text-2xl font-bold mb-4">Features</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="p-6 bg-gray-800 rounded-lg shadow">
+                    <h4 class="text-lg font-bold mb-2">📂 CSV Upload</h4>
+                    <p>Easily upload your datasets and manage them for analysis.</p>
+                </div>
+                <div class="p-6 bg-gray-800 rounded-lg shadow">
+                    <h4 class="text-lg font-bold mb-2">📊 Stats Analyzer</h4>
+                    <p>Calculate mean, median, mode, and visualize data insights.</p>
+                </div>
+                <div class="p-6 bg-gray-800 rounded-lg shadow">
+                    <h4 class="text-lg font-bold mb-2">🔍 Sorting & Searching</h4>
+                    <p>Explore data algorithms like Bubble Sort and Binary Search.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="analytics" class="mt-12">
+            <h3 class="text-2xl font-bold mb-4">Analytics Dashboard</h3>
+            <div class="bg-gray-800 p-6 rounded-lg shadow">
+                <p>Upload your CSV file to see real-time analytics and visualizations.</p>
+                <input type="file"
+                    class="block w-full mt-4 p-2 bg-gray-700 rounded border border-gray-600 text-gray-300"
+                    id="csv-upload">
+                <button class="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 rounded text-white font-bold"
+                    onclick="uploadCSV()">Upload</button>
+                <div class="mt-4">
+                    <label for="chartType" class="mr-2">Chart Type:</label>
+                    <select id="chartType" class="p-2 bg-gray-700 rounded text-gray-300" onchange="updateChartType()">
+                        <option value="bar">Bar</option>
+                        <option value="line">Line</option>
+                        <option value="pie">Pie</option>
+                    </select>
+                </div>
+                <div id="analyticsContainer" class="mt-6"></div>
+                <canvas id="dataChart" class="mt-6"></canvas>
+                <div id="resultsTable" class="mt-6"></div>
+            </div>
+        </section>
+
+        <section id="about" class="mt-12">
+            <h3 class="text-2xl font-bold mb-4">About the ThinkBoard</h3>
+            <p>This dashboard is designed to bring together Python scripting, data analysis, and visualization
+                techniques, combining them with the power of a user-friendly interface.</p>
+        </section>
+    </main>
+
+    <footer class="mt-12 p-6 bg-gray-800 text-center">
+        <p>© ThinkBoard 2025 . ♡ By Muhammad Taha Nasir.</p>
+    </footer>
+
+    <script>
+        let currentData = null; // Store uploaded data
+        let chartInstance = null; // Store Chart.js instance
+        let chartType = 'bar'; // Default chart type
+        let currentFile = null; // Store the uploaded file
+        const dataChart = document.getElementById('dataChart').getContext('2d');
+
+        // Function to scroll to Analytics section
+        function scrollToAnalytics() {
+            document.getElementById('analytics').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // File Upload Module
+        async function uploadCSV() {
+            const csvUpload = document.getElementById('csv-upload');
+            const file = csvUpload.files[0];
+            if (!file) {
+                alert("Please select a CSV file to upload.");
+                return;
+            }
+
+            currentFile = file; // Store file for later use
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                console.log("Uploading file:", file.name);
+                const response = await fetch("http://127.0.0.1:5000/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+                const data = await response.json();
+                console.log("Upload response:", data);
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                currentData = data; // Store for visualization
+                displayAnalytics(data.summary);
+                renderChart(data.summary);
+                document.getElementById('resultsTable').innerHTML = ''; // Clear previous results
+            } catch (error) {
+                console.error("Error uploading file:", error);
+                alert("Error uploading file. Please try again.");
+            }
+        }
+
+        // Analysis Module: Display analytics
+        function displayAnalytics(summary) {
+            const analyticsContainer = document.getElementById("analyticsContainer");
+            const mean = Object.entries(summary.mean_values).map(([key, value]) => `${key}: ${value.toFixed(2)}`).join(", ");
+            const max = Object.entries(summary.max_values).map(([key, value]) => `${key}: ${value}`).join(", ");
+            const min = Object.entries(summary.min_values).map(([key, value]) => `${key}: ${value}`).join(", ");
+            const median = Object.entries(summary.median_values).map(([key, value]) => `${key}: ${value.toFixed(2)}`).join(", ");
+            const mode = Object.entries(summary.mode_values).map(([key, value]) => `${key}: ${value}`).join(", ");
+
+            analyticsContainer.innerHTML = `
+                <p><strong>Columns:</strong> ${summary.columns.join(", ")}</p>
+                <p><strong>Row Count:</strong> ${summary.row_count}</p>
+                <p><strong>Mean:</strong> ${mean}</p>
+                <p><strong>Median:</strong> ${median}</p>
+                <p><strong>Mode:</strong> ${mode}</p>
+                <p><strong>Max:</strong> ${max}</p>
+                <p><strong>Min:</strong> ${min}</p>
+                <button class="mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 rounded text-white" onclick="sortData()">Sort Data</button>
+                <button class="mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 rounded text-white" onclick="searchData()">Search Data</button>
+                <button class="mt-4 px-4 py-2 bg-green-500 hover:bg-green-600 rounded text-white" onclick="computeGradient()">Compute Gradient</button>
+            `;
+        }
+
+        // Visualization Module: Render Chart.js chart
+        function renderChart(summary) {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            const datasets = [
+                {
+                    label: 'Mean Values',
+                    data: Object.values(summary.mean_values),
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: chartType === 'line' ? false : undefined
+                },
+                {
+                    label: 'Median Values',
+                    data: Object.values(summary.median_values),
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1,
+                    fill: chartType === 'line' ? false : undefined
+                },
+                {
+                    label: 'Max Values',
+                    data: Object.values(summary.max_values),
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    borderWidth: 1,
+                    fill: chartType === 'line' ? false : undefined
+                },
+                {
+                    label: 'Min Values',
+                    data: Object.values(summary.min_values),
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1,
+                    fill: chartType === 'line' ? false : undefined
+                }
+            ];
+
+            if (chartType === 'pie') {
+                datasets.forEach(dataset => {
+                    dataset.backgroundColor = [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)'
+                    ];
+                    dataset.borderColor = [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)'
+                    ];
+                });
+            }
+
+            chartInstance = new Chart(dataChart, {
+                type: chartType,
+                data: {
+                    labels: Object.keys(summary.mean_values),
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Uploaded Data Visualization'
+                        }
+                    },
+                    scales: chartType === 'pie' ? {} : {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Values' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Columns' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Chart Type Selector
+        function updateChartType() {
+            chartType = document.getElementById('chartType').value;
+            if (currentData) {
+                renderChart(currentData.summary);
+            }
+        }
+
+        // Search/Sort Module: Sort data
+        async function sortData() {
+            if (!currentData || !currentFile) {
+                alert("Please upload a CSV file first.");
+                return;
+            }
+            const column = prompt("Enter the column to sort by:");
+            const order = confirm("Sort ascending? Click Cancel for descending.") ? "asc" : "desc";
+
+            const formData = new FormData();
+            formData.append("file", currentFile);
+            try {
+                console.log("Sorting data for column:", column);
+                const response = await fetch("http://127.0.0.1:5000/sort", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ column, order }),
+                });
+                const sortedData = await response.json();
+                console.log("Sort response:", sortedData);
+                if (sortedData.error) {
+                    alert(sortedData.error);
+                    return;
+                }
+                displayTable(sortedData, `Sorted by ${column} (${order})`);
+            } catch (error) {
+                console.error("Error sorting data:", error);
+                alert("Error sorting data. Please try again.");
+            }
+        }
+
+        // Search/Sort Module: Search data
+        async function searchData() {
+            if (!currentData || !currentFile) {
+                alert("Please upload a CSV file first.");
+                return;
+            }
+            const column = prompt("Enter the column to search in:");
+            const query = prompt("Enter the search query:");
+
+            const formData = new FormData();
+            formData.append("file", currentFile);
+            try {
+                console.log("Searching data for query:", query);
+                const response = await fetch("http://127.0.0.1:5000/search", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ column, query }),
+                });
+                const searchResults = await response.json();
+                console.log("Search response:", searchResults);
+                if (searchResults.error) {
+                    alert(searchResults.error);
+                    return;
+                }
+                displayTable(searchResults, `Search Results for "${query}" in ${column}`);
+            } catch (error) {
+                console.error("Error searching data:", error);
+                alert("Error searching data. Please try again.");
+            }
+        }
+
+        // Math Tools Module: Compute gradient
+        async function computeGradient() {
+            if (!currentData || !currentFile) {
+                alert("Please upload a CSV file first.");
+                return;
+            }
+            const column = prompt("Enter the numeric column for gradient calculation:");
+            const formData = new FormData();
+            formData.append("file", currentFile);
+            try {
+                console.log("Computing gradient for column:", column);
+                const response = await fetch("http://127.0.0.1:5000/gradient", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ column }),
+                });
+                const gradientData = await response.json();
+                console.log("Gradient response:", gradientData);
+                if (gradientData.error) {
+                    alert(gradientData.error);
+                    return;
+                }
+                renderGradientChart(gradientData.gradients, column);
+            } catch (error) {
+                console.error("Error computing gradient:", error);
+                alert("Error computing gradient. Please try again.");
+            }
+        }
+
+        // Display sorted/search results in a table
+        function displayTable(data, title) {
+            const resultsTable = document.getElementById('resultsTable');
+            if (!data || data.length === 0) {
+                resultsTable.innerHTML = `<p class="text-gray-300">No results found.</p>`;
+                return;
+            }
+
+            const headers = Object.keys(data[0]);
+            let tableHTML = `
+                <h4 class="text-lg font-bold mb-2">${title}</h4>
+                <table class="w-full text-left border-collapse bg-gray-700 rounded">
+                    <thead>
+                        <tr class="bg-gray-600">
+                            ${headers.map(header => `<th class="p-2 border-b border-gray-500">${header}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${data.slice(0, 10).map(row => `
+                            <tr class="hover:bg-gray-600">
+                                ${headers.map(header => `<td class="p-2 border-b border-gray-500">${row[header]}</td>`).join('')}
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                <p class="text-sm text-gray-400 mt-2">Showing up to 10 rows.</p>
+            `;
+            resultsTable.innerHTML = tableHTML;
+        }
+
+        // Render gradient chart
+        function renderGradientChart(gradients, column) {
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(dataChart, {
+                type: 'line',
+                data: {
+                    labels: Array.from({ length: gradients.length }, (_, i) => i + 1),
+                    datasets: [{
+                        label: `Gradient of ${column}`,
+                        data: gradients,
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        title: {
+                            display: true,
+                            text: `Gradient of ${column}`
+                        }
+                    },
+                    scales: {
+                        y: {
+                            title: { display: true, text: 'Gradient Values' }
+                        },
+                        x: {
+                            title: { display: true, text: 'Row Index' }
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
