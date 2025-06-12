@@ -18,7 +18,7 @@ A Python-powered web application designed to simplify data analysis and visualiz
 **Setup Instructions**:  
 1. Clone the repository.  
    ```bash
-   git clone 
+   git clone https://github.com/your-username/AI-Journey.git
    cd thinkboard
    ```
 2. Install dependencies.  
