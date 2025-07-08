@@ -1,5 +1,5 @@
-# AI-Journey
-An 8-week AI learning journey with hands-on projects and resources, covering Python, Math, Data Science, Machine Learning, Deep Learning, Generative AI, and Deployment. (Now its an journey upto infinity exploring more and more)
+# Learning AI
+Previously, it was an 8-week AI learning journey with hands-on projects and resources, covering Python, Math, Data Science, Machine Learning, Deep Learning, Generative AI, and Deployment. (Now it's a journey up to infinite,y exploring more and more)
 
 ### Timeline
 - **Week 1**: Foundations – Python, Math, DSA.
