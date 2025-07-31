@@ -12,11 +12,28 @@ const dataChart = document.getElementById('dataChart')?.getContext('2d');
 // Initialize application
 document.addEventListener('DOMContentLoaded', function() {
     console.log('ThinkBoard initialized');
+    console.log('Current URL:', window.location.href);
+    console.log('Base URL:', window.location.origin);
+    
+    // Test API connectivity
+    testAPIConnectivity();
+    
     setupDragAndDrop();
     setupMobileMenu();
     setupSmoothScrolling();
     setupActiveNavigation();
 });
+
+// Test API connectivity
+async function testAPIConnectivity() {
+    try {
+        const response = await fetch('/health');
+        const data = await response.json();
+        console.log('API Health Check:', data);
+    } catch (error) {
+        console.error('API Health Check Failed:', error);
+    }
+}
 
 // Mobile menu functionality
 function setupMobileMenu() {
@@ -209,7 +226,7 @@ async function uploadCSV() {
     formData.append("file", file);
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/upload", {
+        const response = await fetch("/upload", {
             method: "POST",
             body: formData,
         });
@@ -230,6 +247,11 @@ async function uploadCSV() {
         
     } catch (error) {
         console.error("Error uploading file:", error);
+        console.error("Error details:", {
+            message: error.message,
+            stack: error.stack,
+            url: window.location.href
+        });
         showNotification('Error uploading file. Please try again.', 'error');
     } finally {
         showLoading(false);
@@ -473,7 +495,7 @@ async function sortData() {
     const order = confirm("Sort ascending? Click Cancel for descending.") ? "asc" : "desc";
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/sort", {
+        const response = await fetch("/sort", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ column, order }),
@@ -509,7 +531,7 @@ async function searchData() {
     if (!query) return;
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/search", {
+        const response = await fetch("/search", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ column, query }),
@@ -542,7 +564,7 @@ async function computeGradient() {
     if (!column) return;
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/gradient", {
+        const response = await fetch("/gradient", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ column }),
