@@ -298,20 +298,5 @@ def not_found(e):
 def internal_error(e):
     return jsonify({"error": "Internal server error"}), 500
 
-if __name__ == '__main__':
-    print("🚀 Starting ThinkBoard Server...")
-    print("📊 Dashboard will be available at: http://127.0.0.1:5000")
-    print("🔧 API endpoints:")
-    print("   - POST /upload: Upload CSV file")
-    print("   - POST /sort: Sort data")
-    print("   - POST /search: Search data")
-    print("   - POST /gradient: Compute gradient")
-    print("   - GET /stats: Get file statistics")
-    print("   - GET /health: Health check")
-    print("=" * 50)
-    
-    # Get port from environment variable (for Render) or use default
-    port = int(os.environ.get('PORT', 5000))
-    
-    # Use debug=False for production
-    app.run(debug=False, host='0.0.0.0', port=port)
+# For Vercel deployment - no main execution block needed
+# Vercel will handle the serverless function execution
