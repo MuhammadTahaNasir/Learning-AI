@@ -14,10 +14,11 @@ The following files are already created for Railway deployment:
 
 ### 1. `Procfile`
 ```
-web: python app.py
+web: python wsgi.py
 ```
 - Tells Railway how to start the application
 - Uses `web` process type for HTTP services
+- Uses WSGI entry point for better Railway compatibility
 
 ### 2. `railway.json`
 ```json

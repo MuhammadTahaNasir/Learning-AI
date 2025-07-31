@@ -458,7 +458,12 @@ def internal_error(e):
 
 if __name__ == '__main__':
     print("🚀 Starting ThinkBoard Server...")
-    print("📊 Dashboard will be available at: http://127.0.0.1:5000")
+    
+    # Railway deployment configuration
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '0.0.0.0')
+    
+    print(f"📊 Dashboard will be available at: http://{host}:{port}")
     print("🔧 API endpoints:")
     print("   - POST /upload: Upload CSV file")
     print("   - POST /sort: Sort data")
@@ -466,11 +471,12 @@ if __name__ == '__main__':
     print("   - POST /gradient: Compute gradient")
     print("   - GET /stats: Get file statistics")
     print("   - GET /health: Health check")
+    print("   - GET /test-upload: Test upload folder")
+    print("   - POST /simple-upload: Simple file upload")
     print("=" * 50)
     
-    # Railway deployment configuration
-    port = int(os.environ.get('PORT', 5000))
-    host = os.environ.get('HOST', '0.0.0.0')
+    # Ensure upload folder exists
+    setup_upload_folder()
     
     # Use debug=False for production
-    app.run(debug=False, host=host, port=port)
+    app.run(debug=False, host=host, port=port, threaded=True)
