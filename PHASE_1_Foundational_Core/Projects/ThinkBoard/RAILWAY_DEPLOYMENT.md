@@ -160,9 +160,35 @@ Expected response:
    - Verify port configuration
 
 3. **File Upload Issues**
-   - Check file size limits
+   - Check file size limits (now 5MB max)
    - Verify upload folder permissions
    - Test with sample CSV files
+   - Use `/test-upload` endpoint to check folder status
+   - Use `/health` endpoint to see upload folder status
+
+### Debug Steps for Upload Issues
+
+1. **Check Health Status**
+   ```bash
+   curl https://your-app-name.railway.app/health
+   ```
+   Look for `upload_status` field.
+
+2. **Test Upload Folder**
+   ```bash
+   curl https://your-app-name.railway.app/test-upload
+   ```
+   This will test if the upload folder is writable.
+
+3. **Check Railway Logs**
+   - Go to Railway dashboard
+   - Check logs for upload-related errors
+   - Look for permission or file system errors
+
+4. **Common Solutions**
+   - **Permission Error**: The app now uses `/tmp` as fallback
+   - **File Size**: Reduced to 5MB for Railway compatibility
+   - **CORS Issues**: Added better error handling and logging
 
 ### Debug Commands
 

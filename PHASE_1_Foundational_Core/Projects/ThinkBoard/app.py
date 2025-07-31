@@ -20,12 +20,20 @@ app = Flask(__name__)
 CORS(app)
 
 # Configuration
-UPLOAD_FOLDER = 'Uploads'
+UPLOAD_FOLDER = os.environ.get('UPLOAD_FOLDER', 'Uploads')
 ALLOWED_EXTENSIONS = {'csv'}
-MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
+MAX_FILE_SIZE = int(os.environ.get('MAX_FILE_SIZE', 5 * 1024 * 1024))  # 5MB for Railway
 
-# Ensure upload folder exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Ensure upload folder exists with proper permissions
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+    # Set write permissions
+    os.chmod(UPLOAD_FOLDER, 0o755)
+except Exception as e:
+    logger.error(f"Error creating upload folder: {e}")
+    # Fallback to temp directory
+    UPLOAD_FOLDER = '/tmp'
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
@@ -53,27 +61,70 @@ def serve_sample_data(filename):
     """Serve sample data files"""
     return send_from_directory('Uploads', filename)
 
+@app.route('/test-upload', methods=['GET'])
+def test_upload():
+    """Test upload functionality"""
+    try:
+        # Test if we can write to upload folder
+        test_file = os.path.join(UPLOAD_FOLDER, 'test.txt')
+        with open(test_file, 'w') as f:
+            f.write('test')
+        os.remove(test_file)
+        
+        return jsonify({
+            "status": "success",
+            "message": "Upload folder is writable",
+            "upload_folder": UPLOAD_FOLDER,
+            "permissions": oct(os.stat(UPLOAD_FOLDER).st_mode)[-3:]
+        })
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": f"Upload folder test failed: {str(e)}",
+            "upload_folder": UPLOAD_FOLDER
+        }), 500
+
 @app.route('/health')
 def health_check():
     """Health check endpoint"""
+    # Check upload folder status
+    upload_status = "OK"
+    try:
+        if not os.path.exists(UPLOAD_FOLDER):
+            upload_status = "NOT_EXISTS"
+        elif not os.access(UPLOAD_FOLDER, os.W_OK):
+            upload_status = "NOT_WRITABLE"
+    except Exception as e:
+        upload_status = f"ERROR: {str(e)}"
+    
     return jsonify({
         "status": "healthy",
         "message": "ThinkBoard is running",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "upload_folder": UPLOAD_FOLDER,
+        "upload_status": upload_status,
+        "max_file_size_mb": MAX_FILE_SIZE // (1024*1024)
     })
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """Upload and process CSV file"""
     try:
+        logger.info("Upload request received")
+        
         if 'file' not in request.files:
+            logger.error("No file in request")
             return jsonify({"error": "No file provided"}), 400
         
         file = request.files['file']
         if file.filename == '':
+            logger.error("Empty filename")
             return jsonify({"error": "No file selected"}), 400
         
+        logger.info(f"Processing file: {file.filename}")
+        
         if not allowed_file(file.filename):
+            logger.error(f"Invalid file type: {file.filename}")
             return jsonify({"error": "Invalid file type. Only CSV files are allowed"}), 400
         
         # Check file size
@@ -81,13 +132,28 @@ def upload_file():
         file_size = file.tell()
         file.seek(0)  # Reset to beginning
         
+        logger.info(f"File size: {file_size} bytes")
+        
         if file_size > MAX_FILE_SIZE:
+            logger.error(f"File too large: {file_size} > {MAX_FILE_SIZE}")
             return jsonify({"error": f"File too large. Maximum size is {MAX_FILE_SIZE // (1024*1024)}MB"}), 413
         
         # Secure filename and save
         filename = secure_filename(file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+        
+        logger.info(f"Saving file to: {file_path}")
+        
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        
+        # Save file with error handling
+        try:
+            file.save(file_path)
+            logger.info(f"File saved successfully: {file_path}")
+        except Exception as save_error:
+            logger.error(f"Error saving file: {save_error}")
+            return jsonify({"error": f"Error saving file: {str(save_error)}"}), 500
         
         # Validate CSV content
         is_valid, message = validate_csv(file_path)
