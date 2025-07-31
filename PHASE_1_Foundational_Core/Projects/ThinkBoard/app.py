@@ -87,16 +87,7 @@ def upload_file():
         # Secure filename and save
         filename = secure_filename(file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
-        
-        # Ensure upload folder exists
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        
-        try:
-            file.save(file_path)
-            logger.info(f"File saved successfully: {file_path}")
-        except Exception as e:
-            logger.error(f"Error saving file: {str(e)}")
-            return jsonify({"error": f"Error saving file: {str(e)}"}), 500
+        file.save(file_path)
         
         # Validate CSV content
         is_valid, message = validate_csv(file_path)
@@ -108,19 +99,44 @@ def upload_file():
         df = pd.read_csv(file_path)
         logger.info(f"File uploaded successfully: {filename} with {len(df)} rows and {len(df.columns)} columns")
         
-        # Return file info
+        # Calculate statistics
+        summary = {
+            "columns": df.columns.tolist(),
+            "row_count": len(df),
+            "mean_values": {},
+            "median_values": {},
+            "mode_values": {},
+            "max_values": {},
+            "min_values": {},
+            "numeric_columns": []
+        }
+        
+        # Process numeric columns
+        numeric_columns = df.select_dtypes(include=[np.number]).columns
+        summary["numeric_columns"] = numeric_columns.tolist()
+        
+        for col in numeric_columns:
+            summary["mean_values"][col] = float(df[col].mean())
+            summary["median_values"][col] = float(df[col].median())
+            summary["max_values"][col] = float(df[col].max())
+            summary["min_values"][col] = float(df[col].min())
+            
+            # Handle mode (can be multiple values)
+            mode_result = df[col].mode()
+            if not mode_result.empty:
+                summary["mode_values"][col] = float(mode_result.iloc[0])
+            else:
+                summary["mode_values"][col] = None
+        
         return jsonify({
             "message": "File uploaded successfully",
             "filename": filename,
-            "rows": len(df),
-            "columns": len(df.columns),
-            "column_names": df.columns.tolist(),
-            "preview": df.head(5).to_dict('records')
+            "summary": summary
         })
         
     except Exception as e:
         logger.error(f"Error uploading file: {str(e)}")
-        return jsonify({"error": f"Error uploading file: {str(e)}"}), 500
+        return jsonify({"error": f"Error processing file: {str(e)}"}), 500
 
 @app.route('/sort', methods=['POST'])
 def sort_data():
@@ -131,7 +147,7 @@ def sort_data():
             return jsonify({"error": "No JSON data provided"}), 400
         
         column = data.get('column')
-        ascending = data.get('ascending', True)
+        order = data.get('order', 'asc')
         
         if not column:
             return jsonify({"error": "Column name is required"}), 400
@@ -151,16 +167,12 @@ def sort_data():
             return jsonify({"error": f"Column '{column}' not found. Available columns: {available_columns}"}), 400
         
         # Sort the data
-        df_sorted = df.sort_values(by=column, ascending=ascending)
+        ascending = order.lower() == 'asc'
+        sorted_df = df.sort_values(by=column, ascending=ascending)
         
-        logger.info(f"Data sorted by column '{column}' in {'ascending' if ascending else 'descending'} order")
+        logger.info(f"Data sorted by {column} in {order} order")
         
-        return jsonify({
-            "message": "Data sorted successfully",
-            "column": column,
-            "ascending": ascending,
-            "sorted_data": df_sorted.head(10).to_dict('records')
-        })
+        return jsonify(sorted_df.to_dict('records'))
         
     except Exception as e:
         logger.error(f"Error sorting data: {str(e)}")
@@ -175,10 +187,10 @@ def search_data():
             return jsonify({"error": "No JSON data provided"}), 400
         
         column = data.get('column')
-        search_term = data.get('search_term', '')
+        query = data.get('query')
         
-        if not column:
-            return jsonify({"error": "Column name is required"}), 400
+        if not column or not query:
+            return jsonify({"error": "Column name and query are required"}), 400
         
         # Get the latest uploaded file
         files = [f for f in os.listdir(UPLOAD_FOLDER) if f.endswith('.csv')]
@@ -194,24 +206,12 @@ def search_data():
             available_columns = df.columns.tolist()
             return jsonify({"error": f"Column '{column}' not found. Available columns: {available_columns}"}), 400
         
-        # Search in the column
-        if search_term:
-            # Convert to string for searching
-            df[column] = df[column].astype(str)
-            mask = df[column].str.contains(search_term, case=False, na=False)
-            df_filtered = df[mask]
-        else:
-            df_filtered = df
+        # Search the data
+        search_results = df[df[column].astype(str).str.contains(query, case=False, na=False)]
         
-        logger.info(f"Search completed for '{search_term}' in column '{column}'. Found {len(df_filtered)} results")
+        logger.info(f"Search completed for '{query}' in column '{column}', found {len(search_results)} results")
         
-        return jsonify({
-            "message": "Search completed",
-            "column": column,
-            "search_term": search_term,
-            "results_count": len(df_filtered),
-            "search_results": df_filtered.head(10).to_dict('records')
-        })
+        return jsonify(search_results.to_dict('records'))
         
     except Exception as e:
         logger.error(f"Error searching data: {str(e)}")
@@ -308,6 +308,20 @@ def internal_error(e):
     return jsonify({"error": "Internal server error"}), 500
 
 if __name__ == '__main__':
-    # Get port from environment variable (for Railway deployment)
+    print("🚀 Starting ThinkBoard Server...")
+    print("📊 Dashboard will be available at: http://127.0.0.1:5000")
+    print("🔧 API endpoints:")
+    print("   - POST /upload: Upload CSV file")
+    print("   - POST /sort: Sort data")
+    print("   - POST /search: Search data")
+    print("   - POST /gradient: Compute gradient")
+    print("   - GET /stats: Get file statistics")
+    print("   - GET /health: Health check")
+    print("=" * 50)
+    
+    # Railway deployment configuration
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    host = os.environ.get('HOST', '0.0.0.0')
+    
+    # Use debug=False for production
+    app.run(debug=False, host=host, port=port)
