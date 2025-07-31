@@ -298,5 +298,7 @@ def not_found(e):
 def internal_error(e):
     return jsonify({"error": "Internal server error"}), 500
 
-# For Vercel deployment - no main execution block needed
-# Vercel will handle the serverless function execution
+if __name__ == '__main__':
+    # Get port from environment variable (for Railway deployment)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
