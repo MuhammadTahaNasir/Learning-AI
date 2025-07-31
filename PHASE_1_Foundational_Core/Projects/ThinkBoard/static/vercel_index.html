@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkBoard - Data Analytics Dashboard (Vercel Compatible)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .file-upload {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .file-upload:hover {
+            border-color: #764ba2;
+            background-color: #f8f9ff;
+        }
+
+        .file-upload.dragover {
+            border-color: #764ba2;
+            background-color: #f0f2ff;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card p {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        .data-table tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            background: #ff6b6b;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .success {
+            background: #51cf66;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .analysis-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .vercel-note {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 ThinkBoard</h1>
+            <p>Data Analytics Dashboard (Vercel Compatible)</p>
+        </div>
+
+        <div class="upload-section">
+            <div class="vercel-note">
+                <strong>⚠️ Vercel Compatibility Note:</strong> This version processes files immediately without saving them to the server. All analysis is done in real-time for better performance and compatibility with Vercel's serverless architecture.
+            </div>
+
+            <div class="file-upload" id="fileUpload">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drag & Drop your CSV file here or click to browse</div>
+                <input type="file" id="fileInput" class="file-input" accept=".csv">
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Choose File</button>
+            </div>
+
+            <div id="fileInfo" style="display: none;">
+                <h3>Selected File: <span id="fileName"></span></h3>
+                <button class="btn" id="processBtn">Process File</button>
+            </div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h2>📊 Analysis Results</h2>
+            
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <div class="analysis-controls">
+                <div class="control-group">
+                    <label for="columnSelect">Select Column:</label>
+                    <select id="columnSelect">
+                        <option value="">Choose a column...</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="operationSelect">Operation:</label>
+                    <select id="operationSelect">
+                        <option value="stats">Statistics</option>
+                        <option value="sort">Sort</option>
+                        <option value="search">Search</option>
+                        <option value="gradient">Gradient</option>
+                    </select>
+                </div>
+                <div class="control-group" id="searchGroup" style="display: none;">
+                    <label for="searchInput">Search Term:</label>
+                    <input type="text" id="searchInput" placeholder="Enter search term...">
+                </div>
+                <div class="control-group" id="sortGroup" style="display: none;">
+                    <label for="sortOrder">Sort Order:</label>
+                    <select id="sortOrder">
+                        <option value="true">Ascending</option>
+                        <option value="false">Descending</option>
+                    </select>
+                </div>
+                <button class="btn" id="analyzeBtn">Analyze</button>
+            </div>
+
+            <div id="analysisResults"></div>
+        </div>
+
+        <div id="loading" class="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>Processing your data...</p>
+        </div>
+    </div>
+
+    <script>
+        let currentFileData = null;
+        let currentFileName = null;
+
+        // File upload handling
+        const fileUpload = document.getElementById('fileUpload');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const processBtn = document.getElementById('processBtn');
+        const resultsSection = document.getElementById('resultsSection');
+        const loading = document.getElementById('loading');
+
+        // Drag and drop functionality
+        fileUpload.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUpload.classList.add('dragover');
+        });
+
+        fileUpload.addEventListener('dragleave', () => {
+            fileUpload.classList.remove('dragover');
+        });
+
+        fileUpload.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUpload.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            if (!file.name.toLowerCase().endsWith('.csv')) {
+                showError('Please select a CSV file.');
+                return;
+            }
+
+            currentFileName = file.name;
+            fileName.textContent = file.name;
+            fileInfo.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                currentFileData = e.target.result;
+            };
+            reader.readAsText(file);
+        }
+
+        processBtn.addEventListener('click', async () => {
+            if (!currentFileData) {
+                showError('Please select a file first.');
+                return;
+            }
+
+            showLoading();
+            
+            try {
+                const formData = new FormData();
+                const blob = new Blob([currentFileData], { type: 'text/csv' });
+                formData.append('file', blob, currentFileName);
+
+                const response = await fetch('/process-csv', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    displayResults(result);
+                } else {
+                    showError(result.error || 'Error processing file.');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function displayResults(data) {
+            const statsGrid = document.getElementById('statsGrid');
+            const columnSelect = document.getElementById('columnSelect');
+
+            // Display basic stats
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <h3>Rows</h3>
+                    <p>${data.rows}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Columns</h3>
+                    <p>${data.columns}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Numeric Columns</h3>
+                    <p>${data.numeric_columns.length}</p>
+                </div>
+                <div class="stat-card">
+                    <h3>File Size</h3>
+                    <p>${(currentFileData.length / 1024).toFixed(1)} KB</p>
+                </div>
+            `;
+
+            // Populate column select
+            columnSelect.innerHTML = '<option value="">Choose a column...</option>';
+            data.column_names.forEach(col => {
+                const option = document.createElement('option');
+                option.value = col;
+                option.textContent = col;
+                columnSelect.appendChild(option);
+            });
+
+            // Display preview table
+            displayDataTable(data.preview, data.column_names);
+
+            resultsSection.style.display = 'block';
+        }
+
+        function displayDataTable(data, columns) {
+            const analysisResults = document.getElementById('analysisResults');
+            
+            let tableHTML = '<h3>Data Preview</h3><table class="data-table"><thead><tr>';
+            columns.forEach(col => {
+                tableHTML += `<th>${col}</th>`;
+            });
+            tableHTML += '</tr></thead><tbody>';
+
+            data.forEach(row => {
+                tableHTML += '<tr>';
+                columns.forEach(col => {
+                    tableHTML += `<td>${row[col] || ''}</td>`;
+                });
+                tableHTML += '</tr>';
+            });
+
+            tableHTML += '</tbody></table>';
+            analysisResults.innerHTML = tableHTML;
+        }
+
+        // Analysis controls
+        const operationSelect = document.getElementById('operationSelect');
+        const searchGroup = document.getElementById('searchGroup');
+        const sortGroup = document.getElementById('sortGroup');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+
+        operationSelect.addEventListener('change', () => {
+            const operation = operationSelect.value;
+            searchGroup.style.display = operation === 'search' ? 'block' : 'none';
+            sortGroup.style.display = operation === 'sort' ? 'block' : 'none';
+        });
+
+        analyzeBtn.addEventListener('click', async () => {
+            const column = document.getElementById('columnSelect').value;
+            const operation = document.getElementById('operationSelect').value;
+
+            if (!column) {
+                showError('Please select a column.');
+                return;
+            }
+
+            if (!currentFileData) {
+                showError('No file data available.');
+                return;
+            }
+
+            showLoading();
+
+            try {
+                const requestData = {
+                    column: column,
+                    operation: operation,
+                    file_data: currentFileData
+                };
+
+                if (operation === 'search') {
+                    requestData.search_term = document.getElementById('searchInput').value;
+                } else if (operation === 'sort') {
+                    requestData.ascending = document.getElementById('sortOrder').value === 'true';
+                }
+
+                const response = await fetch('/analyze-column', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    displayAnalysisResult(result, operation);
+                } else {
+                    showError(result.error || 'Error analyzing column.');
+                }
+            } catch (error) {
+                showError('Network error. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        });
+
+        function displayAnalysisResult(result, operation) {
+            const analysisResults = document.getElementById('analysisResults');
+            
+            let html = `<h3>Analysis Results for "${result.column}"</h3>`;
+
+            if (operation === 'stats') {
+                if (result.type === 'numeric') {
+                    html += `
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <h3>Mean</h3>
+                                <p>${result.mean.toFixed(2)}</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Median</h3>
+                                <p>${result.median.toFixed(2)}</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Std Dev</h3>
+                                <p>${result.std.toFixed(2)}</p>
+                            </div>
+                            <div class="stat-card">
+                                <h3>Range</h3>
+                                <p>${result.min.toFixed(2)} - ${result.max.toFixed(2)}</p>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `<p><strong>Type:</strong> Categorical</p>`;
+                    html += `<p><strong>Unique Values:</strong> ${result.unique_values}</p>`;
+                    html += `<p><strong>Most Common:</strong></p>`;
+                    html += '<ul>';
+                    Object.entries(result.most_common).forEach(([value, count]) => {
+                        html += `<li>${value}: ${count}</li>`;
+                    });
+                    html += '</ul>';
+                }
+            } else if (operation === 'sort' || operation === 'search') {
+                html += `<p><strong>Results:</strong> ${result.results_count || result.sorted_data.length} rows</p>`;
+                if (result.sorted_data || result.search_results) {
+                    const data = result.sorted_data || result.search_results;
+                    const columns = Object.keys(data[0] || {});
+                    html += displayDataTable(data, columns);
+                }
+            }
+
+            analysisResults.innerHTML = html;
+        }
+
+        function showLoading() {
+            loading.style.display = 'block';
+            resultsSection.style.display = 'none';
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.container').insertBefore(errorDiv, document.querySelector('.upload-section'));
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.container').insertBefore(successDiv, document.querySelector('.upload-section'));
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 5000);
+        }
+    </script>
+</body>
+</html> 
