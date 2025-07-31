@@ -87,7 +87,16 @@ def upload_file():
         # Secure filename and save
         filename = secure_filename(file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
-        file.save(file_path)
+        
+        # Ensure upload folder exists
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+        
+        try:
+            file.save(file_path)
+            logger.info(f"File saved successfully: {file_path}")
+        except Exception as e:
+            logger.error(f"Error saving file: {str(e)}")
+            return jsonify({"error": f"Error saving file: {str(e)}"}), 500
         
         # Validate CSV content
         is_valid, message = validate_csv(file_path)
