@@ -11,10 +11,5 @@
       "src": "/(.*)",
       "dest": "app_vercel.py"
     }
-  ],
-  "functions": {
-    "app_vercel.py": {
-      "runtime": "python3.9"
-    }
-  }
+  ]
 } 
