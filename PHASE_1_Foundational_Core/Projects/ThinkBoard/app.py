@@ -25,15 +25,43 @@ ALLOWED_EXTENSIONS = {'csv'}
 MAX_FILE_SIZE = int(os.environ.get('MAX_FILE_SIZE', 5 * 1024 * 1024))  # 5MB for Railway
 
 # Ensure upload folder exists with proper permissions
-try:
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-    # Set write permissions
-    os.chmod(UPLOAD_FOLDER, 0o755)
-except Exception as e:
-    logger.error(f"Error creating upload folder: {e}")
-    # Fallback to temp directory
-    UPLOAD_FOLDER = '/tmp'
-    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+def setup_upload_folder():
+    global UPLOAD_FOLDER
+    try:
+        # Try multiple locations for Railway compatibility
+        possible_folders = [
+            'Uploads',
+            '/tmp',
+            '/tmp/uploads',
+            os.path.join(os.getcwd(), 'Uploads'),
+            os.path.join(os.path.dirname(__file__), 'Uploads')
+        ]
+        
+        for folder in possible_folders:
+            try:
+                os.makedirs(folder, exist_ok=True)
+                # Test write permission
+                test_file = os.path.join(folder, 'test_write.tmp')
+                with open(test_file, 'w') as f:
+                    f.write('test')
+                os.remove(test_file)
+                UPLOAD_FOLDER = folder
+                logger.info(f"Using upload folder: {UPLOAD_FOLDER}")
+                return
+            except Exception as e:
+                logger.warning(f"Could not use {folder}: {e}")
+                continue
+        
+        # If all else fails, use current directory
+        UPLOAD_FOLDER = '.'
+        logger.warning(f"Using current directory as upload folder: {UPLOAD_FOLDER}")
+        
+    except Exception as e:
+        logger.error(f"Error setting up upload folder: {e}")
+        UPLOAD_FOLDER = '.'
+
+# Setup upload folder
+setup_upload_folder()
 
 def allowed_file(filename):
     """Check if file extension is allowed"""
@@ -83,6 +111,43 @@ def test_upload():
             "message": f"Upload folder test failed: {str(e)}",
             "upload_folder": UPLOAD_FOLDER
         }), 500
+
+@app.route('/simple-upload', methods=['POST'])
+def simple_upload():
+    """Simple file upload without CSV validation"""
+    try:
+        logger.info("Simple upload request received")
+        
+        if 'file' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({"error": "No file selected"}), 400
+        
+        # Save file without validation
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(UPLOAD_FOLDER, filename)
+        
+        try:
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            file.save(file_path)
+            logger.info(f"File saved successfully: {file_path}")
+            
+            return jsonify({
+                "status": "success",
+                "message": "File uploaded successfully",
+                "filename": filename,
+                "path": file_path
+            })
+            
+        except Exception as save_error:
+            logger.error(f"Error saving file: {save_error}")
+            return jsonify({"error": f"Error saving file: {str(save_error)}"}), 500
+            
+    except Exception as e:
+        logger.error(f"Error in simple upload: {str(e)}")
+        return jsonify({"error": f"Upload error: {str(e)}"}), 500
 
 @app.route('/health')
 def health_check():
@@ -149,11 +214,29 @@ def upload_file():
         
         # Save file with error handling
         try:
+            # Ensure directory exists
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            
+            # Save file
             file.save(file_path)
             logger.info(f"File saved successfully: {file_path}")
+            
+            # Verify file was saved
+            if not os.path.exists(file_path):
+                raise Exception("File was not saved properly")
+                
         except Exception as save_error:
             logger.error(f"Error saving file: {save_error}")
-            return jsonify({"error": f"Error saving file: {str(save_error)}"}), 500
+            # Try alternative location
+            try:
+                alt_path = os.path.join('.', filename)
+                file.seek(0)  # Reset file pointer
+                file.save(alt_path)
+                logger.info(f"File saved to alternative location: {alt_path}")
+                file_path = alt_path
+            except Exception as alt_error:
+                logger.error(f"Alternative save also failed: {alt_error}")
+                return jsonify({"error": f"Error saving file: {str(save_error)}"}), 500
         
         # Validate CSV content
         is_valid, message = validate_csv(file_path)
