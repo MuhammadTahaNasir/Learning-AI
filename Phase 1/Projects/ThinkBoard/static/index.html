@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThinkBoard - Data Analytics Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/static/css/style.css" rel="stylesheet">
+</head>
+
+<body class="min-h-screen">
+    <!-- Modern Header -->
+    <header class="header-modern">
+        <div class="header-container">
+            <div class="logo-section">
+                <i class="fas fa-chart-line logo-icon"></i>
+                <h1 class="logo-text">ThinkBoard</h1>
+            </div>
+            
+            <nav class="nav-modern">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#analytics" class="nav-link">Analytics</a>
+                <a href="#about" class="nav-link">About</a>
+            </nav>
+            
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div class="mobile-menu">
+            <nav class="mobile-nav">
+                <a href="#home" class="mobile-nav-link">Home</a>
+                <a href="#features" class="mobile-nav-link">Features</a>
+                <a href="#analytics" class="mobile-nav-link">Analytics</a>
+                <a href="#about" class="mobile-nav-link">About</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="home" class="hero-section fade-in">
+            <div class="hero-content">
+                <h2 class="hero-title">
+                    Data Made Simple
+                </h2>
+                <p class="hero-subtitle">
+                    Upload datasets, analyze statistics, visualize data, and explore sorting/searching algorithms all in one powerful dashboard.
+                </p>
+                <button class="btn-primary" onclick="scrollToAnalytics()">
+                    <i class="fas fa-rocket"></i>
+                    Get Started
+                </button>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section">
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-upload feature-icon"></i>
+                    <h4 class="feature-title">Smart CSV Upload</h4>
+                    <p class="feature-description">Easily upload your datasets with intelligent parsing and validation.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-bar feature-icon"></i>
+                    <h4 class="feature-title">Advanced Analytics</h4>
+                    <p class="feature-description">Calculate mean, median, mode, and visualize data insights with beautiful charts.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-search feature-icon"></i>
+                    <h4 class="feature-title">Sort & Search</h4>
+                    <p class="feature-description">Explore data algorithms like Bubble Sort and Binary Search with real-time results.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Dashboard -->
+        <section id="analytics" class="analytics-section">
+            <div class="analytics-container">
+                <div class="analytics-header">
+                    <h3 class="analytics-title">Analytics Dashboard</h3>
+                    <p class="analytics-subtitle">Upload your CSV file to see real-time analytics and visualizations</p>
+                </div>
+                
+                <div class="glass-effect p-6 md:p-8">
+                    <!-- Sample Data Section -->
+                    <div class="sample-data-section">
+                        <p class="sample-data-title">Try with sample data:</p>
+                        <div class="sample-buttons">
+                            <button class="sample-btn" onclick="loadSampleData('sample_data1.csv')">
+                                <i class="fas fa-users"></i>
+                                Student Data
+                            </button>
+                            <button class="sample-btn" onclick="loadSampleData('sample_data2.csv')">
+                                <i class="fas fa-shopping-cart"></i>
+                                Sales Data
+                            </button>
+                            <button class="sample-btn" onclick="loadSampleData('sample_data3.csv')">
+                                <i class="fas fa-cloud"></i>
+                                Weather Data
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- File Upload Area -->
+                    <div class="upload-section">
+                        <div id="dragArea" class="drag-area">
+                <input type="file"
+                                   class="hidden" 
+                                   id="csv-upload" 
+                                   accept=".csv"
+                                   onchange="handleFileSelect(this)">
+                            <label for="csv-upload" class="cursor-pointer w-full h-full flex flex-col items-center justify-center">
+                                <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                                <p class="upload-text">Choose a CSV file</p>
+                                <p class="upload-subtext">or drag and drop here</p>
+                            </label>
+                        </div>
+                        
+                        <button id="uploadBtn" 
+                                class="btn-primary hidden" 
+                                onclick="uploadCSV()">
+                            <i class="fas fa-upload"></i>
+                            Upload & Analyze
+                        </button>
+                    </div>
+
+                    <!-- Chart Type Selector -->
+                    <div class="chart-selector">
+                        <label class="chart-label">Chart Type:</label>
+                        <div class="chart-pills">
+                            <button class="chart-pill active" data-type="bar" onclick="updateChartType('bar')">
+                                <i class="fas fa-chart-bar"></i>
+                                Bar
+                            </button>
+                            <button class="chart-pill" data-type="line" onclick="updateChartType('line')">
+                                <i class="fas fa-chart-line"></i>
+                                Line
+                            </button>
+                            <button class="chart-pill" data-type="pie" onclick="updateChartType('pie')">
+                                <i class="fas fa-chart-pie"></i>
+                                Pie
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Loading Indicator -->
+                    <div id="loadingIndicator" class="hidden text-center py-8">
+                        <div class="loading mx-auto mb-4"></div>
+                        <p class="text-muted">Processing your data...</p>
+                    </div>
+
+                    <!-- Analytics Results -->
+                    <div id="analyticsContainer" class="mb-8"></div>
+                    
+                    <!-- Chart Container -->
+                    <div class="chart-container">
+                        <canvas id="dataChart"></canvas>
+                    </div>
+                    
+                    <!-- Results Table -->
+                    <div id="resultsTable"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-16">
+            <div class="max-w-4xl mx-auto px-4">
+                <div class="glass-effect p-6 md:p-8">
+                    <h3 class="text-3xl font-bold mb-6 text-center text-primary">About ThinkBoard</h3>
+                    <p class="text-lg text-secondary leading-relaxed text-center">
+                        ThinkBoard is designed to bring together Python scripting, data analysis, and visualization techniques, 
+                        combining them with the power of a modern, user-friendly interface. Whether you're a student, researcher, 
+                        or data enthusiast, our platform makes data analysis accessible and enjoyable.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass-effect mt-16">
+        <div class="max-w-4xl mx-auto px-4 py-8 text-center">
+            <p class="text-muted">
+                © 2025 ThinkBoard. Made with <i class="fas fa-heart text-highlight"></i> by Muhammad Taha Nasir
+            </p>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
