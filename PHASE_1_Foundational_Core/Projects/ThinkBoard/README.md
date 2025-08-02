@@ -2,6 +2,10 @@
 
 A modern, interactive data analytics dashboard built with Flask and JavaScript. Upload CSV files, analyze statistics, visualize data with beautiful charts, and explore sorting/searching algorithms.
 
+## 🌐 Live Demo
+
+**🔗 [Try ThinkBoard Live](https://think-board.up.railway.app/)**
+
 ![ThinkBoard Dashboard](https://img.shields.io/badge/Status-Active-brightgreen)
 ![Python](https://img.shields.io/badge/Python-3.8+-blue)
 ![Flask](https://img.shields.io/badge/Flask-3.0+-green)
