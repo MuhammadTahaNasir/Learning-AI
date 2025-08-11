@@ -26,7 +26,7 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Notebooks**: [37 Notebooks](PHASE_02_Math_Stats_Probability/)
 
 ### 🔢 [Phase 3: NumPy](PHASE_03_NumPy/)
-**Status**: 📋 Planned
+**Status**: ✅ Completed
 - **Topics**: Array creation, attributes, reshape, indexing/slicing, concatenating/splitting, broadcasting, universal array functions.
 - **Notebooks**: [10 Notebooks](PHASE_03_NumPy/)
 

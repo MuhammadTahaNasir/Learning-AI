@@ -2412,6 +2412,398 @@ PHASE_2_NOTEBOOK_CONTENTS = {
     }
 }
 
+
+PHASE_3_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Intro to NumPy",
+        "summary": "Introduction to NumPy, ndarray concept, and comparing performance with standard Python lists.",
+        "theory": [
+            "### 1. What is NumPy?\n",
+            "NumPy (Numerical Python) is the fundamental package for scientific computing in Python. It provides a high-performance multidimensional array object, **ndarray**, and tools for working with these arrays.\n",
+            "\n",
+            "### 2. Why use NumPy over Lists?\n",
+            "- **Memory Efficiency**: NumPy arrays use contiguous blocks of memory, whereas Python lists store pointers to objects scattered in memory.\n",
+            "- **Performance**: NumPy operations are implemented in compiled C code, allowing element-wise operations (vectorization) without slow Python loops.\n",
+            "- **Convenience**: Math operations on arrays can be written concisely, like `a * b` instead of writing a loop."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import time\n",
+            "\n",
+            "# Performance Comparison: List vs NumPy Array\n",
+            "size = 1000000\n",
+            "list1 = list(range(size))\n",
+            "list2 = list(range(size))\n",
+            "arr1 = np.arange(size)\n",
+            "arr2 = np.arange(size)\n",
+            "\n",
+            "# Measure list addition time\n",
+            "start = time.time()\n",
+            "list_result = [x + y for x, y in zip(list1, list2)]\n",
+            "print(\"List time:\", time.time() - start, \"seconds\")\n",
+            "\n",
+            "# Measure array addition time\n",
+            "start = time.time()\n",
+            "arr_result = arr1 + arr2\n",
+            "print(\"NumPy Array time:\", time.time() - start, \"seconds\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Multiply a Python list of size 100,000 by a scalar 5 using list comprehension, and compare its execution time with a NumPy array multiplied by the same scalar."
+        ],
+        "exercise_code": [
+            "size = 100000\n",
+            "l = list(range(size))\n",
+            "a = np.arange(size)\n",
+            "\n",
+            "t0 = time.time()\n",
+            "res_l = [x * 5 for x in l]\n",
+            "print(\"List multiplication time:\", time.time() - t0)\n",
+            "\n",
+            "t1 = time.time()\n",
+            "res_a = a * 5\n",
+            "print(\"NumPy multiplication time:\", time.time() - t1)\n"
+        ]
+    },
+    2: {
+        "title": "Creating arrays: from list, built in methods, random",
+        "summary": "Creating arrays from python iterables and using built-in functions like np.zeros, np.ones, np.arange, np.linspace, and random generators.",
+        "theory": [
+            "### Array Creation Methods\n",
+            "NumPy provides several convenient built-in functions to initialize arrays:\n",
+            "\n",
+            "### 1. From Python Iterables\n",
+            "- `np.array(iterable)`: Converts lists, tuples, etc. into an ndarray.\n",
+            "\n",
+            "### 2. Built-in Constant/Range Initializers\n",
+            "- `np.zeros(shape)`: Creates an array filled with 0.\n",
+            "- `np.ones(shape)`: Creates an array filled with 1.\n",
+            "- `np.arange(start, stop, step)`: Creates sequence of numbers with a constant step.\n",
+            "- `np.linspace(start, stop, num)`: Creates a sequence of `num` equally spaced numbers in a closed interval.\n",
+            "\n",
+            "### 3. Random Number Generators\n",
+            "- `np.random.rand(d0, d1)`: Uniformly distributed floats in [0, 1).\n",
+            "- `np.random.randn(d0, d1)`: Normal (Gaussian) distributed floats (mean=0, variance=1).\n",
+            "- `np.random.randint(low, high, size)`: Random integers in [low, high)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "print(\"Zeros Matrix:\\n\", np.zeros((2, 3)))\n",
+            "print(\"Ones Matrix:\\n\", np.ones((2, 2)))\n",
+            "print(\"arange(0, 10, 2):\", np.arange(0, 10, 2))\n",
+            "print(\"linspace(0, 1, 5):\", np.linspace(0, 1, 5))\n",
+            "print(\"randint(1, 10, 5):\", np.random.randint(1, 10, 5))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create a 3x3 matrix filled with random values from a standard normal distribution.\n",
+            "2. Generate an array of 20 equally spaced values between 0 and 10."
+        ],
+        "exercise_code": [
+            "norm_matrix = np.random.randn(3, 3)\n",
+            "spaced_vals = np.linspace(0, 10, 20)\n",
+            "print(\"Normal Matrix:\\n\", norm_matrix)\n",
+            "print(\"Spaced Values:\\n\", spaced_vals)\n"
+        ]
+    },
+    3: {
+        "title": "Array attributes: shape, dtype, size, ndim",
+        "summary": "Querying metadata of NumPy arrays: dimensions, shape, element count, and data type.",
+        "theory": [
+            "### Metadata Attributes of ndarray\n",
+            "Every NumPy array has standard attributes to describe its structure and layout in memory:\n",
+            "\n",
+            "- `ndim`: The number of axes (dimensions) of the array.\n",
+            "- `shape`: A tuple of integers showing the size of the array along each dimension.\n",
+            "- `size`: The total number of elements in the array (equal to the product of shape elements).\n",
+            "- `dtype`: An object describing the type of elements in the array (e.g., int32, float64)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "arr = np.array([[1, 2, 3], [4, 5, 6]], dtype=np.float32)\n",
+            "print(\"Array dimensions (ndim):\", arr.ndim)\n",
+            "print(\"Array shape:\", arr.shape)\n",
+            "print(\"Total elements (size):\", arr.size)\n",
+            "print(\"Data type (dtype):\", arr.dtype)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create a 3D array of shape (2, 3, 4) and display its ndim, shape, size, and dtype attributes."
+        ],
+        "exercise_code": [
+            "arr_3d = np.ones((2, 3, 4))\n",
+            "print(f\"ndim: {arr_3d.ndim}, shape: {arr_3d.shape}, size: {arr_3d.size}, dtype: {arr_3d.dtype}\")\n"
+        ]
+    },
+    4: {
+        "title": "Array methods: reshape, max, min, argmax, argmin",
+        "summary": "Reshaping arrays and finding maximum/minimum values along with their indices.",
+        "theory": [
+            "### Array Manipulation & Statistics\n",
+            "\n",
+            "### 1. Reshaping\n",
+            "- `reshape(new_shape)`: Returns an array containing the same data with a new shape. The new shape must have the same total size as the original.\n",
+            "\n",
+            "### 2. Statistical Aggregations\n",
+            "- `max()` and `min()`: Find the maximum and minimum values in the array (optionally along a specific axis).\n",
+            "- `argmax()` and `argmin()`: Find the flat indices of the maximum and minimum values."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "arr = np.array([3, 10, 1, 15, 2, 8])\n",
+            "reshaped = arr.reshape((2, 3))\n",
+            "print(\"Reshaped 2x3 Matrix:\\n\", reshaped)\n",
+            "print(\"Max Value:\", reshaped.max())\n",
+            "print(\"Min Value:\", reshaped.min())\n",
+            "print(\"Index of Max:\", reshaped.argmax())\n",
+            "print(\"Index of Max along column (axis=0):\", reshaped.argmax(axis=0))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create an array of 12 numbers and reshape it into a 3x4 matrix.\n",
+            "2. Find the index of the minimum value in each row (axis=1) of the matrix."
+        ],
+        "exercise_code": [
+            "a = np.arange(12).reshape((3, 4))\n",
+            "np.random.shuffle(a) # Shuffle rows to make it interesting\n",
+            "print(\"Matrix:\\n\", a)\n",
+            "print(\"Argmin along rows:\", a.argmin(axis=1))\n"
+        ]
+    },
+    5: {
+        "title": "Array operations: copy, append, insert, sort, delete",
+        "summary": "Array manipulations: shallow vs deep copies, appending, inserting, sorting, and deleting elements.",
+        "theory": [
+            "### Manipulating Array Elements\n",
+            "Unlike lists, NumPy arrays have a fixed size. Operations like append or delete create a new array copy underneath:\n",
+            "\n",
+            "- **Copy (`np.copy`)**: Standard slicing returns a *view* (shallow reference). Modifying a view changes the original array. Use `copy()` to create an independent array.\n",
+            "- **Append (`np.append(arr, values)`)**: Appends values to the end of an array.\n",
+            "- **Insert (`np.insert(arr, obj, values)`)**: Inserts values at a specific index.\n",
+            "- **Delete (`np.delete(arr, obj)`)**: Deletes items at the specified index/indices.\n",
+            "- **Sort (`np.sort(arr)`)**: Returns a sorted copy of the array."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "arr = np.array([40, 10, 30, 20])\n",
+            "view = arr[1:3]\n",
+            "view[0] = 99\n",
+            "print(\"Original modified by view change:\", arr)\n",
+            "\n",
+            "copied = np.copy(arr)\n",
+            "copied[0] = 500\n",
+            "print(\"Original untouched by copy change:\", arr)\n",
+            "\n",
+            "print(\"Sorted array:\", np.sort(arr))\n",
+            "print(\"Appended:\", np.append(arr, [100, 200]))\n",
+            "print(\"Deleted index 1:\", np.delete(arr, 1))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create an array `[10, 5, 8, 3]`. Sort it in descending order, then insert the value `99` at index 2."
+        ],
+        "exercise_code": [
+            "a = np.array([10, 5, 8, 3])\n",
+            "sorted_desc = np.sort(a)[::-1]\n",
+            "result = np.insert(sorted_desc, 2, 99)\n",
+            "print(\"Resulting Array:\", result)\n"
+        ]
+    },
+    6: {
+        "title": "Concatenating, splitting, searching",
+        "summary": "Joining multiple arrays, splitting an array into sub-arrays, and searching for element locations.",
+        "theory": [
+            "### Structural Merging, Splitting, and Conditional Search\n",
+            "\n",
+            "### 1. Concatenation\n",
+            "- `np.concatenate((a1, a2), axis)`: Joins a sequence of arrays along an existing axis.\n",
+            "\n",
+            "### 2. Splitting\n",
+            "- `np.split(arr, indices_or_sections)`: Splits an array into multiple sub-arrays.\n",
+            "\n",
+            "### 3. Searching\n",
+            "- `np.where(condition)`: Returns indices of elements that satisfy the given condition. Can also be used to conditionally replace values: `np.where(cond, x, y)`."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "a = np.array([[1, 2], [3, 4]])\n",
+            "b = np.array([[5, 6], [7, 8]])\n",
+            "print(\"Concatenate Vertically:\\n\", np.concatenate((a, b), axis=0))\n",
+            "print(\"Concatenate Horizontally:\\n\", np.concatenate((a, b), axis=1))\n",
+            "\n",
+            "arr = np.arange(9)\n",
+            "split_arr = np.split(arr, 3)\n",
+            "print(\"Split array:\", split_arr)\n",
+            "\n",
+            "# Search even numbers\n",
+            "even_indices = np.where(arr % 2 == 0)\n",
+            "print(\"Indices of evens:\", even_indices)\n",
+            "print(\"Even values:\", arr[even_indices])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Given an array `arr = np.array([15, 22, 9, 34, 50, 4, 18])`, use `np.where` to replace all values greater than 20 with `999` and all other values with `-1`."
+        ],
+        "exercise_code": [
+            "arr = np.array([15, 22, 9, 34, 50, 4, 18])\n",
+            "replaced = np.where(arr > 20, 999, -1)\n",
+            "print(\"Replaced Array:\", replaced)\n"
+        ]
+    },
+    7: {
+        "title": "NumPy indexing, slicing, logical selection",
+        "summary": "Selecting elements from 1D and 2D arrays, indexing slices, and boolean/logical filtering.",
+        "theory": [
+            "### Slicing and Filtering Techniques\n",
+            "\n",
+            "### 1. Slice Notation\n",
+            "- `arr[start:stop:step]`\n",
+            "- For 2D matrices: `matrix[row_start:row_stop, col_start:col_stop]`\n",
+            "\n",
+            "### 2. Logical (Boolean) Selection\n",
+            "- Creating a boolean condition like `mask = arr > 5` returns an array of booleans.\n",
+            "- Passing this mask back into the array, `arr[mask]`, filters out only `True` values."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "matrix = np.array([\n",
+            "    [10, 20, 30],\n",
+            "    [40, 50, 60],\n",
+            "    [70, 80, 90]\n",
+            "])\n",
+            "\n",
+            "print(\"Slice row 0 and columns 1-2:\", matrix[0, 1:3])\n",
+            "print(\"Extract 2x2 submatrix:\\n\", matrix[:2, :2])\n",
+            "\n",
+            "# Filter values greater than 50\n",
+            "mask = matrix > 50\n",
+            "print(\"Boolean Mask:\\n\", mask)\n",
+            "print(\"Filtered Values:\", matrix[mask])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. From a 3x3 matrix of integers from 1 to 9, extract the middle column.\n",
+            "2. Filter out all odd numbers from this matrix using boolean indexing."
+        ],
+        "exercise_code": [
+            "m = np.arange(1, 10).reshape((3, 3))\n",
+            "print(\"Middle column:\", m[:, 1])\n",
+            "print(\"Even numbers:\", m[m % 2 == 0])\n"
+        ]
+    },
+    8: {
+        "title": "Broadcasting",
+        "summary": "Mathematical operations on arrays of different shapes.",
+        "theory": [
+            "### Broadcasting Rules\n",
+            "Broadcasting allows arithmetic operations on arrays of different shapes. NumPy expands the smaller array to match the size of the larger one without copy overhead.\n",
+            "\n",
+            "### Broadcasting Rules Compatibility:\n",
+            "Two dimensions are compatible if:\n",
+            "1. They are equal, OR\n",
+            "2. One of them is 1.\n",
+            "\n",
+            "If these conditions are not met, NumPy raises a `ValueError: operands could not be broadcast together`."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "matrix = np.array([[1, 2, 3], [4, 5, 6]]) # shape (2, 3)\n",
+            "row_vector = np.array([10, 20, 30])      # shape (3,)\n",
+            "\n",
+            "# Add shape (2,3) to shape (3,) -> Row vector broadcasted across rows\n",
+            "print(\"Broadcast Addition Result:\\n\", matrix + row_vector)\n",
+            "\n",
+            "col_vector = np.array([[100], [200]])    # shape (2, 1)\n",
+            "print(\"Col Vector Broadcast:\\n\", matrix + col_vector)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Multiply a 3x3 matrix of ones by a 1x3 column vector `[[10], [20], [30]]` using broadcasting."
+        ],
+        "exercise_code": [
+            "m = np.ones((3, 3))\n",
+            "col = np.array([[10], [20], [30]])\n",
+            "print(\"Broadcast Multiplication:\\n\", m * col)\n"
+        ]
+    },
+    9: {
+        "title": "Type casting, arithmetic operations",
+        "summary": "Changing data types of arrays and element-wise arithmetic operations.",
+        "theory": [
+            "### Arithmetic & Data Type Conversion\n",
+            "\n",
+            "### 1. Data Type Casting\n",
+            "- Use `astype(new_dtype)` to cast elements (e.g. converting `float64` to `int32` to save memory).\n",
+            "\n",
+            "### 2. Element-Wise Arithmetic\n",
+            "- Basic arithmetic operators `+`, `-`, `*`, `/`, `**` execute element-wise operations on arrays."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "floats = np.array([1.2, 2.5, 3.8])\n",
+            "ints = floats.astype(np.int32)\n",
+            "print(\"Casted to integers:\", ints)\n",
+            "\n",
+            "a = np.array([2, 4, 6])\n",
+            "b = np.array([1, 2, 3])\n",
+            "print(\"Addition:\", a + b)\n",
+            "print(\"Power:\", a ** b)\n",
+            "print(\"Division:\", a / b)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create a float array `[1.9, 2.9, 3.9]`. Cast it to `int32` and explain if values were rounded or truncated.\n",
+            "2. Generate an array `a = np.array([10, 20, 30])` and find its reciprocal element-wise."
+        ],
+        "exercise_code": [
+            "f = np.array([1.9, 2.9, 3.9])\n",
+            "i = f.astype(np.int32)\n",
+            "print(\"Casted (truncated):\", i)\n",
+            "reciprocal = 1.0 / np.array([10, 20, 30])\n",
+            "print(\"Reciprocals:\", reciprocal)\n"
+        ]
+    },
+    10: {
+        "title": "Universal array functions: sqrt, exp, sin, etc.",
+        "summary": "Fast mathematical element-wise functions (ufuncs) in NumPy.",
+        "theory": [
+            "### Universal Functions (ufunc)\n",
+            "A universal function (or **ufunc**) is a function that operates on ndarrays in an element-by-element fashion, supporting vectorization.\n",
+            "Common ufuncs include:\n",
+            "- `np.sqrt(arr)`: Computes square root.\n",
+            "- `np.exp(arr)`: Computes natural exponential ($e^x$).\n",
+            "- `np.log(arr)`: Computes natural logarithm ($ln$).\n",
+            "- `np.sin(arr)`, `np.cos(arr)`: Trigonometric operations."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "arr = np.array([1, 4, 9])\n",
+            "print(\"Square root:\", np.sqrt(arr))\n",
+            "print(\"Exponential:\", np.exp(arr))\n",
+            "print(\"Logarithm (base e):\", np.log(arr))\n",
+            "print(\"Sine (in radians):\", np.sin(np.array([0, np.pi/2, np.pi])))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Given an array `[10, 20, 30]`, calculate the element-wise exponential and natural log values."
+        ],
+        "exercise_code": [
+            "a = np.array([10, 20, 30])\n",
+            "print(\"Exponential:\", np.exp(a))\n",
+            "print(\"Log:\", np.log(a))\n"
+        ]
+    }
+}
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -2536,7 +2928,12 @@ def make_populated_notebook(phase_num, topic_num, details):
     cells = []
     
     # Emoji based on phase
-    emoji = "🐍" if phase_num == 1 else "📊"
+    if phase_num == 1:
+        emoji = "🐍"
+    elif phase_num == 2:
+        emoji = "📊"
+    else:
+        emoji = "🔢"
     
     # 1. Header & Summary
     cells.append({
@@ -2639,6 +3036,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(1, idx, PHASE_1_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_02_Math_Stats_Probability" and idx in PHASE_2_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(2, idx, PHASE_2_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_03_NumPy" and idx in PHASE_3_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(3, idx, PHASE_3_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -2666,6 +3065,8 @@ def generate_roadmap():
                         status = "🚧 In Progress (Project Done)"
                     else:
                         status = "📋 Planned"
+                elif phase["dir_name"] == "PHASE_03_NumPy":
+                    status = "✅ Completed"
                 else:
                     status = "📋 Planned"
                     
