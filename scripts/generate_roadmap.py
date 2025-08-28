@@ -2804,6 +2804,483 @@ PHASE_3_NOTEBOOK_CONTENTS = {
     }
 }
 
+
+PHASE_4_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Intro to Pandas: Series and DataFrame",
+        "summary": "Series (1D) and DataFrame (2D), basic construction from lists/dicts, and basic metadata inspections.",
+        "theory": [
+            "### 1. What is Pandas?\n",
+            "Pandas is the primary library for data manipulation and analysis in Python. It provides high-performance data structures: **Series** (1-dimensional) and **DataFrame** (2-dimensional).\n",
+            "\n",
+            "### 2. Core Data Structures\n",
+            "- **Series**: A 1D labeled array capable of holding any data type (integers, strings, floats, Python objects). It has an axis label called the index.\n",
+            "- **DataFrame**: A 2D labeled data structure with columns of potentially different types, resembling a spreadsheet or SQL table."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import numpy as np\n",
+            "\n",
+            "# 1. Creating a Series\n",
+            "s = pd.Series([10, 20, 30, 40], index=['a', 'b', 'c', 'd'])\n",
+            "print(\"Series:\\n\", s)\n",
+            "\n",
+            "# 2. Creating a DataFrame from a dictionary\n",
+            "data = {\n",
+            "    'Name': ['Alice', 'Bob', 'Charlie'],\n",
+            "    'Age': [25, 30, 35],\n",
+            "    'City': ['New York', 'Paris', 'London']\n",
+            "}\n",
+            "df = pd.DataFrame(data)\n",
+            "print(\"\\nDataFrame:\\n\", df)\n",
+            "print(\"\\nColumns:\", df.columns)\n",
+            "print(\"Shape:\", df.shape)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create a Series of 5 elements representing employee salaries, with employee names as the index.\n",
+            "2. Create a DataFrame from a list of dictionaries representing products (columns: ProductID, Price, Stock)."
+        ],
+        "exercise_code": [
+            "salaries = pd.Series([50000, 60000, 75000, 80000, 45000], index=['Alex', 'Sarah', 'Ryan', 'John', 'Emma'])\n",
+            "products = pd.DataFrame([\n",
+            "    {'ProductID': 101, 'Price': 15.5, 'Stock': 120},\n",
+            "    {'ProductID': 102, 'Price': 20.0, 'Stock': 80},\n",
+            "    {'ProductID': 103, 'Price': 9.9, 'Stock': 200}\n",
+            "])\n",
+            "print(\"Salaries Series:\\n\", salaries)\n",
+            "print(\"\\nProducts DataFrame:\\n\", products)\n"
+        ]
+    },
+    2: {
+        "title": "Data input, selection, indexing",
+        "summary": "Loading datasets and selecting rows/columns using loc and iloc.",
+        "theory": [
+            "### Data Selection & Indexing in Pandas\n",
+            "We can select subsets of data in a DataFrame using standard indexing or optimized attributes:\n",
+            "\n",
+            "- **`df['col_name']`**: Selects a single column as a Series.\n",
+            "- **`df[['col1', 'col2']]`**: Selects multiple columns as a DataFrame.\n",
+            "- **`loc`**: Label-based indexing. Selects rows and columns by their labels: `df.loc[row_label, col_label]`.\n",
+            "- **`iloc`**: Integer position-based indexing. Selects rows and columns by their numerical indices: `df.iloc[row_pos, col_pos]`."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "# Load sample dataset from URL\n",
+            "url = \"https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "print(\"First 3 rows of Iris:\\n\", df.head(3))\n",
+            "\n",
+            "# loc selection (label-based)\n",
+            "print(\"\\nloc selection (row index 0, col 'sepal_length'):\", df.loc[0, 'sepal_length'])\n",
+            "\n",
+            "# iloc selection (integer position-based)\n",
+            "print(\"iloc selection (first 2 rows, first 3 columns):\\n\", df.iloc[:2, :3])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Using the Iris dataset, filter and select all rows where `species` is equal to `'setosa'` and display the first 5 records.\n",
+            "2. Select only the `sepal_width` and `petal_width` columns for rows with index positions 10 to 15 (inclusive) using `.loc` or `.iloc`."
+        ],
+        "exercise_code": [
+            "setosa_subset = df[df['species'] == 'setosa'].head(5)\n",
+            "slice_subset = df.iloc[10:16, [1, 3]]\n",
+            "print(\"Setosa subset:\\n\", setosa_subset)\n",
+            "print(\"\\nSlice position-based subset:\\n\", slice_subset)\n"
+        ]
+    },
+    3: {
+        "title": "DataFrame operations: head, unique, value_counts, sort, null check",
+        "summary": "Basic explorations on DataFrames (head, tail, unique values, value counts, sorting, and null value inspections).",
+        "theory": [
+            "### Core DataFrame Inspection Methods\n",
+            "To understand a dataset's structure and contents, we use these common operations:\n",
+            "\n",
+            "- `df.head(n)` / `df.tail(n)`: View the first or last $n$ rows.\n",
+            "- `df.info()`: Summarizes index, columns, null statuses, and memory usage.\n",
+            "- `df.describe()`: Computes summary statistics (mean, std, percentiles) for numerical columns.\n",
+            "- `col.unique()` / `col.nunique()`: Get unique elements or count of unique elements in a column.\n",
+            "- `col.value_counts()`: Frequency counts of each unique category.\n",
+            "- `df.sort_values(by, ascending)`: Sorts the DataFrame by specific column(s).\n",
+            "- `df.isnull().sum()`: Counts missing values in each column."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "print(\"Shape of Titanic:\", df.shape)\n",
+            "print(\"\\nUnique values in Survived:\", df['Survived'].unique())\n",
+            "print(\"\\nGender value counts:\\n\", df['Sex'].value_counts())\n",
+            "print(\"\\nMissing values per column:\\n\", df.isnull().sum())\n",
+            "print(\"\\nFirst 3 rows sorted by Fare descending:\\n\", df.sort_values(by='Fare', ascending=False).head(3))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Find the count of survivors (value counts of `Survived`) in the Titanic dataset.\n",
+            "2. Identify the column with the highest number of null values and compute the percentage of null values in it."
+        ],
+        "exercise_code": [
+            "survival_counts = df['Survived'].value_counts()\n",
+            "null_percentages = (df.isnull().sum() / len(df)) * 100\n",
+            "print(\"Survival Counts:\\n\", survival_counts)\n",
+            "print(\"\\nNull percentages per column:\\n\", null_percentages)\n"
+        ]
+    },
+    4: {
+        "title": "Missing data and handling",
+        "summary": "Techniques for identifying and resolving missing values (dropping, filling).",
+        "theory": [
+            "### Handling Missing Data\n",
+            "Real-world data often has missing values (NaN or None). Pandas provides several methods to manage them:\n",
+            "\n",
+            "- **Detecting Nulls**: `df.isnull()` returns a boolean mask. `df.isnull().sum()` totals nulls per column.\n",
+            "- **Dropping Nulls (`dropna`)**: Removes rows or columns containing missing values. Useful if missingness is small or column is mostly empty.\n",
+            "- **Imputing Nulls (`fillna`)**: Fills missing values with a placeholder, like a constant value, mean, median, or mode."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "# Check null status\n",
+            "print(\"Null counts in Age:\", df['Age'].isnull().sum())\n",
+            "\n",
+            "# Fill Age missing values with its median\n",
+            "median_age = df['Age'].median()\n",
+            "df_filled = df.copy()\n",
+            "df_filled['Age'] = df_filled['Age'].fillna(median_age)\n",
+            "print(\"Null counts in Age after fillna:\", df_filled['Age'].isnull().sum())\n",
+            "\n",
+            "# Drop rows where Cabin is missing\n",
+            "df_dropped = df.dropna(subset=['Cabin'])\n",
+            "print(\"Shape after dropping Cabin null rows:\", df_dropped.shape)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Locate missing values in the `Embarked` column of the Titanic dataset and fill them with the most frequent value (mode) of that column."
+        ],
+        "exercise_code": [
+            "mode_embarked = df['Embarked'].mode()[0]\n",
+            "df['Embarked'] = df['Embarked'].fillna(mode_embarked)\n",
+            "print(\"Null count in Embarked after filling:\", df['Embarked'].isnull().sum())\n"
+        ]
+    },
+    5: {
+        "title": "Merging, joining, concatenation: inner, outer, left, right",
+        "summary": "Combining multiple datasets vertically and horizontally using merge, join, and concat.",
+        "theory": [
+            "### Combining Datasets\n",
+            "\n",
+            "### 1. Concatenation (`pd.concat`)\n",
+            "Stacks multiple DataFrames vertically (axis=0) or horizontally (axis=1).\n",
+            "\n",
+            "### 2. Merging (`pd.merge`)\n",
+            "Database-style joins based on matching keys (columns):\n",
+            "- **Inner Join**: Keeps rows with matching keys in both DataFrames.\n",
+            "- **Outer Join**: Keeps all rows from both DataFrames, filling missing matches with NaN.\n",
+            "- **Left Join**: Keeps all rows from left DataFrame, along with matching rows from the right.\n",
+            "- **Right Join**: Keeps all rows from right DataFrame, along with matching rows from the left."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "df1 = pd.DataFrame({'id': [1, 2, 3], 'Product': ['Apple', 'Banana', 'Orange']})\n",
+            "df2 = pd.DataFrame({'id': [2, 3, 4], 'Price': [0.5, 0.8, 1.2]})\n",
+            "\n",
+            "# 1. Inner Merge\n",
+            "print(\"Inner Merge:\\n\", pd.merge(df1, df2, on='id', how='inner'))\n",
+            "\n",
+            "# 2. Left Merge\n",
+            "print(\"\\nLeft Merge:\\n\", pd.merge(df1, df2, on='id', how='left'))\n",
+            "\n",
+            "# 3. Concatenation (vertical stacking)\n",
+            "df3 = pd.DataFrame({'id': [5], 'Product': ['Grape']})\n",
+            "print(\"\\nConcatenated DataFrame:\\n\", pd.concat([df1, df3], axis=0, ignore_index=True))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Merge `df1` and `df2` using an **outer join** and explain why some rows contain null values."
+        ],
+        "exercise_code": [
+            "outer_merge = pd.merge(df1, df2, on='id', how='outer')\n",
+            "print(\"Outer Merge:\\n\", outer_merge)\n"
+        ]
+    },
+    6: {
+        "title": "GroupBy, discretization, binning",
+        "summary": "Aggregating data by categories and converting continuous variables to categorical bins.",
+        "theory": [
+            "### Grouping & Discretization (Binning)\n",
+            "\n",
+            "### 1. GroupBy\n",
+            "The `groupby` method implements the **Split-Apply-Combine** workflow. It splits data by a category, applies an aggregation (like sum, mean, count), and combines results into a summary table.\n",
+            "\n",
+            "### 2. Discretization / Binning\n",
+            "- **`pd.cut`**: Bin values into discrete intervals based on numerical edges (e.g. dividing Age into Child/Adult/Senior).\n",
+            "- **`pd.qcut`**: Bin values into equal-sized quantiles (e.g., dividing salary into quartiles)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "# Average Fare by Passenger Class\n",
+            "avg_fare_by_class = df.groupby('Pclass')['Fare'].mean()\n",
+            "print(\"Average Fare by Pclass:\\n\", avg_fare_by_class)\n",
+            "\n",
+            "# Discretize Age into 3 bins\n",
+            "df_clean = df.dropna(subset=['Age']).copy()\n",
+            "df_clean['AgeGroup'] = pd.cut(df_clean['Age'], bins=[0, 12, 60, 100], labels=['Child', 'Adult', 'Senior'])\n",
+            "print(\"\\nAge group counts:\\n\", df_clean['AgeGroup'].value_counts())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Use `groupby` to compute the survival rate (mean of `Survived`) grouped by passenger `Sex` and `Pclass` together."
+        ],
+        "exercise_code": [
+            "survival_rates = df.groupby(['Sex', 'Pclass'])['Survived'].mean()\n",
+            "print(\"Survival rates by Sex and Pclass:\\n\", survival_rates)\n"
+        ]
+    },
+    7: {
+        "title": "Data output/saving, working with CSV, JSON, SQL",
+        "summary": "Saving DataFrames to CSV, JSON, and database tables.",
+        "theory": [
+            "### Exporting Data in Pandas\n",
+            "Once data preprocessing is complete, we serialize it to external file formats using `to_*` methods:\n",
+            "\n",
+            "- `df.to_csv(filepath, index=False)`: Exports to CSV. Setting `index=False` prevents exporting row indices as a column.\n",
+            "- `df.to_json(filepath)`: Exports data structure to JSON format.\n",
+            "- `df.to_excel(filepath)`: Exports to Microsoft Excel sheets (requires openpyxl dependency)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "data = {\n",
+            "    'Product': ['Laptop', 'Mouse', 'Keyboard'],\n",
+            "    'Price': [1200, 25, 45]\n",
+            "}\n",
+            "df = pd.DataFrame(data)\n",
+            "\n",
+            "# Save to CSV\n",
+            "df.to_csv('products_exported.csv', index=False)\n",
+            "print(\"File saved as products_exported.csv! Checking existence:\", os.path.exists('products_exported.csv'))\n",
+            "\n",
+            "# Clean up file\n",
+            "if os.path.exists('products_exported.csv'):\n",
+            "    os.remove('products_exported.csv')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create a dictionary representing student scores, load it into a DataFrame, and save it as a JSON file named `student_scores.json`."
+        ],
+        "exercise_code": [
+            "students = pd.DataFrame({\n",
+            "    'Student': ['Alice', 'Bob', 'Charlie'],\n",
+            "    'Score': [92, 85, 88]\n",
+            "})\n",
+            "students.to_json('student_scores.json', indent=2)\n",
+            "print(\"student_scores.json created!\")\n",
+            "if os.path.exists('student_scores.json'):\n",
+            "    os.remove('student_scores.json')\n"
+        ]
+    },
+    8: {
+        "title": "Pandas for plotting",
+        "summary": "Built-in plotting capabilities of Pandas using Matplotlib backend.",
+        "theory": [
+            "### Built-in Plotting in Pandas\n",
+            "Pandas provides wrapper methods around `matplotlib.pyplot` directly on Series and DataFrames via the `plot` accessor:\n",
+            "\n",
+            "- `df['col'].plot(kind='line')`: Line plots (default).\n",
+            "- `df['col'].plot(kind='bar')`: Bar charts for categorical variables.\n",
+            "- `df['col'].plot(kind='hist')`: Histograms for distributions.\n",
+            "- `df.plot(kind='scatter', x, y)`: Scatter plots for bivariate analysis.\n",
+            "- `df['col'].plot(kind='box')`: Box plots for statistical summaries (outliers)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "# Generate plot data internally\n",
+            "class_counts = df['Pclass'].value_counts().sort_index()\n",
+            "\n",
+            "# Plotting directly with Pandas\n",
+            "class_counts.plot(kind='bar', title='Passenger Counts by Pclass')\n",
+            "plt.xlabel('Passenger Class')\n",
+            "plt.ylabel('Count')\n",
+            "# We close or show depending on notebook context\n",
+            "plt.close() # Prevents showing output during script run\n",
+            "print(\"Pandas plot setup completed successfully!\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Plot a histogram of the `Age` column in the Titanic dataset with 20 bins."
+        ],
+        "exercise_code": [
+            "df['Age'].plot(kind='hist', bins=20, title='Distribution of Passenger Ages')\n",
+            "plt.xlabel('Age')\n",
+            "plt.close()\n",
+            "print(\"Histogram code executed!\")\n"
+        ]
+    },
+    9: {
+        "title": "Fetching from API and Web Scraping",
+        "summary": "Loading JSON data from REST APIs and scraping HTML tables directly into DataFrames.",
+        "theory": [
+            "### Fetching Remote Web Data\n",
+            "Pandas handles web scraping and API ingestion very efficiently:\n",
+            "\n",
+            "### 1. Ingesting APIs\n",
+            "API JSON endpoints can be retrieved using standard `requests` and parsed into a DataFrame: `pd.DataFrame(requests.get(url).json())`.\n",
+            "\n",
+            "### 2. Reading HTML Tables\n",
+            "**`pd.read_html(url)`**: Parses all HTML `<table>` elements in the web page into a list of DataFrames. Highly useful for scraping tabular data."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import requests\n",
+            "\n",
+            "# Fetching mock JSON API data\n",
+            "api_url = \"https://jsonplaceholder.typicode.com/posts\"\n",
+            "response = requests.get(api_url)\n",
+            "if response.status_code == 200:\n",
+            "    posts_df = pd.DataFrame(response.json())\n",
+            "    print(\"Data ingested from REST API (posts shape):\", posts_df.shape)\n",
+            "    print(posts_df.head(2))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Fetch list of users from `https://jsonplaceholder.typicode.com/users` and display a DataFrame containing columns `id`, `name`, `username`, and `email`."
+        ],
+        "exercise_code": [
+            "resp = requests.get(\"https://jsonplaceholder.typicode.com/users\")\n",
+            "if resp.status_code == 200:\n",
+            "    users = pd.DataFrame(resp.json())\n",
+            "    print(\"Users subset:\\n\", users[['id', 'name', 'username', 'email']].head(3))\n"
+        ]
+    },
+    10: {
+        "title": "Correlation in Pandas",
+        "summary": "Calculating correlation matrices for numerical columns using Pandas correlation methods.",
+        "theory": [
+            "### Linear Correlation in Pandas\n",
+            "The correlation coefficient ($r$) measures the strength and direction of the linear relationship between two quantitative variables ($[-1, 1]$):\n",
+            "- $r = 1$: Perfect positive relationship.\n",
+            "- $r = -1$: Perfect negative relationship.\n",
+            "- $r = 0$: No linear relationship.\n",
+            "\n",
+            "**`df.corr()`** computes the element-wise correlation matrix for all numerical columns in the DataFrame."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "# Select numeric columns\n",
+            "numeric_df = df.select_dtypes(include=['float64', 'int64'])\n",
+            "print(\"Correlation Matrix on Iris:\\n\", numeric_df.corr())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Using the Titanic dataset, compute the correlation matrix for `Survived`, `Pclass`, `Age`, `SibSp`, `Parch`, and `Fare` columns, and find which variable correlates most with `Survived`."
+        ],
+        "exercise_code": [
+            "titanic_url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "t_df = pd.read_csv(titanic_url)\n",
+            "cols = ['Survived', 'Pclass', 'Age', 'SibSp', 'Parch', 'Fare']\n",
+            "print(\"Titanic Correlation:\\n\", t_df[cols].corr())\n"
+        ]
+    },
+    11: {
+        "title": "Loading data with Pandas deep dive",
+        "summary": "Advanced parameters for reading files: parsing columns, chunks loading, and memory optimization.",
+        "theory": [
+            "### Advanced File Ingestion\n",
+            "When dealing with large datasets, loading options must be tuned to conserve system memory:\n",
+            "\n",
+            "- **`usecols`**: Reads only specific columns, avoiding loading unwanted data.\n",
+            "- **`nrows`**: Loads only the first $N$ rows (great for schema inspection).\n",
+            "- **`chunksize`**: Loads data iteratively in blocks of size $N$ as a generator, preventing Out-Of-Memory errors.\n",
+            "- **`parse_dates`**: Automatically parses date strings into datetime objects during loading."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "\n",
+            "# 1. Read only Name and Survived\n",
+            "df_small = pd.read_csv(url, usecols=['Name', 'Survived'])\n",
+            "print(\"Cols read with usecols:\", df_small.columns.tolist())\n",
+            "\n",
+            "# 2. Chunk loading\n",
+            "chunk_iterator = pd.read_csv(url, chunksize=200)\n",
+            "for i, chunk in enumerate(chunk_iterator, 1):\n",
+            "    print(f\"Chunk {i} shape: {chunk.shape}\")\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Read the first 50 rows of Titanic selecting only Pclass, Sex, and Survived columns."
+        ],
+        "exercise_code": [
+            "df_50 = pd.read_csv(url, usecols=['Pclass', 'Sex', 'Survived'], nrows=50)\n",
+            "print(\"Shape of loaded slice:\", df_50.shape)\n"
+        ]
+    },
+    12: {
+        "title": "Understanding your data and EDA",
+        "summary": "A full exploratory data analysis (EDA) pipeline using descriptive statistics.",
+        "theory": [
+            "### Exploratory Data Analysis (EDA)\n",
+            "EDA is the practice of investigating datasets to summarize main patterns, identify anomalies, check assumptions, and visualize distributions. A standard EDA checklist includes:\n",
+            "1. **Dimensions**: Checking shape ($N \\times M$).\n",
+            "2. **Datatypes**: Inspecting column data types.\n",
+            "3. **Null values**: Quantifying missing values.\n",
+            "4. **Descriptive Stats**: Summarizing numerical ranges and categorical categories.\n",
+            "5. **Groupings**: Splitting target variable across key categories."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "print(\"--- 1. Shape of Data ---\")\n",
+            "print(df.shape)\n",
+            "\n",
+            "print(\"\\n--- 2. Column Types ---\")\n",
+            "print(df.dtypes)\n",
+            "\n",
+            "print(\"\\n--- 3. Missing Values ---\")\n",
+            "print(df.isnull().sum())\n",
+            "\n",
+            "print(\"\\n--- 4. Summary Stats ---\")\n",
+            "print(df.describe())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Write an EDA summary report on the Titanic dataset, detailing dimensions, data types, null counts, and mean survival rates grouped by Sex."
+        ],
+        "exercise_code": [
+            "titanic_url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "t_df = pd.read_csv(titanic_url)\n",
+            "print(\"Shape:\", t_df.shape)\n",
+            "print(\"Nulls:\\n\", t_df.isnull().sum())\n",
+            "print(\"Survival rate by Sex:\\n\", t_df.groupby('Sex')['Survived'].mean())\n"
+        ]
+    }
+}
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -2932,8 +3409,10 @@ def make_populated_notebook(phase_num, topic_num, details):
         emoji = "🐍"
     elif phase_num == 2:
         emoji = "📊"
-    else:
+    elif phase_num == 3:
         emoji = "🔢"
+    else:
+        emoji = "🐼"
     
     # 1. Header & Summary
     cells.append({
@@ -3038,6 +3517,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(2, idx, PHASE_2_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_03_NumPy" and idx in PHASE_3_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(3, idx, PHASE_3_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_04_Pandas_Data_Loading" and idx in PHASE_4_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(4, idx, PHASE_4_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -3066,6 +3547,8 @@ def generate_roadmap():
                     else:
                         status = "📋 Planned"
                 elif phase["dir_name"] == "PHASE_03_NumPy":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_04_Pandas_Data_Loading":
                     status = "✅ Completed"
                 else:
                     status = "📋 Planned"

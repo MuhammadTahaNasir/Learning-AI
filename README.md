@@ -14,7 +14,7 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 ## 📚 Learning Phases & Progress
 
 ### 🐍 [Phase 1: Python Fundamentals](PHASE_01_Python_Fundamentals/)
-**Status**: 📋 Planned (Skip if already strong, skim if rusty)
+**Status**: ✅ Completed (Skip if already strong, skim if rusty)
 - **Topics**: Variables, data structures, conditional execution, loops, functions, file/exception handling, OOP (Inheritance, MRO, Polymorphism, Abstract methods).
 - **Notebooks**: [13 Notebooks](PHASE_01_Python_Fundamentals/)
 
@@ -31,7 +31,7 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Notebooks**: [10 Notebooks](PHASE_03_NumPy/)
 
 ### 🐼 [Phase 4: Pandas & Data Loading](PHASE_04_Pandas_Data_Loading/)
-**Status**: 📋 Planned
+**Status**: ✅ Completed
 - **Topics**: Series & DataFrames, selection/indexing, missing data handling, merge/join/concat, GroupBy, discretization/binning, APIs & Web Scraping, EDA.
 - **Notebooks**: [12 Notebooks](PHASE_04_Pandas_Data_Loading/)
 
