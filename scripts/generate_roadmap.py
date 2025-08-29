@@ -3061,6 +3061,7 @@ PHASE_4_NOTEBOOK_CONTENTS = {
         ],
         "code": [
             "import pandas as pd\n",
+            "import os\n",
             "\n",
             "data = {\n",
             "    'Product': ['Laptop', 'Mouse', 'Keyboard'],\n",
