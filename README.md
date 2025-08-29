@@ -19,7 +19,7 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Notebooks**: [13 Notebooks](PHASE_01_Python_Fundamentals/)
 
 ### 📊 [Phase 2: Math, Statistics & Probability](PHASE_02_Math_Stats_Probability/)
-**Status**: 🚧 In Progress (Math foundation)
+**Status**: ✅ Completed
 - **Topics**: ML introduction & life cycle, **Linear Algebra** (Vectors, Matrices, Eigenvalues/Eigenvectors), **Calculus** (Derivatives, Gradients, Optimization), Statistics (Mean/Median/Mode, Variance, Skewness, Kurtosis, Correlation/Covariance), Probability (Bayes Theorem, Distributions, Hypothesis Testing).
 - **Projects**:
   - [Linear Algebra Operations](PHASE_02_Math_Stats_Probability/Projects/Linear_Algebra_Operations/): Custom vector and matrix operations.

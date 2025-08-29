@@ -3541,11 +3541,7 @@ def generate_roadmap():
                 if phase["dir_name"] == "PHASE_01_Python_Fundamentals":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_02_Math_Stats_Probability":
-                    # Mark math-stats projects completed but other items planned
-                    if idx in [11]: # Linear algebra operations project matches vector math
-                        status = "🚧 In Progress (Project Done)"
-                    else:
-                        status = "📋 Planned"
+                    status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_03_NumPy":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_04_Pandas_Data_Loading":
