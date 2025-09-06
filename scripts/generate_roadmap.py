@@ -3282,6 +3282,329 @@ PHASE_4_NOTEBOOK_CONTENTS = {
     }
 }
 
+PHASE_5_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Matplotlib Part 1",
+        "summary": "Matplotlib fundamentals, figures, axes, line plots, scatter plots, basic styling, and customization.",
+        "theory": [
+            "### Matplotlib Fundamentals\n",
+            "Matplotlib is the foundation of data visualization in Python. It uses a hierarchy of objects:\n",
+            "- **Figure**: The overall window or page that holds the drawings.\n",
+            "- **Axes**: The actual plotting area where data is drawn (each figure can have multiple axes).\n",
+            "\n",
+            "We can use the state-based interface (`plt.plot`) or the Object-Oriented (OO) interface (`fig, ax = plt.subplots()`). The OO interface is preferred for complex layouts."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "\n",
+            "# 1. Generate synthetic data\n",
+            "x = np.linspace(0, 10, 100)\n",
+            "y1 = np.sin(x)\n",
+            "y2 = np.cos(x)\n",
+            "\n",
+            "# 2. Plot using Object-Oriented interface\n",
+            "fig, ax = plt.subplots(figsize=(8, 4))\n",
+            "ax.plot(x, y1, label='Sin Wave', color='teal', linestyle='-', linewidth=2)\n",
+            "ax.scatter(x[::5], y2[::5], label='Cos Points', color='coral', marker='o')\n",
+            "\n",
+            "ax.set_title('Sine Wave & Cosine Points')\n",
+            "ax.set_xlabel('X Axis')\n",
+            "ax.set_ylabel('Y Axis')\n",
+            "ax.legend()\n",
+            "ax.grid(True, linestyle='--', alpha=0.5)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Plot a custom mathematical function $y = x^2 - 4x + 4$ for $x \\in [-5, 5]$ as a dashed line. Add labels and a grid."
+        ],
+        "exercise_code": [
+            "x_custom = np.linspace(-5, 5, 100)\n",
+            "y_custom = x_custom**2 - 4*x_custom + 4\n",
+            "fig, ax = plt.subplots()\n",
+            "ax.plot(x_custom, y_custom, 'r--', label='quadratic')\n",
+            "ax.set_title('Quadratic Plot')\n",
+            "ax.set_xlabel('x')\n",
+            "ax.set_ylabel('y')\n",
+            "ax.legend()\n",
+            "ax.grid(True)\n",
+            "plt.show()\n"
+        ]
+    },
+    2: {
+        "title": "Matplotlib Part 2",
+        "summary": "Subplots, advanced styling, bar plots, histograms, pie charts, and saving figures.",
+        "theory": [
+            "### Advanced Matplotlib Layouts\n",
+            "Matplotlib allows grid layouts using `plt.subplots(nrows, ncols)`. We can customize multiple axes independently and save the resulting figures to disk using `fig.savefig('filename.png', dpi=300)`."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "import os\n",
+            "\n",
+            "categories = ['A', 'B', 'C', 'D']\n",
+            "values = [20, 35, 40, 15]\n",
+            "distribution = np.random.normal(0, 1, 1000)\n",
+            "\n",
+            "fig, axes = plt.subplots(1, 2, figsize=(12, 5))\n",
+            "\n",
+            "# Bar Plot\n",
+            "axes[0].bar(categories, values, color='skyblue', edgecolor='black')\n",
+            "axes[0].set_title('Categorical Bar Plot')\n",
+            "\n",
+            "# Histogram\n",
+            "axes[1].hist(distribution, bins=30, color='violet', edgecolor='black', alpha=0.7)\n",
+            "axes[1].set_title('Normal Distribution Histogram')\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "fig.savefig('matplotlib_subplot.png')\n",
+            "plt.show()\n",
+            "\n",
+            "# Clean up saved file\n",
+            "if os.path.exists('matplotlib_subplot.png'):\n",
+            "    os.remove('matplotlib_subplot.png')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create a figure with a 2x1 grid of subplots. The first subplot should show a bar chart, and the second should show a histogram."
+        ],
+        "exercise_code": [
+            "fig, axes = plt.subplots(2, 1, figsize=(6, 8))\n",
+            "axes[0].bar(['Group 1', 'Group 2'], [10, 20], color='lightgreen')\n",
+            "axes[0].set_title('Group Sizes')\n",
+            "axes[1].hist(np.random.rand(100), bins=10, color='coral')\n",
+            "axes[1].set_title('Uniform Distribution')\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ]
+    },
+    3: {
+        "title": "Pandas Profiling",
+        "summary": "Overview of automated EDA libraries, generating summaries, and reading reports.",
+        "theory": [
+            "### Automated Exploratory Data Analysis\n",
+            "Automated profiling tools generate comprehensive statistics and summaries from DataFrames. We can inspect missing rates, correlations, histograms, and basic metadata programmatically."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = \"https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv\"\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "print(\"=== Dataset Shape ===\")\n",
+            "print(df.shape)\n",
+            "print(\"\\n=== Column Data Types ===\")\n",
+            "print(df.dtypes)\n",
+            "print(\"\\n=== Missing Values Count ===\")\n",
+            "print(df.isnull().sum())\n",
+            "print(\"\\n=== Statistical Summary ===\")\n",
+            "print(df.describe())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Load the Titanic dataset from the URL `https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv` and print its missing values count and summary statistics."
+        ],
+        "exercise_code": [
+            "titanic_url = \"https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv\"\n",
+            "t_df = pd.read_csv(titanic_url)\n",
+            "print(\"Missing values:\\n\", t_df.isnull().sum())\n",
+            "print(\"\\nSummary statistics:\\n\", t_df.describe())\n"
+        ]
+    },
+    4: {
+        "title": "Seaborn: Distribution plots (distplot, jointplot, kdeplot)",
+        "summary": "Visualizing continuous variables using Seaborn.",
+        "theory": [
+            "### Visualizing Distributions with Seaborn\n",
+            "Seaborn makes statistical visualization easy. We can analyze the shapes of continuous variables using:\n",
+            "- `histplot`: Displays the distribution of a single numerical variable.\n",
+            "- `kdeplot`: Fits and plots a smooth kernel density estimate.\n",
+            "- `jointplot`: Creates a multi-panel plot showing the relationship between two variables along with marginal distributions."
+        ],
+        "code": [
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "\n",
+            "# KDE Plot\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "sns.kdeplot(data=tips, x='total_bill', hue='time', fill=True, common_norm=False, palette='viridis')\n",
+            "plt.title('Total Bill KDE by Time of Day')\n",
+            "plt.show()\n",
+            "\n",
+            "# Joint Plot\n",
+            "sns.jointplot(data=tips, x='total_bill', y='tip', kind='hex', color='purple')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Load the Iris dataset. Plot a `kdeplot` of `sepal_length` partitioned by `species` using the `hue` parameter."
+        ],
+        "exercise_code": [
+            "iris = sns.load_dataset('iris')\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "sns.kdeplot(data=iris, x='sepal_length', hue='species', fill=True)\n",
+            "plt.title('Sepal Length KDE by Species')\n",
+            "plt.show()\n"
+        ]
+    },
+    5: {
+        "title": "Seaborn: Categorical plots (boxplot, violinplot, barplot, countplot)",
+        "summary": "Visualizing categorical relationships using Seaborn.",
+        "theory": [
+            "### Categorical Explorations\n",
+            "When analyzing data, we often need to examine distributions of numerical values across different categorical groups:\n",
+            "- `boxplot`: Displays five-number summaries and outlines outliers.\n",
+            "- `violinplot`: Combines a boxplot with a kernel density plot to reveal distribution density shape.\n",
+            "- `countplot`: Shows counts of observations in each categorical bin."
+        ],
+        "code": [
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "\n",
+            "fig, axes = plt.subplots(1, 2, figsize=(14, 5))\n",
+            "\n",
+            "# Boxplot\n",
+            "sns.boxplot(ax=axes[0], data=tips, x='day', y='total_bill', hue='smoker', palette='Set2')\n",
+            "axes[0].set_title('Boxplot of Total Bill by Day')\n",
+            "\n",
+            "# Violinplot\n",
+            "sns.violinplot(ax=axes[1], data=tips, x='day', y='total_bill', hue='smoker', split=True, palette='muted')\n",
+            "axes[1].set_title('Violinplot of Total Bill by Day')\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Load the Titanic dataset. Create a countplot displaying passenger class (`class`) frequencies grouped by survival status (`alive`) as the `hue` variable."
+        ],
+        "exercise_code": [
+            "titanic = sns.load_dataset('titanic')\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "sns.countplot(data=titanic, x='class', hue='alive', palette='coolwarm')\n",
+            "plt.title('Survival count per Passenger Class')\n",
+            "plt.show()\n"
+        ]
+    },
+    6: {
+        "title": "Seaborn: Matrix plots, Heatmap",
+        "summary": "Multi-dimensional visual inspection, generating correlation matrices, and plotting styled Heatmaps.",
+        "theory": [
+            "### Correlation & Matrix Plotting\n",
+            "Matrix plots represent correlation grids. We compute a pairwise Pearson correlation matrix first, then render it visually using `sns.heatmap` with annotations to quickly spot patterns."
+        ],
+        "code": [
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "iris = sns.load_dataset('iris')\n",
+            "corr_matrix = iris.drop(columns='species').corr()\n",
+            "\n",
+            "plt.figure(figsize=(8, 6))\n",
+            "sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', vmin=-1, vmax=1, linewidths=0.5)\n",
+            "plt.title('Iris Correlation Matrix Heatmap')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Load the Titanic dataset, compute the correlation matrix of numerical features (`survived`, `pclass`, `age`, `sibsp`, `parch`, `fare`), and display it as a Heatmap."
+        ],
+        "exercise_code": [
+            "titanic = sns.load_dataset('titanic')\n",
+            "numeric_cols = titanic.select_dtypes(include=['float64', 'int64']).corr()\n",
+            "plt.figure(figsize=(8, 6))\n",
+            "sns.heatmap(numeric_cols, annot=True, cmap='mako')\n",
+            "plt.title('Titanic Correlation Matrix')\n",
+            "plt.show()\n"
+        ]
+    },
+    7: {
+        "title": "EDA using Univariate Analysis",
+        "summary": "Single-variable EDA checklist, checking distributions, counts, and detecting anomalies.",
+        "theory": [
+            "### Univariate Analysis Checklist\n",
+            "Univariate analysis examines one feature at a time. It covers:\n",
+            "- **For Numeric Variables**: Statistics (mean, variance, quartiles) and plotting distributions via KDE or boxplot.\n",
+            "- **For Categorical Variables**: Frequency tables and count plots."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "\n",
+            "# 1. Statistical Summary\n",
+            "print(\"=== Tip Column Statistics ===\")\n",
+            "print(tips['tip'].describe())\n",
+            "\n",
+            "# 2. Plotting distribution\n",
+            "fig, axes = plt.subplots(1, 2, figsize=(12, 4))\n",
+            "sns.histplot(ax=axes[0], data=tips, x='tip', kde=True, color='purple')\n",
+            "axes[0].set_title('Tip Distribution Histogram')\n",
+            "\n",
+            "sns.boxplot(ax=axes[1], data=tips, x='tip', color='lightgreen')\n",
+            "axes[1].set_title('Tip Boxplot (Outlier Detection)')\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Conduct a univariate analysis on the `fare` column in the Titanic dataset. Print descriptive statistics and plot the distribution."
+        ],
+        "exercise_code": [
+            "titanic = sns.load_dataset('titanic')\n",
+            "print(titanic['fare'].describe())\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "sns.histplot(data=titanic, x='fare', kde=True, bins=50)\n",
+            "plt.title('Titanic Fare Distribution')\n",
+            "plt.show()\n"
+        ]
+    },
+    8: {
+        "title": "EDA using Bivariate and Multivariate Analysis",
+        "summary": "Multi-variable EDA checklist, exploring relationships, correlations, and interactions.",
+        "theory": [
+            "### Multi-variable Visual Inspections\n",
+            "Bivariate analysis explores correlations between pairs of columns, while multivariate analysis uses color hue, markers, and sizing to examine multiple variables simultaneously."
+        ],
+        "code": [
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "\n",
+            "# Bivariate Scatter plot with multi-dimensional dimensions\n",
+            "plt.figure(figsize=(8, 5))\n",
+            "sns.scatterplot(data=tips, x='total_bill', y='tip', hue='day', style='time', size='size', palette='deep')\n",
+            "plt.title('Bivariate Scatter Plot with Multi-variables')\n",
+            "plt.show()\n",
+            "\n",
+            "# Bivariate Boxplot\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "sns.boxplot(data=tips, x='time', y='total_bill', hue='sex', palette='coolwarm')\n",
+            "plt.title('Bivariate Comparison: Bill by Time & Sex')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Create a `pairplot` of the Iris dataset, setting the `hue` column to `species` to analyze multivariate relationships."
+        ],
+        "exercise_code": [
+            "iris = sns.load_dataset('iris')\n",
+            "sns.pairplot(iris, hue='species')\n",
+            "plt.show()\n"
+        ]
+    }
+}
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -3520,6 +3843,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(3, idx, PHASE_3_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_04_Pandas_Data_Loading" and idx in PHASE_4_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(4, idx, PHASE_4_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_05_Data_Visualization" and idx in PHASE_5_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(5, idx, PHASE_5_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -3546,6 +3871,8 @@ def generate_roadmap():
                 elif phase["dir_name"] == "PHASE_03_NumPy":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_04_Pandas_Data_Loading":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_05_Data_Visualization":
                     status = "✅ Completed"
                 else:
                     status = "📋 Planned"

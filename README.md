@@ -36,7 +36,7 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Notebooks**: [12 Notebooks](PHASE_04_Pandas_Data_Loading/)
 
 ### 📈 [Phase 5: Data Visualization](PHASE_05_Data_Visualization/)
-**Status**: 🚧 In Progress (Visualization & EDA)
+**Status**: ✅ Completed
 - **Topics**: Matplotlib, Seaborn (Distribution, Categorical, and Matrix plots), Pandas Profiling, Univariate/Bivariate/Multivariate EDA.
 - **Projects**:
   - [ThinkBoard Analytics Dashboard](PHASE_05_Data_Visualization/Projects/ThinkBoard/): Full data analytics dashboard deployed on Railway.
