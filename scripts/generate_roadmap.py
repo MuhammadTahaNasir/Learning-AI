@@ -3605,6 +3605,874 @@ PHASE_5_NOTEBOOK_CONTENTS = {
     }
 }
 
+
+PHASE_6_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Data Science Life Cycle",
+        "summary": "Overview of CRISP-DM and OSEMN frameworks and where data preprocessing fits.",
+        "theory": [
+            "### Data Science Lifecycle & Preprocessing\n",
+            "The data science lifecycle is typically modeled using frameworks like **CRISP-DM** (Cross-Industry Standard Process for Data Mining) or **OSEMN**:\n",
+            "1. **O**btain, 2. **S**crub, 3. **E**xplore, 4. **M**odel, 5. i**N**terpret.\n",
+            "Data Preprocessing sits firmly in the **Scrub** phase and is estimated to take up to **70-80%** of a data scientist's time."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "# Load Titanic dataset to represent real-world data\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)\n",
+            "print('=== Basic Scrubbing Checklist ===')\n",
+            "print('Dataset Shape:', df.shape)\n",
+            "print('\\nMissing values:\\n', df.isnull().sum())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the percentage of missing values for each column in the Titanic dataset."
+        ],
+        "exercise_code": [
+            "missing_pct = (df.isnull().sum() / len(df)) * 100\n",
+            "print('Missing value percentages:\\n', missing_pct)\n"
+        ]
+    },
+    2: {
+        "title": "Data in ML and How much data needed",
+        "summary": "Sample size rules-of-thumb and dataset volume considerations.",
+        "theory": [
+            "### How Much Data is Needed?\n",
+            "Common guidelines include:\n",
+            "- **Rule of 10**: At least 10 times as many training examples as there are features.\n",
+            "- **Complexity Scaling**: High-bias models (e.g., Naive Bayes) need less data; high-variance models (e.g., Deep Learning) need orders of magnitude more."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import numpy as np\n",
+            "\n",
+            "# Calculate feature-to-sample ratio\n",
+            "features_count = 10\n",
+            "recommended_samples = features_count * 10\n",
+            "print(f'For {features_count} features, we need at least {recommended_samples} samples.')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the feature-to-sample ratio for the Titanic dataset (using all available raw columns)."
+        ],
+        "exercise_code": [
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)\n",
+            "raw_cols = df.shape[1]\n",
+            "samples = df.shape[0]\n",
+            "ratio = samples / raw_cols\n",
+            "print(f'Raw columns: {raw_cols}, Samples: {samples}, Ratio: {ratio:.2f}x')\n"
+        ]
+    },
+    3: {
+        "title": "Handling Missing Data: CCA, Imputers, MICE",
+        "summary": "Complete Case Analysis (CCA), Simple Imputation, and MICE.",
+        "theory": [
+            "### Missing Data Mechanisms & Treatments\n",
+            "- **MCAR** (Missing Completely at Random), **MAR** (Missing at Random), **MNAR** (Missing Not at Random).\n",
+            "- **CCA** (Trimming missing rows): Only safe if MCAR and missingness is <5%.\n",
+            "- **Simple Imputation**: Mean/Median/Mode substitution.\n",
+            "- **MICE** (Multivariate Imputation by Chained Equations): Fills missing values using regression models on other variables iteratively."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.impute import SimpleImputer\n",
+            "from sklearn.experimental import enable_iterative_imputer\n",
+            "from sklearn.impute import IterativeImputer\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df_missing = pd.read_csv(url)[['Age', 'Fare']]\n",
+            "\n",
+            "# Simple Imputer\n",
+            "si = SimpleImputer(strategy='median')\n",
+            "df_si = pd.DataFrame(si.fit_transform(df_missing), columns=df_missing.columns)\n",
+            "\n",
+            "# MICE (Iterative Imputer)\n",
+            "mice = IterativeImputer(max_iter=10, random_state=42)\n",
+            "df_mice = pd.DataFrame(mice.fit_transform(df_missing), columns=df_missing.columns)\n",
+            "print('Original Nulls:', df_missing['Age'].isnull().sum())\n",
+            "print('Simple Imputed Nulls:', df_si['Age'].isnull().sum())\n",
+            "print('MICE Imputed Nulls:', df_mice['Age'].isnull().sum())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Perform mode imputation on the 'Embarked' column of the Titanic dataset."
+        ],
+        "exercise_code": [
+            "embarked_missing = pd.read_csv(url)[['Embarked']]\n",
+            "mode_imputer = SimpleImputer(strategy='most_frequent')\n",
+            "embarked_imputed = mode_imputer.fit_transform(embarked_missing)\n",
+            "print('Nulls remaining:', pd.Series(embarked_imputed.flatten()).isnull().sum())\n"
+        ]
+    },
+    4: {
+        "title": "Managing Missing Features",
+        "summary": "Using Missing Indicators to preserve information about missing values.",
+        "theory": [
+            "### Missing Indicators\n",
+            "Sometimes the *absence* of data is itself a strong predictor. We create binary columns where $1$ denotes missing and $0$ denotes present before imputing."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.impute import MissingIndicator\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age']]\n",
+            "\n",
+            "indicator = MissingIndicator()\n",
+            "missing_mask = indicator.fit_transform(df)\n",
+            "df['Age_Was_Missing'] = missing_mask.astype(int)\n",
+            "print(df.head(10))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Apply the Scikit-Learn `SimpleImputer` to the 'Age' column while setting the `add_indicator=True` parameter, and print the output shape."
+        ],
+        "exercise_code": [
+            "from sklearn.impute import SimpleImputer\n",
+            "imputer_with_indicator = SimpleImputer(strategy='mean', add_indicator=True)\n",
+            "res = imputer_with_indicator.fit_transform(df[['Age']])\n",
+            "print('Output shape after imputation + indicator:', res.shape)\n"
+        ]
+    },
+    5: {
+        "title": "Outlier detection: Z score, IQR, Percentile, Winsorization",
+        "summary": "Outlier detection strategies: mathematical capping vs trimming.",
+        "theory": [
+            "### Outlier Methods\n",
+            "- **Z-Score Method**: Points beyond $\\pm 3$ standard deviations from the mean (safe for Gaussian data).\n",
+            "- **IQR Method**: Bounds are $Q_1 - 1.5 \\times IQR$ and $Q_3 + 1.5 \\times IQR$.\n",
+            "- **Winsorization**: Capping outlier values at specific percentiles (e.g., 1st and 99th)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import numpy as np\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Fare']].dropna()\n",
+            "\n",
+            "# IQR Calculation\n",
+            "q1 = df['Fare'].quantile(0.25)\n",
+            "q3 = df['Fare'].quantile(0.75)\n",
+            "iqr = q3 - q1\n",
+            "lower_bound = q1 - 1.5 * iqr\n",
+            "upper_bound = q3 + 1.5 * iqr\n",
+            "\n",
+            "outliers = df[(df['Fare'] < lower_bound) | (df['Fare'] > upper_bound)]\n",
+            "print(f'Found {len(outliers)} outliers using IQR method.')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Implement Winsorization (capping values at the 95th percentile) for the 'Fare' column."
+        ],
+        "exercise_code": [
+            "p95 = df['Fare'].quantile(0.95)\n",
+            "df['Fare_Capped'] = np.where(df['Fare'] > p95, p95, df['Fare'])\n",
+            "print('Max fare before capping:', df['Fare'].max())\n",
+            "print('Max fare after capping:', df['Fare_Capped'].max())\n"
+        ]
+    },
+    6: {
+        "title": "Feature Scaling: Standardization",
+        "summary": "Mathematical details and application of Standardization (Z-score scaling).",
+        "theory": [
+            "### Standardization\n",
+            "Standardization transforms features to have a mean of 0 and a standard deviation of 1:\n",
+            "$$z = \\frac{x - \\mu}{\\sigma}$$"
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age', 'Fare']].dropna()\n",
+            "\n",
+            "scaler = StandardScaler()\n",
+            "scaled_features = scaler.fit_transform(df)\n",
+            "df_scaled = pd.DataFrame(scaled_features, columns=df.columns)\n",
+            "print('Scaled Means:\\n', df_scaled.mean().round(4))\n",
+            "print('\\nScaled Std Devs:\\n', df_scaled.std().round(4))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Verify manually that the standard deviation of the scaled 'Age' column is 1.0."
+        ],
+        "exercise_code": [
+            "import numpy as np\n",
+            "print('Manual calculation of scaled standard deviation:', np.std(df_scaled['Age'], ddof=1))\n"
+        ]
+    },
+    7: {
+        "title": "Feature Scaling: Normalization, MinMax, MaxAbs, Robust",
+        "summary": "Range-bound scaling (MinMax, MaxAbs, and Robust Scalers).",
+        "theory": [
+            "### Range Scalers\n",
+            "- **MinMaxScaler**: Scales to a range (usually $[0, 1]$): $x_{scaled} = \\frac{x - x_{min}}{x_{max} - x_{min}}$.\n",
+            "- **MaxAbsScaler**: Scales to $[-1, 1]$ by dividing by max absolute value: $x_{scaled} = \\frac{x}{|x|_{max}}$.\n",
+            "- **RobustScaler**: Scales using median and IQR, making it robust to outliers: $x_{scaled} = \\frac{x - Median}{IQR}$."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import MinMaxScaler, RobustScaler\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age', 'Fare']].dropna()\n",
+            "\n",
+            "minmax = MinMaxScaler()\n",
+            "robust = RobustScaler()\n",
+            "\n",
+            "df_minmax = pd.DataFrame(minmax.fit_transform(df), columns=df.columns)\n",
+            "df_robust = pd.DataFrame(robust.fit_transform(df), columns=df.columns)\n",
+            "print('MinMax range of Fare:', df_minmax['Fare'].min(), 'to', df_minmax['Fare'].max())\n",
+            "print('Robust range of Fare:', df_robust['Fare'].min(), 'to', df_robust['Fare'].max())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Apply MaxAbsScaler to the 'Fare' column and print the maximum value of the scaled variable."
+        ],
+        "exercise_code": [
+            "from sklearn.preprocessing import MaxAbsScaler\n",
+            "maxabs = MaxAbsScaler()\n",
+            "res = maxabs.fit_transform(df[['Fare']])\n",
+            "print('MaxAbs scaled maximum fare:', res.max())\n"
+        ]
+    },
+    8: {
+        "title": "Feature Scaling deep dive",
+        "summary": "Comparing distribution outputs of different scaling algorithms.",
+        "theory": [
+            "### Scaler Comparison\n",
+            "StandardScaler changes scale but keeps the relative variance structure. MinMaxScaler bounds the domain strictly to $[0, 1]$. RobustScaler does not compress the outliers, keeping the IQR core structured."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import matplotlib.pyplot as plt\n",
+            "import seaborn as sns\n",
+            "from sklearn.preprocessing import StandardScaler, MinMaxScaler, RobustScaler\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age']].dropna()\n",
+            "\n",
+            "# Run scalers\n",
+            "df['Standard'] = StandardScaler().fit_transform(df[['Age']])\n",
+            "df['MinMax'] = MinMaxScaler().fit_transform(df[['Age']])\n",
+            "df['Robust'] = RobustScaler().fit_transform(df[['Age']])\n",
+            "\n",
+            "print(df.describe().round(3))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Plot the density of the three scaled columns to compare their distributions."
+        ],
+        "exercise_code": [
+            "df[['Standard', 'MinMax', 'Robust']].plot(kind='kde', figsize=(8, 4))\n",
+            "plt.title('Density Comparison of Scalers')\n",
+            "plt.show()\n"
+        ]
+    },
+    9: {
+        "title": "Managing Categorical Data",
+        "summary": "Handling categories, cardinalities, and sorting categories.",
+        "theory": [
+            "### Categorical Variables\n",
+            "- **Nominal**: Variables with no implicit ordering (e.g., City, Gender).\n",
+            "- **Ordinal**: Variables with a defined, sequential order (e.g., Education: High School < Bachelor's < Ph.D.).\n",
+            "- High cardinality refers to categorical features with many unique levels, which can expand dimensions significantly if OHE is applied."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)\n",
+            "\n",
+            "print('=== Unique Value Counts (Cardinality) ===')\n",
+            "print(df.select_dtypes(include=['object']).nunique())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Categorize raw columns in the Titanic dataset into nominal and ordinal feature groups."
+        ],
+        "exercise_code": [
+            "print('Nominal: Sex, Embarked, Ticket, Cabin, Name')\n",
+            "print('Ordinal/Discrete: Pclass, SibSp, Parch')\n"
+        ]
+    },
+    10: {
+        "title": "Encoding: Label, Ordinal",
+        "summary": "Encoding ordinal variables cleanly.",
+        "theory": [
+            "### Label vs Ordinal Encoding\n",
+            "- `LabelEncoder`: Encodes values to 0..n-1 integers. Typically used for target variables.\n",
+            "- `OrdinalEncoder`: Encodes features. Allows custom ordering mapping for categories."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import OrdinalEncoder\n",
+            "\n",
+            "df = pd.DataFrame({'Size': ['Small', 'Medium', 'Large', 'Medium']})\n",
+            "\n",
+            "# Explicitly mapping order\n",
+            "encoder = OrdinalEncoder(categories=[['Small', 'Medium', 'Large']])\n",
+            "df['Size_Encoded'] = encoder.fit_transform(df[['Size']])\n",
+            "print(df)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Map the 'Pclass' category from Titanic dataset using OrdinalEncoder and output its mapping array."
+        ],
+        "exercise_code": [
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "titanic_df = pd.read_csv(url)[['Pclass']]\n",
+            "oe = OrdinalEncoder()\n",
+            "titanic_df['Pclass_Encoded'] = oe.fit_transform(titanic_df)\n",
+            "print(oe.categories_)\n"
+        ]
+    },
+    11: {
+        "title": "One Hot Encoding",
+        "summary": "One-Hot Encoding and avoiding the Dummy Variable Trap.",
+        "theory": [
+            "### One-Hot Encoding\n",
+            "For nominal variables, we split the feature into $N$ binary dummy columns. To prevent multicollinearity (where one column can be perfectly predicted from the others), we set `drop='first'` to exclude the reference category."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import OneHotEncoder\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Sex']].dropna()\n",
+            "\n",
+            "ohe = OneHotEncoder(drop='first', sparse_output=False)\n",
+            "encoded_sex = ohe.fit_transform(df[['Sex']])\n",
+            "df_encoded = pd.DataFrame(encoded_sex, columns=ohe.get_feature_names_out())\n",
+            "print(df_encoded.head())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. One-hot encode the 'Embarked' column dropping the first value."
+        ],
+        "exercise_code": [
+            "embarked_df = pd.read_csv(url)[['Embarked']].dropna()\n",
+            "ohe_emb = OneHotEncoder(drop='first', sparse_output=False)\n",
+            "encoded_emb = ohe_emb.fit_transform(embarked_df)\n",
+            "print(pd.DataFrame(encoded_emb, columns=ohe_emb.get_feature_names_out()).head())\n"
+        ]
+    },
+    12: {
+        "title": "Fit and Transform method",
+        "summary": "Avoiding Data Leakage with fit and transform methods.",
+        "theory": [
+            "### Avoiding Data Leakage\n",
+            "Data leakage occurs when target or test information leaks into model preparation. We must:\n",
+            "1. Call `fit_transform` on the **Training Set** only (which stores parameters like mean and std).\n",
+            "2. Call `transform` on the **Testing Set** (applying the same stored parameter values without calculating new ones)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age', 'Fare']].dropna()\n",
+            "\n",
+            "X_train, X_test = train_test_split(df, test_size=0.2, random_state=42)\n",
+            "\n",
+            "scaler = StandardScaler()\n",
+            "X_train_scaled = scaler.fit_transform(X_train)\n",
+            "# Transform only!\n",
+            "X_test_scaled = scaler.transform(X_test)\n",
+            "print('Scaler Mean parameter stored:', scaler.mean_)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain what would happen if you ran `fit_transform` separately on both train and test partitions."
+        ],
+        "exercise_code": [
+            "print('It would compute separate means/standard deviations for the test set, creating data leakage and inconsistent feature scaling.')\n"
+        ]
+    },
+    13: {
+        "title": "Column Transformer and Pipelines",
+        "summary": "Building automated preprocessing Pipelines with ColumnTransformer.",
+        "theory": [
+            "### ColumnTransformer & Pipelines\n",
+            "We construct pipelines to chain imputations, encodings, and scaling steps dynamically across heterogeneous column groupings, ensuring a clean and reproducible pipeline."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.pipeline import Pipeline\n",
+            "from sklearn.compose import ColumnTransformer\n",
+            "from sklearn.impute import SimpleImputer\n",
+            "from sklearn.preprocessing import StandardScaler, OneHotEncoder\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age', 'Fare', 'Sex', 'Embarked', 'Pclass']].dropna()\n",
+            "# Drop Pclass from columns so we can use same num/cat features\n",
+            "\n",
+            "num_pipeline = Pipeline([\n",
+            "    ('impute', SimpleImputer(strategy='median')),\n",
+            "    ('scale', StandardScaler())\n",
+            "])\n",
+            "\n",
+            "cat_pipeline = Pipeline([\n",
+            "    ('encode', OneHotEncoder(drop='first', sparse_output=False))\n",
+            "])\n",
+            "\n",
+            "preprocessor = ColumnTransformer([\n",
+            "    ('num', num_pipeline, ['Age', 'Fare']),\n",
+            "    ('cat', cat_pipeline, ['Sex', 'Embarked'])\n",
+            "])\n",
+            "\n",
+            "processed_data = preprocessor.fit_transform(df)\n",
+            "print('Processed output shape:', processed_data.shape)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Add 'Pclass' to the categorical pipeline of features inside the preprocessor."
+        ],
+        "exercise_code": [
+            "preprocessor_new = ColumnTransformer([\n",
+            "    ('num', num_pipeline, ['Age', 'Fare']),\n",
+            "    ('cat', cat_pipeline, ['Sex', 'Embarked', 'Pclass'])\n",
+            "])\n",
+            "res = preprocessor_new.fit_transform(df)\n",
+            "print('New Processed output shape:', res.shape)\n"
+        ]
+    },
+    14: {
+        "title": "Function Transforms: Log, Reciprocal, Square Root",
+        "summary": "Transforming right-skewed feature ranges to normal shapes.",
+        "theory": [
+            "### Function Transformations\n",
+            "Right-skewed data can be normalized using mathematical transformations:\n",
+            "- **Log Transform**: $y = \\log(x + 1)$. Essential for variables with exponential distribution.\n",
+            "- **Reciprocal Transform**: $y = 1 / x$.\n",
+            "- **Square Root**: $y = \\sqrt{x}$."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import numpy as np\n",
+            "from sklearn.preprocessing import FunctionTransformer\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Fare']].dropna()\n",
+            "\n",
+            "log_transformer = FunctionTransformer(np.log1p)\n",
+            "df['Log_Fare'] = log_transformer.transform(df[['Fare']])\n",
+            "print('Original skewness:', df['Fare'].skew())\n",
+            "print('Log Transformed skewness:', df['Log_Fare'].skew())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Plot the distribution of the original and log-transformed Fare using seaborn."
+        ],
+        "exercise_code": [
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "fig, axes = plt.subplots(1, 2, figsize=(10, 4))\n",
+            "sns.histplot(df['Fare'], ax=axes[0], kde=True)\n",
+            "sns.histplot(df['Log_Fare'], ax=axes[1], kde=True)\n",
+            "plt.show()\n"
+        ]
+    },
+    15: {
+        "title": "Power Transformer: Box Cox, Yeo Johnson",
+        "summary": "Advanced Box-Cox and Yeo-Johnson transformations.",
+        "theory": [
+            "### Power Transforms\n",
+            "- **Box-Cox**: Requires strictly positive data ($x > 0$). Uses parameter estimation to select the optimal power transform.\n",
+            "- **Yeo-Johnson**: Generalization that supports zero and negative values."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import PowerTransformer\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Fare']].dropna()\n",
+            "\n",
+            "pt = PowerTransformer(method='yeo-johnson')\n",
+            "df['Yeo_Fare'] = pt.fit_transform(df[['Fare']])\n",
+            "print('Yeo-Johnson Transformed Skewness:', df['Yeo_Fare'].skew())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Fit the Box-Cox transformer to the 'Fare' column (filter out values $\\leq 0$ first) and print its optimal lambda parameter."
+        ],
+        "exercise_code": [
+            "positive_fares = df[df['Fare'] > 0][['Fare']]\n",
+            "bc = PowerTransformer(method='box-cox')\n",
+            "bc.fit(positive_fares)\n",
+            "print('Optimal Box-Cox lambda:', bc.lambdas_)\n"
+        ]
+    },
+    16: {
+        "title": "Binning and Binarization: Quantile, KMeans",
+        "summary": "Discretization and thresholding.",
+        "theory": [
+            "### Discretization & Binarization\n",
+            "- **Binning**: Converting a continuous feature into discrete bins (e.g. groups of ages). Types: Equal-width, Quantile (equal-frequency), or K-Means.\n",
+            "- **Binarization**: Thresholding features to binary $[0, 1]$ flags."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import KBinsDiscretizer, Binarizer\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age', 'Fare']].dropna()\n",
+            "\n",
+            "# Binning Age into 5 bins\n",
+            "kbd = KBinsDiscretizer(n_bins=5, encode='ordinal', strategy='quantile')\n",
+            "df['Age_Binned'] = kbd.fit_transform(df[['Age']])\n",
+            "\n",
+            "# Binarizing Fare at 20.0\n",
+            "binarizer = Binarizer(threshold=20.0)\n",
+            "df['Fare_Over_20'] = binarizer.transform(df[['Fare']])\n",
+            "print(df.head())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Binarize the 'Age' column of the Titanic dataset at threshold 18.0 to mark minor status."
+        ],
+        "exercise_code": [
+            "bin_age = Binarizer(threshold=18.0)\n",
+            "is_adult = bin_age.transform(df[['Age']])\n",
+            "print('\\nAdult status counts:\\n', pd.Series(is_adult.flatten()).value_counts())\n"
+        ]
+    },
+    17: {
+        "title": "Handling Mixed and Date/Time Variables",
+        "summary": "Deconstructing mixed alphanumeric and datetime features.",
+        "theory": [
+            "### Mixed Data Processing\n",
+            "- **Mixed variables**: Features containing both numbers and text (e.g., ticket codes). We split these into separate numeric and categorical columns.\n",
+            "- **DateTime variables**: Features representing timestamps. We extract year, month, day, day of week, or hour."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "# Alphanumeric splitting\n",
+            "df = pd.DataFrame({'Ticket': ['A/5 21171', 'PC 17599', '3101298']})\n",
+            "df['Ticket_Num'] = df['Ticket'].str.extract(r'(\\d+)')\n",
+            "df['Ticket_Cat'] = df['Ticket'].str.extract(r'([a-zA-Z/\\.]+)')\n",
+            "df['Ticket_Cat'] = df['Ticket_Cat'].fillna('Numeric')\n",
+            "print(df)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Parse the string date series `['2025-08-30 14:30:00', '2025-08-31 15:45:00']` and extract the Hour and Day of Week features."
+        ],
+        "exercise_code": [
+            "dates = pd.Series(pd.to_datetime(['2025-08-30 14:30:00', '2025-08-31 15:45:00']))\n",
+            "print('Hours:', dates.dt.hour.values)\n",
+            "print('Days of week:', dates.dt.dayofweek.values)\n"
+        ]
+    },
+    18: {
+        "title": "Feature Construction and Splitting",
+        "summary": "Building new compound variables and splitting existing string fields.",
+        "theory": [
+            "### Feature Construction\n",
+            "Creating new variables by combining existing features (e.g. creating `FamilySize = SibSp + Parch + 1` or calculating ratios like `FarePerPerson = Fare / FamilySize`)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['SibSp', 'Parch', 'Fare']]\n",
+            "\n",
+            "df['Family_Size'] = df['SibSp'] + df['Parch'] + 1\n",
+            "df['Fare_Per_Person'] = df['Fare'] / df['Family_Size']\n",
+            "print(df.head())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Construct a binary feature 'Is_Alone' which evaluates to 1 if Family Size is 1, and 0 otherwise."
+        ],
+        "exercise_code": [
+            "df['Is_Alone'] = (df['Family_Size'] == 1).astype(int)\n",
+            "print(df['Is_Alone'].value_counts())\n"
+        ]
+    },
+    19: {
+        "title": "What is Feature Engineering",
+        "summary": "Generating Polynomial and Interaction features.",
+        "theory": [
+            "### Feature Engineering Overview\n",
+            "Feature Engineering is the process of using domain knowledge to extract features from raw data. We can automate this using methods like `PolynomialFeatures` to capture non-linear relationships."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import PolynomialFeatures\n",
+            "\n",
+            "df = pd.DataFrame({'X1': [2, 3, 4], 'X2': [5, 6, 7]})\n",
+            "\n",
+            "poly = PolynomialFeatures(degree=2, include_bias=False)\n",
+            "poly_feats = poly.fit_transform(df)\n",
+            "df_poly = pd.DataFrame(poly_feats, columns=poly.get_feature_names_out())\n",
+            "print(df_poly)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Apply PolynomialFeatures of degree 2 to the features 'Age' and 'Fare' in the Titanic dataset."
+        ],
+        "exercise_code": [
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "titanic_feats = pd.read_csv(url)[['Age', 'Fare']].dropna()\n",
+            "poly_res = poly.fit_transform(titanic_feats)\n",
+            "print('Output dimension after polynomial expansion:', poly_res.shape)\n"
+        ]
+    },
+    20: {
+        "title": "Feature Selection Techniques",
+        "summary": "VarianceThreshold, SelectKBest, and basic feature selection algorithms.",
+        "theory": [
+            "### Feature Selection\n",
+            "- **Filter Methods**: Select features based on statistical scores (e.g. ANOVA F-value, Chi-Square, Mutual Information).\n",
+            "- **Wrapper Methods**: Search through subsets of features recursively (e.g. Recursive Feature Elimination).\n",
+            "- **Embedded Methods**: Features selected during model training (e.g. Lasso regularization)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.feature_selection import SelectKBest, f_classif\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Survived', 'Pclass', 'SibSp', 'Parch', 'Fare']].dropna()\n",
+            "X = df.drop(columns='Survived')\n",
+            "y = df['Survived']\n",
+            "\n",
+            "# Select the 2 best features\n",
+            "selector = SelectKBest(score_func=f_classif, k=2)\n",
+            "X_selected = selector.fit_transform(X, y)\n",
+            "print('Selected Features:', selector.get_feature_names_out())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Fit a `VarianceThreshold` selector to drop columns with near-zero variance on a mock binary matrix."
+        ],
+        "exercise_code": [
+            "from sklearn.feature_selection import VarianceThreshold\n",
+            "import numpy as np\n",
+            "X_bin = np.array([[1, 0, 1], [1, 0, 0], [1, 0, 1]])\n",
+            "vt = VarianceThreshold(threshold=0.1)\n",
+            "print('\\nSelected columns:\\n', vt.fit_transform(X_bin))\n"
+        ]
+    },
+    21: {
+        "title": "Feature Extraction",
+        "summary": "Dimensionality reduction using Principal Component Analysis (PCA).",
+        "theory": [
+            "### Feature Extraction & PCA\n",
+            "PCA projects data from its original high-dimensional space to a lower-dimensional subspace of orthogonal components called principal components, which maximize the explained variance."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "from sklearn.decomposition import PCA\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/mwaskom/seaborn-data/master/iris.csv'\n",
+            "df = pd.read_csv(url)\n",
+            "X = df.drop(columns='species')\n",
+            "y = df['species']\n",
+            "\n",
+            "X_scaled = StandardScaler().fit_transform(X)\n",
+            "\n",
+            "pca = PCA(n_components=2)\n",
+            "X_pca = pca.fit_transform(X_scaled)\n",
+            "print('PCA component shapes:', X_pca.shape)\n",
+            "print('Explained variance ratio:', pca.explained_variance_ratio_)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the cumulative sum of explained variance from PCA for all 4 components of the Iris features."
+        ],
+        "exercise_code": [
+            "pca_full = PCA(n_components=4)\n",
+            "pca_full.fit(X_scaled)\n",
+            "import numpy as np\n",
+            "print('Cumulative explained variance:', np.cumsum(pca_full.explained_variance_ratio_))\n"
+        ]
+    },
+    22: {
+        "title": "Curse of Dimensionality",
+        "summary": "Analyzing feature expansion problems mathematically.",
+        "theory": [
+            "### The Curse of Dimensionality\n",
+            "As the number of features (dimensions) increases, the volume of the space grows exponentially. This causes:\n",
+            "1. Sparsity of training samples.\n",
+            "2. Distances between points to converge (making clustering and distance-based models less effective)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from scipy.spatial.distance import pdist\n",
+            "\n",
+            "# Generate random points in 2D vs 100D\n",
+            "pts_2d = np.random.rand(100, 2)\n",
+            "pts_100d = np.random.rand(100, 100)\n",
+            "\n",
+            "dist_2d = pdist(pts_2d)\n",
+            "dist_100d = pdist(pts_100d)\n",
+            "\n",
+            "print('Ratio of (Max - Min) / Min distance:')\n",
+            "print('2D:', (dist_2d.max() - dist_2d.min()) / dist_2d.min())\n",
+            "print('100D:', (dist_100d.max() - dist_100d.min()) / dist_100d.min())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Discuss how the difference between maximum and minimum distance changes as dimensions increase."
+        ],
+        "exercise_code": [
+            "print('As dimensions increase, the distance between any two points converges, reducing discriminative distance indicators.')\n"
+        ]
+    },
+    23: {
+        "title": "Data Preprocessing and Cleaning overview",
+        "summary": "A summary checklist for standard data preprocessing pipelines.",
+        "theory": [
+            "### Preprocessing Summary Checklist\n",
+            "1. Resolve Nulls (Imputation or Indicators).\n",
+            "2. Encode Categories (One-Hot or Ordinal).\n",
+            "3. Scale numeric parameters (Standardization or MinMaxScaler).\n",
+            "4. Correct skewed variables (Power Transformations).\n",
+            "5. Apply pipeline to train and test splits to prevent leakage."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "print('=== Typical Pipeline Order ===')\n",
+            "print('Raw Data -> Train/Test Split -> Missing Treatment -> Encode Categories -> Scale Features -> Model')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Formulate a step-by-step preprocessing pipeline plan for predicting house prices."
+        ],
+        "exercise_code": [
+            "print('1. Impute missing square footage (median), 2. Target encode Neighborhoods, 3. Log-transform sale price target, 4. Scale inputs using StandardScaler.')\n"
+        ]
+    },
+    24: {
+        "title": "Normalization with Python",
+        "summary": "Code-only exercises for MinMaxScaler.",
+        "theory": [
+            "### MinMaxScaler Code Verification\n",
+            "Normalizing values to a strict $[0, 1]$ range."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import MinMaxScaler\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Fare']].dropna()\n",
+            "\n",
+            "scaler = MinMaxScaler()\n",
+            "df['Normalized_Fare'] = scaler.fit_transform(df[['Fare']])\n",
+            "print(df.describe())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Normalize the 'Age' column of the Titanic dataset and print the minimum and maximum scaled values."
+        ],
+        "exercise_code": [
+            "age_col = pd.read_csv(url)[['Age']].dropna()\n",
+            "scaled_age = MinMaxScaler().fit_transform(age_col)\n",
+            "print('Min scaled age:', scaled_age.min())\n",
+            "print('Max scaled age:', scaled_age.max())\n"
+        ]
+    },
+    25: {
+        "title": "Standardization with Python",
+        "summary": "Code-only exercises for StandardScaler.",
+        "theory": [
+            "### StandardScaler Code Verification\n",
+            "Scaling values to zero mean and unit variance."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Age']].dropna()\n",
+            "\n",
+            "scaler = StandardScaler()\n",
+            "df['Standardized_Age'] = scaler.fit_transform(df[['Age']])\n",
+            "print(df.describe())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Standardize the 'Fare' column and check if the mean is approximately 0."
+        ],
+        "exercise_code": [
+            "fare_col = pd.read_csv(url)[['Fare']].dropna()\n",
+            "scaled_fare = StandardScaler().fit_transform(fare_col)\n",
+            "print('Scaled mean:', scaled_fare.mean().round(6))\n"
+        ]
+    },
+    26: {
+        "title": "Binarization with Python",
+        "summary": "Code-only exercises for Binarizer.",
+        "theory": [
+            "### Binarizer Code Verification\n",
+            "Thresholding features to binary variables."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.preprocessing import Binarizer\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Fare']].dropna()\n",
+            "\n",
+            "binarizer = Binarizer(threshold=50.0)\n",
+            "df['High_Fare'] = binarizer.transform(df[['Fare']])\n",
+            "print(df['High_Fare'].value_counts())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Binarize the 'Age' column of the Titanic dataset at threshold 60.0 to identify elderly passengers."
+        ],
+        "exercise_code": [
+            "age_col = pd.read_csv(url)[['Age']].dropna()\n",
+            "is_elderly = Binarizer(threshold=60.0).transform(age_col)\n",
+            "print('\\nElderly counts:\\n', pd.Series(is_elderly.flatten()).value_counts())\n"
+        ]
+    },
+    27: {
+        "title": "Training and Testing data split with Python",
+        "summary": "Code-only exercises for train_test_split.",
+        "theory": [
+            "### Train Test Splitting\n",
+            "Partitioning datasets into training and validation sets to validate model performance."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'\n",
+            "df = pd.read_csv(url)[['Survived', 'Pclass', 'Sex', 'Age']].dropna()\n",
+            "\n",
+            "X = df.drop(columns='Survived')\n",
+            "y = df['Survived']\n",
+            "\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)\n",
+            "print('Train size:', X_train.shape)\n",
+            "print('Test size:', X_test.shape)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Split the Iris dataset into 70% train and 30% test sets, stratified by species."
+        ],
+        "exercise_code": [
+            "from sklearn.datasets import load_iris\n",
+            "iris = load_iris()\n",
+            "X_iris, y_iris = iris.data, iris.target\n",
+            "X_tr, X_te, y_tr, y_te = train_test_split(X_iris, y_iris, test_size=0.3, random_state=42, stratify=y_iris)\n",
+            "print('Iris Train split shape:', X_tr.shape)\n",
+            "print('Iris Test split shape:', X_te.shape)\n"
+        ]
+    }
+}
+
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -3845,6 +4713,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(4, idx, PHASE_4_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_05_Data_Visualization" and idx in PHASE_5_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(5, idx, PHASE_5_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_06_Data_Preprocessing_Feature_Engineering" and idx in PHASE_6_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(6, idx, PHASE_6_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -3873,6 +4743,8 @@ def generate_roadmap():
                 elif phase["dir_name"] == "PHASE_04_Pandas_Data_Loading":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_05_Data_Visualization":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_06_Data_Preprocessing_Feature_Engineering":
                     status = "✅ Completed"
                 else:
                     status = "📋 Planned"
