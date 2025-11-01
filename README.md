@@ -43,12 +43,12 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Notebooks**: [8 Notebooks](PHASE_05_Data_Visualization/)
 
 ### 🧹 [Phase 6: Data Preprocessing & Feature Engineering](PHASE_06_Data_Preprocessing_Feature_Engineering/)
-**Status**: 📋 Planned
+**Status**: ✅ Completed
 - **Topics**: Missing data (CCA, MICE), outlier detection, feature scaling (Standardization, MinMax), encoding (Label, Ordinal, OHE), Pipelines & Column Transformers, Power transforms, Feature Selection/Extraction, Curse of Dimensionality.
 - **Notebooks**: [27 Notebooks](PHASE_06_Data_Preprocessing_Feature_Engineering/)
 
 ### 📉 [Phase 7: Regression Algorithms](PHASE_07_Regression_Algorithms/)
-**Status**: 🚧 In Progress
+**Status**: ✅ Completed
 - **Topics**: Simple & Multiple Linear Regression math, Least Squares, regression metrics (MSE, MAE, R²), Gradient Descent (Batch, SGD, Mini-Batch) implementation, Polynomial Regression, Bias-Variance Tradeoff, Ridge/Lasso/ElasticNet, Locally Weighted Regression, KNN Regression, Decision Trees.
 - **Projects**:
   - [Gradient Descent Simulation](PHASE_07_Regression_Algorithms/Projects/Gradient_Descent_Simulation/): Interactive visualization of optimization.

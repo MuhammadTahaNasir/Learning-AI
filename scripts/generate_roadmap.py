@@ -4473,6 +4473,955 @@ PHASE_6_NOTEBOOK_CONTENTS = {
 }
 
 
+
+PHASE_7_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Regression intro and dependent/independent variables",
+        "summary": "Introduction to regression modeling and target vs predictor variables.",
+        "theory": [
+            "### Regression Analysis\n",
+            "Regression is a supervised learning task where the goal is to predict a continuous numerical value $Y$ based on one or more input features $X$.\n",
+            "- **Independent Variable ($X$):** The predictor, input, or feature.\n",
+            "- **Dependent Variable ($Y$):** The target, output, or response.\n",
+            "Examples: House size ($X$) vs price ($Y$), study hours ($X$) vs grade ($Y$)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import seaborn as sns\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "print('Tips dataset columns:', tips.columns.tolist())\n",
+            "print(tips[['total_bill', 'tip']].head())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Identify the independent and dependent variables in a dataset predicting car fuel efficiency (mpg) from weight and horsepower."
+        ],
+        "exercise_code": [
+            "print('Independent variables: Weight, Horsepower')\n",
+            "print('Dependent variable: mpg')\n"
+        ]
+    },
+    2: {
+        "title": "Stanford CS229 Lec 2: Linear Regression and GD full math",
+        "summary": "Mathematical foundations of Linear Regression, hypothesis representation, and gradient descent.",
+        "theory": [
+            "### Mathematical Formulation\n",
+            "- **Hypothesis:** $h_\\theta(x) = \\sum_{j=0}^n \\theta_j x_j = \\theta^T x$ (where $x_0 = 1$)\n",
+            "- **Cost Function (Mean Squared Error):** $J(\\theta) = \\frac{1}{2m} \\sum_{i=1}^m (h_\\theta(x^{(i)}) - y^{(i)})^2$\n",
+            "- **Gradient Descent Update Rule:** \\theta_j := \\theta_j - \\alpha \\frac{\\partial J(\\theta)}{\\partial \\theta_j}$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "# Simulate a quadratic cost function curve J(theta)\n",
+            "theta = np.linspace(-10, 10, 100)\n",
+            "J = 0.5 * (theta - 2)**2 + 3\n",
+            "\n",
+            "plt.plot(theta, J, label='Cost Function J(theta)')\n",
+            "plt.axvline(2, color='red', linestyle='--', label='Optimal theta=2')\n",
+            "plt.xlabel('theta')\n",
+            "plt.ylabel('J(theta)')\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Plot the gradient tangent line at $\\theta = -5$ for the simulated cost function."
+        ],
+        "exercise_code": [
+            "theta_val = -5\n",
+            "J_val = 0.5 * (theta_val - 2)**2 + 3\n",
+            "slope = theta_val - 2\n",
+            "tangent = slope * (theta - theta_val) + J_val\n",
+            "plt.plot(theta, J, label='Cost Function')\n",
+            "plt.plot(theta, tangent, '--', label='Tangent at theta=-5')\n",
+            "plt.scatter([theta_val], [J_val], color='red')\n",
+            "plt.ylim(0, 50)\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ]
+    },
+    3: {
+        "title": "Simple Linear Regression: intuition and code",
+        "summary": "Simple linear regression intuition, line of best fit y = mx + c, and Scikit-Learn LinearRegression.",
+        "theory": [
+            "### Simple Linear Regression\n",
+            "Fits a straight line to the data: $y = mx + c$, where $m$ is the slope and $c$ is the intercept."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import seaborn as sns\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "X = tips[['total_bill']]\n",
+            "y = tips['tip']\n",
+            "\n",
+            "model = LinearRegression()\n",
+            "model.fit(X, y)\n",
+            "print('Slope (m):', model.coef_[0])\n",
+            "print('Intercept (c):', model.intercept_)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Use the trained model to predict the tip for a total bill of $30.00."
+        ],
+        "exercise_code": [
+            "pred_tip = model.predict(pd.DataFrame([[30.0]], columns=['total_bill']))[0]\n",
+            "print(f'Predicted tip for $30 bill: ${pred_tip:.2f}')\n"
+        ]
+    },
+    4: {
+        "title": "Linear Regression solved numericals",
+        "summary": "Hand-calculated numerical example of finding m and c on small data.",
+        "theory": [
+            "### Analytical Calculation of Coefficients\n",
+            "For $y = mx + c$:\n",
+            "- $m = \\frac{\\sum (x_i - \\bar{x})(y_i - \\bar{y})}{\\sum (x_i - \\bar{x})^2}$\n",
+            "- $c = \\bar{y} - m\\bar{x}$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "\n",
+            "X = np.array([1, 2, 3, 4, 5])\n",
+            "y = np.array([2, 3, 5, 4, 6])\n",
+            "\n",
+            "x_bar, y_bar = np.mean(X), np.mean(y)\n",
+            "m = np.sum((X - x_bar) * (y - y_bar)) / np.sum((X - x_bar)**2)\n",
+            "c = y_bar - m * x_bar\n",
+            "print(f'Manual slope: {m}, intercept: {c}')\n",
+            "\n",
+            "lr = LinearRegression().fit(X.reshape(-1, 1), y)\n",
+            "print(f'Sklearn slope: {lr.coef_[0]}, intercept: {lr.intercept_}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate $m$ and $c$ manually for inputs $X=[1, 2, 3]$ and $Y=[2, 4, 5]$."
+        ],
+        "exercise_code": [
+            "X_ex = np.array([1, 2, 3])\n",
+            "y_ex = np.array([2, 4, 5])\n",
+            "m_ex = np.sum((X_ex - np.mean(X_ex)) * (y_ex - np.mean(y_ex))) / np.sum((X_ex - np.mean(X_ex))**2)\n",
+            "c_ex = np.mean(y_ex) - m_ex * np.mean(X_ex)\n",
+            "print(f'Manual slope: {m_ex:.4f}, intercept: {c_ex:.4f}')\n"
+        ]
+    },
+    5: {
+        "title": "Linear Regression using Least Squares",
+        "summary": "Mathematical derivation of Ordinary Least Squares (OLS) closed-form solution.",
+        "theory": [
+            "### OLS Normal Equation\n",
+            "The analytical closed-form solution to minimize MSE in matrix form is:\n",
+            "$$\\theta = (X^T X)^{-1} X^T y$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import pandas as pd\n",
+            "import seaborn as sns\n",
+            "\n",
+            "tips = sns.load_dataset('tips')[['total_bill', 'size', 'tip']].dropna()\n",
+            "X = tips[['total_bill', 'size']].values\n",
+            "# Add intercept column of ones\n",
+            "X_b = np.c_[np.ones((len(X), 1)), X]\n",
+            "y = tips['tip'].values\n",
+            "\n",
+            "# Compute normal equation\n",
+            "theta = np.linalg.inv(X_b.T.dot(X_b)).dot(X_b.T).dot(y)\n",
+            "print('OLS Normal Equation Coefficients [Intercept, total_bill, size]:')\n",
+            "print(theta)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Predict the tip for total_bill = 25.0 and size = 3 using the computed theta vector."
+        ],
+        "exercise_code": [
+            "sample = np.array([1, 25.0, 3])\n",
+            "pred = sample.dot(theta)\n",
+            "print(f'Predicted tip: ${pred:.2f}')\n"
+        ]
+    },
+    6: {
+        "title": "Linear Regression single variable Python",
+        "summary": "Step-by-step single variable linear regression without ML libraries.",
+        "theory": [
+            "### Single Variable Regression\n",
+            "Implementing predictions $\\hat{y} = mx + c$ and MSE calculation directly using basic NumPy operations."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "np.random.seed(42)\n",
+            "X = np.random.rand(50) * 10\n",
+            "y = 2.5 * X + 1.5 + np.random.randn(50) * 2\n",
+            "\n",
+            "# Fit parameters analytically\n",
+            "m = np.cov(X, y)[0, 1] / np.var(X)\n",
+            "c = np.mean(y) - m * np.mean(X)\n",
+            "y_pred = m * X + c\n",
+            "print(f'Parameters: m = {m:.3f}, c = {c:.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the residuals ($y - \\hat{y}$) and print their mean (which should be close to 0)."
+        ],
+        "exercise_code": [
+            "residuals = y - y_pred\n",
+            "print(f'Mean of residuals: {residuals.mean():.6f}')\n"
+        ]
+    },
+    7: {
+        "title": "Regression Metrics: MSE, MAE, RMSE, R2, Adjusted R2",
+        "summary": "Evaluation metrics for regression and their math.",
+        "theory": [
+            "### Regression Metrics\n",
+            "- **Mean Squared Error (MSE):** $\\frac{1}{n} \\sum (y_i - \\hat{y}_i)^2$\n",
+            "- **Mean Absolute Error (MAE):** $\\frac{1}{n} \\sum |y_i - \\hat{y}_i|$\n",
+            "- **Root Mean Squared Error (RMSE):** $\\sqrt{MSE}$\n",
+            "- **R-Squared ($R^2$):** $1 - \\frac{SS_{res}}{SS_{tot}}$\n",
+            "- **Adjusted $R^2$:** $1 - (1-R^2)\\frac{n-1}{n-p-1}$ (penalizes unnecessary features)"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score\n",
+            "\n",
+            "y_true = np.array([3.0, -0.5, 2.0, 7.0])\n",
+            "y_pred = np.array([2.5, 0.0, 2.0, 8.0])\n",
+            "\n",
+            "mse = mean_squared_error(y_true, y_pred)\n",
+            "mae = mean_absolute_error(y_true, y_pred)\n",
+            "rmse = np.sqrt(mse)\n",
+            "r2 = r2_score(y_true, y_pred)\n",
+            "\n",
+            "print(f'MSE: {mse}, MAE: {mae}, RMSE: {rmse}, R2: {r2}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute Adjusted R2 for a model with $R^2 = 0.85$, $n = 100$ samples, and $p = 5$ features."
+        ],
+        "exercise_code": [
+            "r2_val = 0.85\n",
+            "n = 100\n",
+            "p = 5\n",
+            "adj_r2 = 1 - (1 - r2_val) * (n - 1) / (n - p - 1)\n",
+            "print(f'Adjusted R2: {adj_r2:.4f}')\n"
+        ]
+    },
+    8: {
+        "title": "SST, SSR, SSE",
+        "summary": "Partitioning variance into SST, SSR, and SSE.",
+        "theory": [
+            "### Variance Decomposition\n",
+            "- **SST (Sum of Squares Total):** $\\sum (y_i - \\bar{y})^2$ (Total variation in target)\n",
+            "- **SSR (Sum of Squares Regression):** $\\sum (\\hat{y}_i - \\bar{y})^2$ (Explained variation)\n",
+            "- **SSE (Sum of Squares Error):** $\\sum (y_i - \\hat{y}_i)^2$ (Unexplained variation)\n",
+            "Relationship: $SST = SSR + SSE$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "y_true = np.array([10, 12, 15, 18, 20])\n",
+            "y_pred = np.array([10.5, 11.8, 14.2, 18.5, 19.3])\n",
+            "y_bar = np.mean(y_true)\n",
+            "\n",
+            "sst = np.sum((y_true - y_bar)**2)\n",
+            "ssr = np.sum((y_pred - y_bar)**2)\n",
+            "sse = np.sum((y_true - y_pred)**2)\n",
+            "\n",
+            "print(f'SST: {sst:.3f}, SSR: {ssr:.3f}, SSE: {sse:.3f}')\n",
+            "print(f'SSR + SSE = {ssr+sse:.3f} (SST={sst:.3f})')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Verify that $R^2 = SSR / SST$ matches the standard formula metric."
+        ],
+        "exercise_code": [
+            "r2_calc = ssr / sst\n",
+            "print(f'Calculated R2 from SST/SSR: {r2_calc:.4f}')\n"
+        ]
+    },
+    9: {
+        "title": "Multiple Linear Regression: intuition and math",
+        "summary": "Extending regression to multiple features and matrix formulation.",
+        "theory": [
+            "### Multiple Linear Regression\n",
+            "Fits a hyperplane in $n$-dimensional space:\n",
+            "$$y = \\theta_0 + \\theta_1 x_1 + \\theta_2 x_2 + \\dots + \\theta_n x_n = X\\theta$$"
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.datasets import load_diabetes\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "\n",
+            "diabetes = load_diabetes()\n",
+            "X = pd.DataFrame(diabetes.data, columns=diabetes.feature_names)\n",
+            "y = diabetes.target\n",
+            "\n",
+            "mlr = LinearRegression().fit(X, y)\n",
+            "print('Model Intercept:', mlr.intercept_)\n",
+            "print('First 3 Coefficients:', mlr.coef_[:3])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Train a model using only the 'age', 'sex', and 'bmi' features from the diabetes dataset."
+        ],
+        "exercise_code": [
+            "X_sub = X[['age', 'sex', 'bmi']]\n",
+            "mlr_sub = LinearRegression().fit(X_sub, y)\n",
+            "print('Subset coefficients:', mlr_sub.coef_)\n"
+        ]
+    },
+    10: {
+        "title": "Linear Regression multiple variables Python",
+        "summary": "Implementing multiple linear regression using LinearRegression.",
+        "theory": [
+            "### Multi-Feature Regressor\n",
+            "Fitting model with all available continuous attributes and evaluating weights."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.datasets import load_diabetes\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "\n",
+            "diabetes = load_diabetes()\n",
+            "df = pd.DataFrame(diabetes.data, columns=diabetes.feature_names)\n",
+            "df['progression'] = diabetes.target\n",
+            "\n",
+            "X = df.drop(columns='progression')\n",
+            "y = df['progression']\n",
+            "\n",
+            "lr_model = LinearRegression().fit(X, y)\n",
+            "for feat, coef in zip(X.columns, lr_model.coef_):\n",
+            "    print(f'{feat:8s} : {coef:10.4f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Sort the features by the absolute value of their coefficient weights to identify the most predictive feature."
+        ],
+        "exercise_code": [
+            "importance = pd.Series(lr_model.coef_, index=X.columns).abs().sort_values(ascending=False)\n",
+            "print('Feature Importance Weights:\\n', importance)\n"
+        ]
+    },
+    11: {
+        "title": "Assumptions of Linear Regression",
+        "summary": "Linear regression assumptions: Linearity, Independence, Homoscedasticity, Normality.",
+        "theory": [
+            "### Core Assumptions of OLS\n",
+            "1. **Linearity:** Relationship between $X$ and $Y$ is linear.\n",
+            "2. **Independence:** Residuals are independent.\n",
+            "3. **Homoscedasticity:** Constant variance of residuals across predictions.\n",
+            "4. **Normality of Residuals:** Error terms are normally distributed."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "import scipy.stats as stats\n",
+            "\n",
+            "# Generate simulated residuals\n",
+            "np.random.seed(42)\n",
+            "residuals = np.random.normal(0, 1, 100)\n",
+            "\n",
+            "# Q-Q Plot to check normality assumption\n",
+            "stats.probplot(residuals, dist='norm', plot=plt)\n",
+            "plt.title('Residual Q-Q Plot')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the skewness of the residuals."
+        ],
+        "exercise_code": [
+            "skew = stats.skew(residuals)\n",
+            "print(f'Residual Skewness: {skew:.4f}')\n"
+        ]
+    },
+    12: {
+        "title": "Multiple Dependent Variables",
+        "summary": "Multivariate regression where target Y is multi-dimensional.",
+        "theory": [
+            "### Multi-Output Regression\n",
+            "Predicting multiple continuous target values simultaneously: $Y \\in \\mathbb{R}^{m \\times k}$."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "\n",
+            "X = np.random.rand(100, 3)\n",
+            "# Targets are correlated with features\n",
+            "y1 = X[:, 0] * 2 + X[:, 1]\n",
+            "y2 = X[:, 2] * 3 - X[:, 1]\n",
+            "y = np.column_stack([y1, y2])\n",
+            "\n",
+            "multi_lr = LinearRegression().fit(X, y)\n",
+            "print('Coefficient matrix shape:', multi_lr.coef_.shape)\n",
+            "print('Coefficients:\\n', multi_lr.coef_)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Predict targets for a test point $X = [[0.5, 0.5, 0.5]]$."
+        ],
+        "exercise_code": [
+            "pred = multi_lr.predict([[0.5, 0.5, 0.5]])\n",
+            "print('Predicted outputs:', pred)\n"
+        ]
+    },
+    13: {
+        "title": "Multiple Linear Regression solved numerical",
+        "summary": "Multi-variable normal equation solved on a small matrix.",
+        "theory": [
+            "### Matrix Normal Equation Solver\n",
+            "Solving $(X^T X)^{-1} X^T y$ manually on a small $3 \\times 2$ feature dataset."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "# Features: Col 0 is intercept (ones), Col 1 is X1, Col 2 is X2\n",
+            "X = np.array([[1, 2, 3],\n",
+            "              [1, 3, 5],\n",
+            "              [1, 4, 6]])\n",
+            "y = np.array([5, 8, 10])\n",
+            "\n",
+            "# Compute beta = (X^T * X)^(-1) * X^T * y\n",
+            "XTX = X.T.dot(X)\n",
+            "beta = np.linalg.inv(XTX).dot(X.T).dot(y)\n",
+            "print('Calculated weights beta:', beta)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the determinant of $X^T X$ to verify if it is invertible (i.e. det != 0)."
+        ],
+        "exercise_code": [
+            "det = np.linalg.det(XTX)\n",
+            "print(f'Determinant of XTX: {det:.4f}')\n"
+        ]
+    },
+    14: {
+        "title": "Gradient Descent end to end",
+        "summary": "Optimization using Gradient Descent algorithm.",
+        "theory": [
+            "### Optimization via Gradient Descent\n",
+            "Minimizing an objective function by updating values in the opposite direction of the gradient:\n",
+            "$$x_{new} := x_{old} - \\alpha f'(x_{old})$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "# Function: f(x) = x^2 - 4x + 4, Derivative: f'(x) = 2x - 4\n",
+            "x = 10.0 # start point\n",
+            "lr = 0.1\n",
+            "\n",
+            "for epoch in range(1, 11):\n",
+            "    grad = 2*x - 4\n",
+            "    x = x - lr * grad\n",
+            "    print(f'Epoch {epoch}: x = {x:.5f}, f(x) = {x**2 - 4*x + 4:.5f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Minimize the same function using a learning rate of 0.8 and observe oscillation behavior."
+        ],
+        "exercise_code": [
+            "x_osc = 10.0\n",
+            "for epoch in range(1, 6):\n",
+            "    x_osc = x_osc - 0.8 * (2*x_osc - 4)\n",
+            "    print(f'Epoch {epoch} (lr=0.8): x = {x_osc:.5f}')\n"
+        ]
+    },
+    15: {
+        "title": "Batch GD, SGD, Mini Batch GD",
+        "summary": "Variations of gradient descent based on data batching.",
+        "theory": [
+            "### Gradient Descent Variants\n",
+            "- **Batch GD:** Calculates gradient on the *entire* dataset.\n",
+            "- **Stochastic GD (SGD):** Calculates gradient on *one* sample at a time (noisy but fast).\n",
+            "- **Mini-batch GD:** Calculates gradient on a small batch of size $B$ (compromise)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "X = np.random.rand(100, 1)\n",
+            "y = 3*X + 2 + np.random.randn(100, 1)*0.1\n",
+            "X_b = np.c_[np.ones((100, 1)), X] # add bias\n",
+            "\n",
+            "# SGD Implementation\n",
+            "theta = np.random.randn(2, 1)\n",
+            "lr = 0.01\n",
+            "for i in range(100):\n",
+            "    rand_idx = np.random.randint(100)\n",
+            "    xi = X_b[rand_idx:rand_idx+1]\n",
+            "    yi = y[rand_idx:rand_idx+1]\n",
+            "    gradients = 2 * xi.T.dot(xi.dot(theta) - yi)\n",
+            "    theta = theta - lr * gradients\n",
+            "print('SGD final theta:', theta.flatten())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Implement Batch Gradient Descent on the same data and print the final parameters."
+        ],
+        "exercise_code": [
+            "theta_bgd = np.random.randn(2, 1)\n",
+            "for i in range(500):\n",
+            "    gradients_bgd = 2/100 * X_b.T.dot(X_b.dot(theta_bgd) - y)\n",
+            "    theta_bgd = theta_bgd - 0.1 * gradients_bgd\n",
+            "print('Batch GD final theta:', theta_bgd.flatten())\n"
+        ]
+    },
+    16: {
+        "title": "Learning Rate",
+        "summary": "Influence of learning rate on gradient descent convergence.",
+        "theory": [
+            "### Hyperparameter: Learning Rate ($\\alpha$)\n",
+            "- Too small: very slow convergence.\n",
+            "- Too large: divergence, cost increases, oscillation."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "x_start = 10.0\n",
+            "\n",
+            "def run_gd(lr, epochs=5):\n",
+            "    x = x_start\n",
+            "    history = []\n",
+            "    for _ in range(epochs):\n",
+            "        grad = 2*x\n",
+            "        x = x - lr * grad\n",
+            "        history.append(x)\n",
+            "    return history\n",
+            "\n",
+            "print('Optimal LR (0.1):', run_gd(0.1))\n",
+            "print('Diverging LR (1.1):', run_gd(1.1))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Run GD with a very small learning rate (0.001) for 5 epochs and observe progress."
+        ],
+        "exercise_code": [
+            "print('Very small LR (0.001):', run_gd(0.001))\n"
+        ]
+    },
+    17: {
+        "title": "Univariate Linear Regression with GD (without vectorization)",
+        "summary": "Implementing simple linear regression using loops for gradient updates.",
+        "theory": [
+            "### Loop-based Gradient Descent\n",
+            "Updating weights $m$ and $c$ using explicit iterations over data samples instead of vector operations."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "X = np.array([1, 2, 3, 4, 5])\n",
+            "y = np.array([2, 4, 5, 4, 5])\n",
+            "\n",
+            "m, c = 0.0, 0.0\n",
+            "lr = 0.01\n",
+            "n = len(X)\n",
+            "\n",
+            "for epoch in range(100):\n",
+            "    grad_m = 0.0\n",
+            "    grad_c = 0.0\n",
+            "    for i in range(n):\n",
+            "        y_pred = m * X[i] + c\n",
+            "        grad_m += (y_pred - y[i]) * X[i]\n",
+            "        grad_c += (y_pred - y[i])\n",
+            "    m = m - lr * (2/n) * grad_m\n",
+            "    c = c - lr * (2/n) * grad_c\n",
+            "\n",
+            "print(f'Fitted parameters: m = {m:.3f}, c = {c:.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the final Mean Squared Error of this model."
+        ],
+        "exercise_code": [
+            "final_preds = m * X + c\n",
+            "mse = np.mean((y - final_preds)**2)\n",
+            "print(f'Final MSE: {mse:.4f}')\n"
+        ]
+    },
+    18: {
+        "title": "Univariate Linear Regression with GD (with vectorization)",
+        "summary": "Vectorized univariate linear regression using NumPy.",
+        "theory": [
+            "### Vectorized GD formulation\n",
+            "Avoiding slow python loops by calculating gradients using matrix transpose and vector multiplications."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "X = np.array([1, 2, 3, 4, 5])\n",
+            "y = np.array([2, 4, 5, 4, 5])\n",
+            "X_b = np.c_[np.ones((len(X), 1)), X]\n",
+            "\n",
+            "theta = np.zeros(2)\n",
+            "lr = 0.01\n",
+            "m = len(X)\n",
+            "\n",
+            "for epoch in range(100):\n",
+            "    gradients = (2/m) * X_b.T.dot(X_b.dot(theta) - y)\n",
+            "    theta = theta - lr * gradients\n",
+            "print('Vectorized fitted parameters [c, m]:', theta)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compare the predictions of vectorized GD against the loop-based GD predictions."
+        ],
+        "exercise_code": [
+            "loop_pred = 0.700 * X + 1.900 # from loop GD\n",
+            "vec_pred = X_b.dot(theta)\n",
+            "print('Difference:', np.abs(loop_pred - vec_pred).max())\n"
+        ]
+    },
+    19: {
+        "title": "Multivariate Linear Regression implementation",
+        "summary": "Vectorized multi-feature linear regression with gradient descent.",
+        "theory": [
+            "### Multivariate Vectorized Formulation\n",
+            "Gradient: $\\nabla_\\theta J = \\frac{2}{m} X^T(X\\theta - y)$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.datasets import load_diabetes\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "\n",
+            "diabetes = load_diabetes()\n",
+            "X = diabetes.data[:, :3] # use first 3 features\n",
+            "y = diabetes.target\n",
+            "\n",
+            "# Standardize features to aid GD convergence\n",
+            "X_scaled = StandardScaler().fit_transform(X)\n",
+            "X_b = np.c_[np.ones((len(X_scaled), 1)), X_scaled]\n",
+            "\n",
+            "theta = np.zeros(4)\n",
+            "lr = 0.1\n",
+            "m_samples = len(y)\n",
+            "\n",
+            "for epoch in range(200):\n",
+            "    gradients = (2/m_samples) * X_b.T.dot(X_b.dot(theta) - y)\n",
+            "    theta = theta - lr * gradients\n",
+            "print('Fitted coefficients [Intercept, Beta1, Beta2, Beta3]:', theta)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the final objective cost $J(\\theta)$ on the training dataset."
+        ],
+        "exercise_code": [
+            "cost = (1 / (2*m_samples)) * np.sum((X_b.dot(theta) - y)**2)\n",
+            "print(f'Final cost J: {cost:.4f}')\n"
+        ]
+    },
+    20: {
+        "title": "Polynomial Regression",
+        "summary": "Non-linear regression using polynomial feature expansions.",
+        "theory": [
+            "### Polynomial Mapping\n",
+            "Mapping features $X \\to [1, X, X^2, X^3]$ to fit non-linear curved bounds using standard OLS solvers."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.preprocessing import PolynomialFeatures\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "\n",
+            "# Generate curved data\n",
+            "np.random.seed(42)\n",
+            "X = np.sort(np.random.rand(40, 1) * 6, axis=0)\n",
+            "y = 0.5 * X**3 - 3 * X**2 + X + np.random.randn(40, 1) * 2\n",
+            "\n",
+            "poly = PolynomialFeatures(degree=3, include_bias=False)\n",
+            "X_poly = poly.fit_transform(X)\n",
+            "\n",
+            "model = LinearRegression().fit(X_poly, y)\n",
+            "print('Polynomial Coefficients:', model.coef_)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate predictions and print the R2 score of the polynomial model."
+        ],
+        "exercise_code": [
+            "r2 = model.score(X_poly, y)\n",
+            "print(f'Polynomial R2 score: {r2:.4f}')\n"
+        ]
+    },
+    21: {
+        "title": "Bias Variance Tradeoff and Overfitting/Underfitting",
+        "summary": "Concepts of Bias, Variance, Underfitting and Overfitting.",
+        "theory": [
+            "### Bias vs Variance Tradeoff\n",
+            "- **High Bias:** Underfitting (model is too simple to capture patterns, eg. degree 1 on curved data).\n",
+            "- **High Variance:** Overfitting (model fits training noise too closely, eg. degree 15 on small dataset)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.preprocessing import PolynomialFeatures\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "from sklearn.metrics import mean_squared_error\n",
+            "\n",
+            "np.random.seed(42)\n",
+            "X = np.random.rand(30, 1) * 4\n",
+            "y = np.sin(X).ravel() + np.random.randn(30) * 0.2\n",
+            "\n",
+            "def evaluate_deg(deg):\n",
+            "    poly = PolynomialFeatures(degree=deg)\n",
+            "    X_p = poly.fit_transform(X)\n",
+            "    model = LinearRegression().fit(X_p, y)\n",
+            "    train_mse = mean_squared_error(y, model.predict(X_p))\n",
+            "    return train_mse\n",
+            "\n",
+            "print('Underfit Degree 1 Train MSE:', evaluate_deg(1))\n",
+            "print('Overfit Degree 12 Train MSE:', evaluate_deg(12))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. State which degree will likely generalize better on unseen test points."
+        ],
+        "exercise_code": [
+            "print('Optimal degree is likely 2 or 3; degree 12 will overfit and have very poor generalization (high variance).')\n"
+        ]
+    },
+    22: {
+        "title": "Ridge Regression full series",
+        "summary": "Ridge regression (L2 regularization) math and code.",
+        "theory": [
+            "### Ridge Regularization\n",
+            "Applies an $L_2$ squared penalty to coefficients to reduce collinearity and prevent overfitting:\n",
+            "$$J(\\theta) = MSE + \\alpha \\sum_{j=1}^n \\theta_j^2$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.linear_model import Ridge\n",
+            "from sklearn.datasets import load_diabetes\n",
+            "\n",
+            "diabetes = load_diabetes()\n",
+            "X, y = diabetes.data, diabetes.target\n",
+            "\n",
+            "ridge = Ridge(alpha=1.0)\n",
+            "ridge.fit(X, y)\n",
+            "print('Ridge Coefficients norm:', np.linalg.norm(ridge.coef_))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compare Ridge coefficients norm with standard OLS Linear Regression norm."
+        ],
+        "exercise_code": [
+            "from sklearn.linear_model import LinearRegression\n",
+            "ols = LinearRegression().fit(X, y)\n",
+            "print('OLS Coefficients norm:', np.linalg.norm(ols.coef_))\n",
+            "print('Notice that Ridge shrinks the coefficient magnitudes.')\n"
+        ]
+    },
+    23: {
+        "title": "Lasso Regression",
+        "summary": "Lasso regression (L1 regularization) and feature selection.",
+        "theory": [
+            "### Lasso Regularization\n",
+            "Applies an $L_1$ absolute penalty to coefficients, which encourages sparsity (zeroing out weights):\n",
+            "$$J(\\theta) = MSE + \\alpha \\sum_{j=1}^n |\\theta_j|$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.linear_model import Lasso\n",
+            "from sklearn.datasets import load_diabetes\n",
+            "\n",
+            "diabetes = load_diabetes()\n",
+            "X, y = diabetes.data, diabetes.target\n",
+            "\n",
+            "lasso = Lasso(alpha=0.1)\n",
+            "lasso.fit(X, y)\n",
+            "print('Lasso Coefficients:', lasso.coef_)\n",
+            "print('Number of features zeroed out:', np.sum(lasso.coef_ == 0))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Train Lasso with a very large alpha (e.g., 5.0) and see how many features remain non-zero."
+        ],
+        "exercise_code": [
+            "lasso_large = Lasso(alpha=5.0).fit(X, y)\n",
+            "print('Non-zero coefficients count:', np.sum(lasso_large.coef_ != 0))\n"
+        ]
+    },
+    24: {
+        "title": "ElasticNet Regression",
+        "summary": "ElasticNet combining L1 and L2 regularization.",
+        "theory": [
+            "### ElasticNet Regularization\n",
+            "Combines L1 and L2 penalties using mixing ratio $r$ (l1_ratio):\n",
+            "$$J(\\theta) = MSE + r \\cdot \\alpha \\sum |\\theta_j| + \\frac{1-r}{2} \\cdot \\alpha \\sum \\theta_j^2$$"
+        ],
+        "code": [
+            "from sklearn.linear_model import ElasticNet\n",
+            "from sklearn.datasets import load_diabetes\n",
+            "\n",
+            "diabetes = load_diabetes()\n",
+            "X, y = diabetes.data, diabetes.target\n",
+            "\n",
+            "enet = ElasticNet(alpha=0.1, l1_ratio=0.5)\n",
+            "enet.fit(X, y)\n",
+            "print('ElasticNet score:', enet.score(X, y))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Run ElasticNet with l1_ratio = 1.0 and confirm if it yields identical coefficients to Lasso."
+        ],
+        "exercise_code": [
+            "from sklearn.linear_model import Lasso\n",
+            "import numpy as np\n",
+            "enet_lasso = ElasticNet(alpha=0.1, l1_ratio=1.0).fit(X, y)\n",
+            "lasso_comp = Lasso(alpha=0.1).fit(X, y)\n",
+            "print('Difference:', np.max(np.abs(enet_lasso.coef_ - lasso_comp.coef_)))\n"
+        ]
+    },
+    25: {
+        "title": "Stanford CS229 Lec 3: Locally Weighted Regression",
+        "summary": "Non-parametric regression using local weight kernels.",
+        "theory": [
+            "### Locally Weighted Regression (LWR)\n",
+            "A non-parametric algorithm: weights $w^{(i)}$ are evaluated centered around query prediction point $x$:\n",
+            "$$w^{(i)} = \\exp\\left(-\\frac{(x^{(i)} - x)^2}{2\\tau^2}\\right)$$\n",
+            "Cost to minimize: $\\sum w^{(i)} (y^{(i)} - \\theta^T x^{(i)})^2$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "# Generate noisy 1D sine wave\n",
+            "np.random.seed(0)\n",
+            "X = np.sort(np.random.rand(50) * 6)\n",
+            "y = np.sin(X) + np.random.randn(50) * 0.1\n",
+            "\n",
+            "def lwr_predict(x_query, X, y, tau):\n",
+            "    weights = np.exp(-((X - x_query)**2) / (2 * tau**2))\n",
+            "    W = np.diag(weights)\n",
+            "    # Add bias term\n",
+            "    X_b = np.c_[np.ones(len(X)), X]\n",
+            "    query_b = np.array([1, x_query])\n",
+            "    # Closed-form weighted OLS: theta = (X^T W X)^(-1) X^T W y\n",
+            "    theta = np.linalg.inv(X_b.T.dot(W).dot(X_b)).dot(X_b.T).dot(W).dot(y)\n",
+            "    return query_b.dot(theta)\n",
+            "\n",
+            "print('Prediction at query point 3.0 (tau=0.5):', lwr_predict(3.0, X, y, tau=0.5))\n",
+            "print('True sine value at 3.0:', np.sin(3.0))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Predict the value at query point 1.5 with a very tight bandwidth $\\tau = 0.05$."
+        ],
+        "exercise_code": [
+            "pred_tight = lwr_predict(1.5, X, y, tau=0.05)\n",
+            "print(f'Prediction (tau=0.05): {pred_tight:.4f}, True sine: {np.sin(1.5):.4f}')\n"
+        ]
+    },
+    26: {
+        "title": "Locally Weighted Regression",
+        "summary": "Practical implementation and evaluation of locally weighted regression.",
+        "theory": [
+            "### Bandwidth Parameter ($\\tau$)\n",
+            "- $\\tau$ too large: High bias (local weights become flat, converges to global linear regression).\n",
+            "- $\\tau$ too small: High variance (fits local noise)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "# Generate noisy 1D sine wave\n",
+            "np.random.seed(0)\n",
+            "X = np.sort(np.random.rand(50) * 6)\n",
+            "y = np.sin(X) + np.random.randn(50) * 0.1\n",
+            "\n",
+            "def lwr_predict(x_query, X, y, tau):\n",
+            "    weights = np.exp(-((X - x_query)**2) / (2 * tau**2))\n",
+            "    W = np.diag(weights)\n",
+            "    X_b = np.c_[np.ones(len(X)), X]\n",
+            "    query_b = np.array([1, x_query])\n",
+            "    theta = np.linalg.inv(X_b.T.dot(W).dot(X_b)).dot(X_b.T).dot(W).dot(y)\n",
+            "    return query_b.dot(theta)\n",
+            "\n",
+            "queries = np.linspace(0.1, 5.9, 30)\n",
+            "preds_large_tau = [lwr_predict(q, X, y, tau=2.0) for q in queries]\n",
+            "preds_small_tau = [lwr_predict(q, X, y, tau=0.1) for q in queries]\n",
+            "\n",
+            "plt.scatter(X, y, color='black', label='Data')\n",
+            "plt.plot(queries, preds_large_tau, 'r-', label='tau = 2.0')\n",
+            "plt.plot(queries, preds_small_tau, 'g-', label='tau = 0.1')\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain the effect of setting $\\tau=0.1$ compared to $\\tau=2.0$ based on the plot."
+        ],
+        "exercise_code": [
+            "print('tau=0.1 captures non-linear curvature cleanly. tau=2.0 underfits because the weights are too flat.')\n"
+        ]
+    },
+    27: {
+        "title": "KNN Regression",
+        "summary": "K-Nearest Neighbors regression intuition and code.",
+        "theory": [
+            "### KNN Regression\n",
+            "Finds the $K$ closest samples in feature space and averages their target values to make a prediction."
+        ],
+        "code": [
+            "import seaborn as sns\n",
+            "from sklearn.neighbors import KNeighborsRegressor\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "X = tips[['total_bill', 'size']]\n",
+            "y = tips['tip']\n",
+            "\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
+            "knn_reg = KNeighborsRegressor(n_neighbors=5)\n",
+            "knn_reg.fit(X_train, y_train)\n",
+            "print('KNN Test R2 Score:', knn_reg.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Train KNN models for $K=1$ and $K=15$ and compare test R2 scores."
+        ],
+        "exercise_code": [
+            "r2_k1 = KNeighborsRegressor(n_neighbors=1).fit(X_train, y_train).score(X_test, y_test)\n",
+            "r2_k15 = KNeighborsRegressor(n_neighbors=15).fit(X_train, y_train).score(X_test, y_test)\n",
+            "print(f'R2 for K=1: {r2_k1:.4f}, R2 for K=15: {r2_k15:.4f}')\n"
+        ]
+    },
+    28: {
+        "title": "Regression Trees",
+        "summary": "Decision Trees for regression tasks.",
+        "theory": [
+            "### Regression Tree split criteria\n",
+            "Recursively partitions feature space using thresholds that minimize Mean Squared Error (MSE) within resulting regions."
+        ],
+        "code": [
+            "import seaborn as sns\n",
+            "from sklearn.tree import DecisionTreeRegressor\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "tips = sns.load_dataset('tips')\n",
+            "X = tips[['total_bill', 'size']]\n",
+            "y = tips['tip']\n",
+            "\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
+            "\n",
+            "tree_reg = DecisionTreeRegressor(max_depth=3, random_state=42)\n",
+            "tree_reg.fit(X_train, y_train)\n",
+            "print('Tree Test R2 Score:', tree_reg.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute the depth of standard tree regression without depth limit, and print its training R2 score."
+        ],
+        "exercise_code": [
+            "tree_full = DecisionTreeRegressor(random_state=42).fit(X_train, y_train)\n",
+            "print('Full Tree depth:', tree_full.get_depth())\n",
+            "print('Full Tree Train R2 Score:', tree_full.score(X_train, y_train))\n"
+        ]
+    }
+}
+
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -4603,8 +5552,16 @@ def make_populated_notebook(phase_num, topic_num, details):
         emoji = "📊"
     elif phase_num == 3:
         emoji = "🔢"
-    else:
+    elif phase_num == 4:
         emoji = "🐼"
+    elif phase_num == 5:
+        emoji = "📈"
+    elif phase_num == 6:
+        emoji = "🧹"
+    elif phase_num == 7:
+        emoji = "📉"
+    else:
+        emoji = "📓"
     
     # 1. Header & Summary
     cells.append({
@@ -4715,6 +5672,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(5, idx, PHASE_5_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_06_Data_Preprocessing_Feature_Engineering" and idx in PHASE_6_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(6, idx, PHASE_6_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_07_Regression_Algorithms" and idx in PHASE_7_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(7, idx, PHASE_7_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -4745,6 +5704,8 @@ def generate_roadmap():
                 elif phase["dir_name"] == "PHASE_05_Data_Visualization":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_06_Data_Preprocessing_Feature_Engineering":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_07_Regression_Algorithms":
                     status = "✅ Completed"
                 else:
                     status = "📋 Planned"
