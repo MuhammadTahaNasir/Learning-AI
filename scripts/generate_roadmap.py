@@ -5422,6 +5422,1324 @@ PHASE_7_NOTEBOOK_CONTENTS = {
 }
 
 
+
+PHASE_8_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Linear vs Logistic Regression",
+        "summary": "Comparison between regression and classification boundary limits.",
+        "theory": [
+            "### Limits of Linear Regression for Classification\n",
+            "- **Predicting out of bounds:** Linear regression predicts values in $(-\\infty, \\infty)$, but probabilities must be in $[0, 1]$.\n",
+            "- **Sensitivity to outliers:** Adding extreme points shifts the decision boundary significantly, leading to misclassifications.\n",
+            "- **Non-constant variance:** Error terms violate homoscedasticity assumption in binary target scenarios."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.linear_model import LinearRegression, LogisticRegression\n",
+            "\n",
+            "# Generate toy binary dataset\n",
+            "X = np.array([1, 2, 3, 4, 10, 11, 12, 13]).reshape(-1, 1)\n",
+            "y = np.array([0, 0, 0, 0, 1, 1, 1, 1])\n",
+            "\n",
+            "lin_reg = LinearRegression().fit(X, y)\n",
+            "log_reg = LogisticRegression().fit(X, y)\n",
+            "\n",
+            "plt.scatter(X, y, color='black', label='Data')\n",
+            "plt.plot(X, lin_reg.predict(X), 'r--', label='Linear Regression')\n",
+            "plt.plot(X, log_reg.predict_proba(X)[:, 1], 'g-', label='Logistic Regression probability')\n",
+            "plt.axhline(0.5, color='gray', linestyle=':')\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain the effect of an outlier at $X=50, y=1$ on the linear regression decision boundary compared to logistic regression."
+        ],
+        "exercise_code": [
+            "print('Linear regression boundary will shift to the right due to the leverage of the outlier, misclassifying intermediate points. Logistic regression boundary remains stable.')\n"
+        ]
+    },
+    2: {
+        "title": "Stanford CS229 Lec 3: Logistic Regression math",
+        "summary": "Derivation of the log-likelihood function, gradient ascent, and Newton's Method.",
+        "theory": [
+            "### Logistic Regression Math\n",
+            "- **Hypothesis:** $h_\\theta(x) = g(\\theta^T x) = \\frac{1}{1 + e^{-\\theta^T x}}$\n",
+            "- **Log-Likelihood:** $\\ell(\\theta) = \\sum_{i=1}^m y^{(i)}\\log h(x^{(i)}) + (1-y^{(i)})\\log(1-h(x^{(i)}))$\n",
+            "- **Gradient:** $\\nabla_\\theta \\ell(\\theta) = X^T (y - h(x))$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "# Sigmoid function\n",
+            "z = np.linspace(-10, 10, 100)\n",
+            "g = 1 / (1 + np.exp(-z))\n",
+            "dg = g * (1 - g)\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.plot(z, g, 'b-', label='Sigmoid g(z)')\n",
+            "plt.plot(z, dg, 'r--', label=\"Sigmoid Derivative g'(z)\")\n",
+            "plt.axhline(0.5, color='gray', linestyle=':')\n",
+            "plt.axvline(0.0, color='gray', linestyle=':')\n",
+            "plt.title('Sigmoid Activation and its Derivative')\n",
+            "plt.xlabel('z')\n",
+            "plt.ylabel('Activation')\n",
+            "plt.legend()\n",
+            "plt.grid(True)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the log-likelihood for predictions $[0.99, 0.01]$ and labels $[1, 0]$."
+        ],
+        "exercise_code": [
+            "p_ex = np.array([0.99, 0.01])\n",
+            "y_ex = np.array([1, 0])\n",
+            "print('Log-Likelihood:', np.sum(y_ex * np.log(p_ex) + (1-y_ex) * np.log(1-p_ex)))\n"
+        ]
+    },
+    3: {
+        "title": "Logistic Regression full series: Perceptron, Sigmoid, Loss, GD",
+        "summary": "Detailed perceptron algorithm vs logistic regression, sigmoid activation, BCE loss, and gradient descent.",
+        "theory": [
+            "### Binary Cross Entropy (BCE) Loss\n",
+            "$$L(\\theta) = -\\frac{1}{m} \\sum_{i=1}^m [y^{(i)}\\log(\\hat{y}^{(i)}) + (1-y^{(i)})\\log(1-\\hat{y}^{(i)})]$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "p = np.linspace(0.01, 0.99, 100)\n",
+            "loss_y1 = -np.log(p)\n",
+            "loss_y0 = -np.log(1 - p)\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.plot(p, loss_y1, 'g-', label='BCE Loss for y=1: -log(p)')\n",
+            "plt.plot(p, loss_y0, 'r--', label='BCE Loss for y=0: -log(1-p)')\n",
+            "plt.xlabel('Predicted Probability p')\n",
+            "plt.ylabel('Loss Value')\n",
+            "plt.title('Binary Cross Entropy Loss Curves')\n",
+            "plt.legend()\n",
+            "plt.grid(True)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute the binary cross entropy loss for true label 0 and prediction 0.25."
+        ],
+        "exercise_code": [
+            "def bce_loss(y_true, y_pred):\n",
+            "    return -np.mean(y_true * np.log(y_pred) + (1 - y_true) * np.log(1 - y_pred))\n",
+            "print('BCE Loss:', bce_loss(0, 0.25))\n"
+        ]
+    },
+    4: {
+        "title": "Logistic Regression with Python",
+        "summary": "Using Scikit-Learn's LogisticRegression for binary classification.",
+        "theory": [
+            "### Scikit-Learn Logistic Regression\n",
+            "Optimizes logistic regression parameters using iterative solvers (default: lbfgs)."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "data = load_breast_cancer()\n",
+            "X = pd.DataFrame(data.data, columns=data.feature_names)\n",
+            "y = data.target\n",
+            "\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
+            "model = LogisticRegression(max_iter=10000)\n",
+            "model.fit(X_train, y_train)\n",
+            "print('Train Score:', model.score(X_train, y_train))\n",
+            "print('Test Score:', model.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Print the model intercept and check how many features were used in training."
+        ],
+        "exercise_code": [
+            "print('Intercept:', model.intercept_)\n",
+            "print('Number of features:', model.n_features_in_)\n"
+        ]
+    },
+    5: {
+        "title": "Logistic Regression solved numerical",
+        "summary": "Hand-calculated step of gradient descent update for logistic regression.",
+        "theory": [
+            "### GD Update Calculation\n",
+            "Weight update: $\\theta_j := \\theta_j - \\alpha (h_\\theta(x) - y)x_j$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "X = np.array([1.0, 2.0]) # feature vector (including bias)\n",
+            "y = 1.0\n",
+            "theta = np.array([0.0, 0.5])\n",
+            "alpha = 0.1\n",
+            "\n",
+            "# Sigmoid prediction\n",
+            "z = np.dot(theta, X)\n",
+            "h = 1 / (1 + np.exp(-z))\n",
+            "\n",
+            "# Gradient step\n",
+            "theta_new = theta - alpha * (h - y) * X\n",
+            "print('New Theta:', theta_new)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Perform the calculation with a learning rate $\\alpha = 0.5$."
+        ],
+        "exercise_code": [
+            "theta_new_5 = theta - 0.5 * (h - y) * X\n",
+            "print('New Theta (lr=0.5):', theta_new_5)\n"
+        ]
+    },
+    6: {
+        "title": "Logistic Regression hyperparameters",
+        "summary": "Tuning C parameter, penalty type (L1, L2, ElasticNet), and optimization solvers.",
+        "theory": [
+            "### Regularization Strength (C)\n",
+            "- $C = \\frac{1}{\\lambda}$: Smaller $C$ leads to stronger regularization."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "\n",
+            "data = load_breast_cancer()\n",
+            "X, y = data.data, data.target\n",
+            "\n",
+            "model_l1 = LogisticRegression(penalty='l1', solver='liblinear', C=0.1, max_iter=10000, random_state=42)\n",
+            "model_l1.fit(X, y)\n",
+            "print('L1 non-zero coefficients:', np.sum(model_l1.coef_ != 0))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Fit a LogisticRegression model using L2 regularization and C=0.01. Compare training score with L1."
+        ],
+        "exercise_code": [
+            "model_l2 = LogisticRegression(penalty='l2', C=0.01, max_iter=10000, random_state=42).fit(X, y)\n",
+            "print('L2 score:', model_l2.score(X, y))\n"
+        ]
+    },
+    7: {
+        "title": "Binary Classification: full implementation",
+        "summary": "Complete scratch implementation of Logistic Regression class with fit/predict methods.",
+        "theory": [
+            "### From-Scratch Sigmoid Neurons\n",
+            "Calculating sigmoid activations, derivatives, and updating parameters in a single loop."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "\n",
+            "data = load_breast_cancer()\n",
+            "X_scaled = StandardScaler().fit_transform(data.data)\n",
+            "y = data.target\n",
+            "\n",
+            "class CustomLogisticRegression:\n",
+            "    def fit(self, X, y, lr=0.1, epochs=100):\n",
+            "        m, n = X.shape\n",
+            "        self.w = np.zeros(n)\n",
+            "        self.b = 0.0\n",
+            "        for _ in range(epochs):\n",
+            "            z = np.dot(X, self.w) + self.b\n",
+            "            y_pred = 1 / (1 + np.exp(-z))\n",
+            "            dw = (1/m) * np.dot(X.T, (y_pred - y))\n",
+            "            db = (1/m) * np.sum(y_pred - y)\n",
+            "            self.w -= lr * dw\n",
+            "            self.b -= lr * db\n",
+            "    def predict(self, X):\n",
+            "        z = np.dot(X, self.w) + self.b\n",
+            "        return (1 / (1 + np.exp(-z)) >= 0.5).astype(int)\n",
+            "\n",
+            "custom = CustomLogisticRegression()\n",
+            "custom.fit(X_scaled, y, epochs=200)\n",
+            "preds = custom.predict(X_scaled)\n",
+            "print('Custom Model Train Accuracy:', np.mean(preds == y))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Print final weights and intercept values."
+        ],
+        "exercise_code": [
+            "print('Bias:', custom.b)\n",
+            "print('First 3 weights:', custom.w[:3])\n"
+        ]
+    },
+    8: {
+        "title": "Stanford CS229 Lec 4: Perceptron and GLM",
+        "summary": "Exponential family distributions, Generalized Linear Model (GLM) formulation.",
+        "theory": [
+            "### GLM Formulation\n",
+            "1. $y|x; \\theta \\sim \\text{ExponentialFamily}(\\eta)$\n",
+            "2. $h_\\theta(x) = E[y|x]$\n",
+            "3. $\\eta = \\theta^T x$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "def log_odds(p):\n",
+            "    return np.log(p / (1 - p))\n",
+            "\n",
+            "print('Log-odds of 0.8 probability:', log_odds(0.8))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute the probability $p$ when the log-odds (logit) value $\\eta = 0.0$."
+        ],
+        "exercise_code": [
+            "print('Probability:', 1 / (1 + np.exp(-0.0)))\n"
+        ]
+    },
+    9: {
+        "title": "Softmax / Multinomial Logistic Regression",
+        "summary": "Softmax regression for multiclass classification tasks.",
+        "theory": [
+            "### Softmax Regression\n",
+            "Generalization of Logistic Regression to multiclass targets ($K > 2$):\n",
+            "$$P(y=i|x) = \\frac{e^{\\theta_i^T x}}{\\sum_{j=1}^K e^{\\theta_j^T x}}$$"
+        ],
+        "code": [
+            "from sklearn.datasets import load_wine\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "wine = load_wine()\n",
+            "X, y = wine.data, wine.target\n",
+            "\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
+            "softmax_reg = LogisticRegression(solver='lbfgs', max_iter=10000, random_state=42)\n",
+            "softmax_reg.fit(X_train, y_train)\n",
+            "print('Multiclass Test Accuracy:', softmax_reg.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Output prediction probability estimates for the first sample in `X_test`."
+        ],
+        "exercise_code": [
+            "print('Probabilities:', softmax_reg.predict_proba(X_test[:1]))\n"
+        ]
+    },
+    10: {
+        "title": "Multiclass Classification: One vs All, One vs One",
+        "summary": "Extending binary classification models to multiclass targets.",
+        "theory": [
+            "### OvR and OvO\n",
+            "- **One-vs-Rest (OvR):** Fits $K$ classifiers. Fast but may suffer from size imbalances.\n",
+            "- **One-vs-One (OvO):** Fits $\\frac{K(K-1)}{2}$ classifiers. Slower but robust."
+        ],
+        "code": [
+            "from sklearn.multiclass import OneVsRestClassifier, OneVsOneClassifier\n",
+            "from sklearn.svm import SVC\n",
+            "from sklearn.datasets import load_wine\n",
+            "\n",
+            "wine = load_wine()\n",
+            "X, y = wine.data, wine.target\n",
+            "\n",
+            "ovr = OneVsRestClassifier(SVC(kernel='linear')).fit(X, y)\n",
+            "ovo = OneVsOneClassifier(SVC(kernel='linear')).fit(X, y)\n",
+            "print('OvR score:', ovr.score(X, y))\n",
+            "print('OvO score:', ovo.score(X, y))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the number of models trained in OvO for a classification task with 6 classes."
+        ],
+        "exercise_code": [
+            "classes = 6\n",
+            "print('OvO models:', int(classes * (classes - 1) / 2))\n"
+        ]
+    },
+    11: {
+        "title": "Confusion Matrix, Accuracy, Type 1 & 2 errors",
+        "summary": "Metrics for classification evaluation and confusion matrices.",
+        "theory": [
+            "### Confusion Matrix Details\n",
+            "- **Type I Error (False Positive):** Rejecting null hypothesis when true.\n",
+            "- **Type II Error (False Negative):** Failing to reject null hypothesis when false."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import seaborn as sns\n",
+            "from sklearn.metrics import confusion_matrix, accuracy_score\n",
+            "\n",
+            "y_true = [0, 1, 0, 1, 0, 1, 1, 0]\n",
+            "y_pred = [0, 1, 0, 0, 0, 1, 1, 1]\n",
+            "cm = confusion_matrix(y_true, y_pred)\n",
+            "\n",
+            "plt.figure(figsize=(5, 4))\n",
+            "sns.heatmap(cm, annot=True, cmap='Blues', fmt='d', xticklabels=['Negative (0)', 'Positive (1)'], yticklabels=['Negative (0)', 'Positive (1)'])\n",
+            "plt.xlabel('Predicted Label')\n",
+            "plt.ylabel('True Label')\n",
+            "plt.title('Binary Confusion Matrix Heatmap')\n",
+            "plt.show()\n",
+            "print('Accuracy:', accuracy_score(y_true, y_pred))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the count of Type I and Type II errors from the code predictions above."
+        ],
+        "exercise_code": [
+            "print('Type I (FP):', cm[0, 1])\n",
+            "print('Type II (FN):', cm[1, 0])\n"
+        ]
+    },
+    12: {
+        "title": "Precision, Recall, F1 Score",
+        "summary": "Precision vs Recall tradeoff and the F1 Score.",
+        "theory": [
+            "### Mathematical Definitions\n",
+            "- $\\text{Precision} = \\frac{TP}{TP + FP}$\n",
+            "- $\\text{Recall} = \\frac{TP}{TP + FN}$\n",
+            "- $\\text{F1} = 2 \\times \\frac{\\text{Precision} \\times \\text{Recall}}{\\text{Precision} + \\text{Recall}}$"
+        ],
+        "code": [
+            "from sklearn.metrics import precision_score, recall_score, f1_score\n",
+            "\n",
+            "y_true = [0, 1, 0, 1, 0, 1, 1, 0]\n",
+            "y_pred = [0, 1, 0, 0, 0, 1, 1, 1]\n",
+            "\n",
+            "print('Precision:', precision_score(y_true, y_pred))\n",
+            "print('Recall:', recall_score(y_true, y_pred))\n",
+            "print('F1 Score:', f1_score(y_true, y_pred))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate F1 Score manually if precision is 0.75 and recall is 0.5."
+        ],
+        "exercise_code": [
+            "p, r = 0.75, 0.5\n",
+            "print('Manual F1:', 2 * p * r / (p + r))\n"
+        ]
+    },
+    13: {
+        "title": "ROC AUC full",
+        "summary": "ROC curve plotting and Area Under the Curve metric.",
+        "theory": [
+            "### ROC AUC\n",
+            "Plots True Positive Rate (Sensitivity) vs False Positive Rate (1 - Specificity) across different thresholds."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.metrics import roc_curve, roc_auc_score\n",
+            "\n",
+            "y_true = [0, 0, 1, 1]\n",
+            "scores = [0.1, 0.4, 0.35, 0.8] # predicted probabilities\n",
+            "\n",
+            "fpr, tpr, thresholds = roc_curve(y_true, scores)\n",
+            "auc = roc_auc_score(y_true, scores)\n",
+            "\n",
+            "plt.figure(figsize=(6, 5))\n",
+            "plt.plot(fpr, tpr, 'b-', label=f'ROC Curve (AUC = {auc:.2f})')\n",
+            "plt.plot([0, 1], [0, 1], 'r--', label='Random Guessing (AUC = 0.5)')\n",
+            "plt.xlabel('False Positive Rate (FPR)')\n",
+            "plt.ylabel('True Positive Rate (TPR)')\n",
+            "plt.title('Receiver Operating Characteristic (ROC) Curve')\n",
+            "plt.legend()\n",
+            "plt.grid(True)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain what an AUC score of 0.5 implies about classification ability."
+        ],
+        "exercise_code": [
+            "print('An AUC of 0.5 represents a model with no discriminatory capability (equivalent to random guessing).')\n"
+        ]
+    },
+    14: {
+        "title": "Specificity and Sensitivity",
+        "summary": "Definitions of Specificity, Sensitivity, and their applications.",
+        "theory": [
+            "### Sensitivity and Specificity\n",
+            "- **Sensitivity (TPR):** Ability to correctly spot positive samples.\n",
+            "- **Specificity (TNR):** Ability to correctly spot negative samples ($TN / (TN + FP)$)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.metrics import confusion_matrix\n",
+            "\n",
+            "y_true = np.array([0, 1, 0, 1, 0, 0, 1])\n",
+            "y_pred = np.array([0, 1, 1, 1, 0, 0, 0])\n",
+            "\n",
+            "cm = confusion_matrix(y_true, y_pred)\n",
+            "tn, fp, fn, tp = cm.ravel()\n",
+            "print('Sensitivity:', tp / (tp + fn))\n",
+            "print('Specificity:', tn / (tn + fp))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain why clinical diagnostic tests prioritize sensitivity over specificity."
+        ],
+        "exercise_code": [
+            "print('Clinical tests prioritize sensitivity because failing to diagnose a sick patient (false negative) is far more critical than causing a false alarm.')\n"
+        ]
+    },
+    15: {
+        "title": "Multiclass Confusion Matrix",
+        "summary": "Analyzing confusion matrices for multiclass problems.",
+        "theory": [
+            "### Macro vs Micro Averages\n",
+            "- **Macro:** Calculate metric independently for each class and average them.\n",
+            "- **Micro:** Aggregate all class contributions before calculating metrics."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import seaborn as sns\n",
+            "from sklearn.metrics import classification_report, confusion_matrix\n",
+            "\n",
+            "y_true = [0, 1, 2, 0, 1, 2]\n",
+            "y_pred = [0, 2, 2, 0, 1, 1]\n",
+            "cm = confusion_matrix(y_true, y_pred)\n",
+            "\n",
+            "plt.figure(figsize=(6, 5))\n",
+            "sns.heatmap(cm, annot=True, cmap='Oranges', fmt='d', xticklabels=['Class 0', 'Class 1', 'Class 2'], yticklabels=['Class 0', 'Class 1', 'Class 2'])\n",
+            "plt.xlabel('Predicted Label')\n",
+            "plt.ylabel('True Label')\n",
+            "plt.title('Multiclass Confusion Matrix Heatmap')\n",
+            "plt.show()\n",
+            "print(classification_report(y_true, y_pred))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the precision of class 2 based on the predictions."
+        ],
+        "exercise_code": [
+            "print('Class 2 Precision: 0.50 (TP=1, FP=1 (class 1 predicted as 2))')\n"
+        ]
+    },
+    16: {
+        "title": "Accuracy vs F1 Score",
+        "summary": "Why accuracy is misleading on imbalanced datasets.",
+        "theory": [
+            "### Accuracy Pitfalls\n",
+            "If class A represents 99% of sample data, a dummy classifier always guessing A gets 99% accuracy but has 0 F1."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.metrics import accuracy_score, f1_score\n",
+            "\n",
+            "# Highly imbalanced targets\n",
+            "y_true = np.array([0]*95 + [1]*5)\n",
+            "y_pred = np.array([0]*100) # always predicts majority\n",
+            "\n",
+            "print('Accuracy:', accuracy_score(y_true, y_pred))\n",
+            "print('F1 Score:', f1_score(y_true, y_pred, zero_division=0))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Discuss how predicting majority class only affects precision and recall."
+        ],
+        "exercise_code": [
+            "print('Both precision and recall for the positive class will be 0.0 because there are no true positives.')\n"
+        ]
+    },
+    17: {
+        "title": "Dataset imbalance and remedies: Augmentation",
+        "summary": "Handling imbalanced data using class weights and resampling.",
+        "theory": [
+            "### Remedying Imbalance\n",
+            "- Cost-sensitive learning: increasing misclassification penalty of minority class."
+        ],
+        "code": [
+            "from sklearn.datasets import make_classification\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "\n",
+            "X, y = make_classification(n_samples=200, n_features=4, weights=[0.9, 0.1], random_state=42)\n",
+            "\n",
+            "lr_unbalanced = LogisticRegression().fit(X, y)\n",
+            "lr_balanced = LogisticRegression(class_weight='balanced').fit(X, y)\n",
+            "\n",
+            "print('Unbalanced class predictions:', lr_unbalanced.predict(X).sum())\n",
+            "print('Balanced class predictions:', lr_balanced.predict(X).sum())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Describe how setting class_weight='balanced' changes the loss formulation."
+        ],
+        "exercise_code": [
+            "print('It scales the loss contribution of each class inversely proportional to their class frequency in input data.')\n"
+        ]
+    },
+    18: {
+        "title": "Conditional Probability",
+        "summary": "Mathematical foundations of conditional probability.",
+        "theory": [
+            "### Formula\n",
+            "$$P(A|B) = \\frac{P(A \\cap B)}{P(B)}$$"
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "\n",
+            "# Toy survey data\n",
+            "df = pd.DataFrame({\n",
+            "    'Purchased': [1, 0, 1, 1, 0, 1],\n",
+            "    'Gender': ['F', 'M', 'F', 'M', 'F', 'F']\n",
+            "})\n",
+            "\n",
+            "# P(Purchased | Female)\n",
+            "female_subset = df[df['Gender'] == 'F']\n",
+            "p_cond = (female_subset['Purchased'] == 1).mean()\n",
+            "print('P(Purchased | Female) =', p_cond)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Find P(Female | Purchased) from the dataframe."
+        ],
+        "exercise_code": [
+            "purchased_subset = df[df['Purchased'] == 1]\n",
+            "p_female_cond = (purchased_subset['Gender'] == 'F').mean()\n",
+            "print('P(Female | Purchased) =', p_female_cond)\n"
+        ]
+    },
+    19: {
+        "title": "Bayes Theorem",
+        "summary": "Bayes theorem formula and probability updating.",
+        "theory": [
+            "### Updating Probabilities\n",
+            "$$P(A|B) = \\frac{P(B|A)P(A)}{P(B)}$$"
+        ],
+        "code": [
+            "# Calculate updated probability after positive medical test\n",
+            "prev = 0.01      # Prior P(Disease)\n",
+            "sens = 0.99      # Likelihood P(Pos | Disease)\n",
+            "spec = 0.95      # P(Neg | No Disease)\n",
+            "\n",
+            "# Marginal P(Pos)\n",
+            "p_pos = sens * prev + (1 - spec) * (1 - prev)\n",
+            "# Posterior P(Disease | Pos)\n",
+            "post = sens * prev / p_pos\n",
+            "print(f'Posterior Probability: {post:.4f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Re-calculate the posterior probability if disease prevalence rises to 5%."
+        ],
+        "exercise_code": [
+            "prev_new = 0.05\n",
+            "p_pos_new = sens * prev_new + (1 - spec) * (1 - prev_new)\n",
+            "post_new = sens * prev_new / p_pos_new\n",
+            "print(f'New Posterior Probability: {post_new:.4f}')\n"
+        ]
+    },
+    20: {
+        "title": "Stanford CS229 Lec 5: GDA and Naive Bayes",
+        "summary": "Generative vs Discriminative algorithms, GDA, and Naive Bayes.",
+        "theory": [
+            "### GDA and Naive Bayes\n",
+            "- **GDA:** Assumes $x|y \\sim N(\\mu, \\Sigma)$. Best for continuous variables.\n",
+            "- **Naive Bayes:** Assumes features are conditionally independent given label $y$."
+        ],
+        "code": [
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.naive_bayes import GaussianNB\n",
+            "\n",
+            "iris = load_iris()\n",
+            "model = GaussianNB().fit(iris.data, iris.target)\n",
+            "print('Class priors:', model.class_prior_)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. State the key assumption difference between GDA and Naive Bayes."
+        ],
+        "exercise_code": [
+            "print('GDA assumes multivariate normality with shared covariance, while Naive Bayes assumes independent conditional distributions.')\n"
+        ]
+    },
+    21: {
+        "title": "Naive Bayes full series",
+        "summary": "Math of Naive Bayes, Laplace smoothing, and log-probabilities.",
+        "theory": [
+            "### Laplace Smoothing\n",
+            "$$P(x_j|y) = \\frac{N_{jc} + \\alpha}{N_c + \\alpha D}$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "# Count matrix for single feature: [counts class 0, counts class 1]\n",
+            "counts = np.array([0, 5])\n",
+            "n_0 = 10\n",
+            "n_1 = 12\n",
+            "vocab = 4\n",
+            "\n",
+            "# Unsmoothed\n",
+            "p_raw_0 = counts[0] / n_0\n",
+            "# Smoothed (alpha=1)\n",
+            "p_smooth_0 = (counts[0] + 1) / (n_0 + vocab)\n",
+            "print(f'Raw: {p_raw_0}, Smoothed: {p_smooth_0}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute Laplace-smoothed probability for feature 1 given class 0."
+        ],
+        "exercise_code": [
+            "p_smooth_1 = (counts[1] + 1) / (n_1 + vocab)\n",
+            "print(f'Smoothed Class 1: {p_smooth_1:.4f}')\n"
+        ]
+    },
+    22: {
+        "title": "Naive Bayes variants: Bernoulli, Multinomial, Gaussian",
+        "summary": "Comparing Naive Bayes variants in Scikit-Learn.",
+        "theory": [
+            "### NB Scikit-Learn Variants\n",
+            "- **GaussianNB:** Inputs are continuous normal values.\n",
+            "- **MultinomialNB:** Inputs are discrete word/feature occurrences.\n",
+            "- **BernoulliNB:** Inputs are binary indicators."
+        ],
+        "code": [
+            "from sklearn.naive_bayes import GaussianNB, BernoulliNB\n",
+            "from sklearn.datasets import load_iris\n",
+            "\n",
+            "X, y = load_iris(return_X_y=True)\n",
+            "gnb = GaussianNB().fit(X, y)\n",
+            "bnb = BernoulliNB().fit(X, y)\n",
+            "print('Gaussian NB score:', gnb.score(X, y))\n",
+            "print('Bernoulli NB score:', bnb.score(X, y))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is BernoulliNB performance low on the Iris dataset?"
+        ],
+        "exercise_code": [
+            "print('Iris features are continuous rather than binary variables, making BernoulliNB assumptions invalid.')\n"
+        ]
+    },
+    23: {
+        "title": "Naive Bayes solved numerical",
+        "summary": "Solved text classification example with document probabilities.",
+        "theory": [
+            "### Hand Numerical Example\n",
+            "Classify text given word occurrence counts and prior distribution probabilities."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "# Priors\n",
+            "prior_spam = 0.4\n",
+            "prior_ham = 0.6\n",
+            "\n",
+            "# Word probabilities: [P(free|Spam), P(free|Ham)]\n",
+            "p_free = [0.8, 0.1]\n",
+            "\n",
+            "# Score for document containing 'free'\n",
+            "score_spam = prior_spam * p_free[0]\n",
+            "score_ham = prior_ham * p_free[1]\n",
+            "print('Spam score:', score_spam)\n",
+            "print('Ham score:', score_ham)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Classify the document based on the calculated scores."
+        ],
+        "exercise_code": [
+            "print('Decision: SPAM' if score_spam > score_ham else 'Decision: HAM')\n"
+        ]
+    },
+    24: {
+        "title": "Bayesian Belief Network",
+        "summary": "Directed acyclic graphs and joint probability factorization.",
+        "theory": [
+            "### Joint Factorization\n",
+            "$$P(X_1, X_2, X_3) = P(X_1)P(X_2|X_1)P(X_3|X_2)$$"
+        ],
+        "code": [
+            "# Calculating joint probability of path in simple network\n",
+            "p_rain = 0.2\n",
+            "p_sprinkler_given_rain = 0.01\n",
+            "p_sprinkler_given_no_rain = 0.4\n",
+            "\n",
+            "# P(Rain = True, Sprinkler = True)\n",
+            "p_joint = p_rain * p_sprinkler_given_rain\n",
+            "print('Joint Probability:', p_joint)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute P(Rain = False, Sprinkler = True)."
+        ],
+        "exercise_code": [
+            "p_joint_no_rain = (1 - p_rain) * p_sprinkler_given_no_rain\n",
+            "print('Joint Probability (No Rain):', p_joint_no_rain)\n"
+        ]
+    },
+    25: {
+        "title": "Bayes Optimal Classifier",
+        "summary": "Bayes Error and Bayes Optimal decision boundary.",
+        "theory": [
+            "### Optimal Classification Boundary\n",
+            "The decision boundary where class conditional probability densities intersect: $P(Y=0|x) = P(Y=1|x)$."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from scipy.stats import norm\n",
+            "\n",
+            "x = np.linspace(-5, 5, 200)\n",
+            "p_x_c0 = norm.pdf(x, loc=-1.0, scale=1.0) # class 0 density\n",
+            "p_x_c1 = norm.pdf(x, loc=1.0, scale=1.0)  # class 1 density\n",
+            "\n",
+            "plt.plot(x, p_x_c0, 'r', label='Class 0')\n",
+            "plt.plot(x, p_x_c1, 'g', label='Class 1')\n",
+            "plt.axvline(0.0, color='black', linestyle='--', label='Bayes Boundary')\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. State what Bayes Error represents."
+        ],
+        "exercise_code": [
+            "print('Bayes Error is the irreducible error rate corresponding to the optimal classifier decision boundary.')\n"
+        ]
+    },
+    26: {
+        "title": "Concept Learning",
+        "summary": "Version Spaces and Find-S algorithm.",
+        "theory": [
+            "### Hypothesis Space\n",
+            "- **Find-S:** Finds the most specific hypothesis consistent with positive training examples."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "# Instances [Outlook, Temp], label\n",
+            "data = [\n",
+            "    (['Sunny', 'Hot'], 1),\n",
+            "    (['Sunny', 'Warm'], 1),\n",
+            "    (['Rainy', 'Cold'], 0)\n",
+            "]\n",
+            "\n",
+            "hypothesis = ['pi', 'pi'] # most specific\n",
+            "\n",
+            "for attrs, label in data:\n",
+            "    if label == 1:\n",
+            "        for j in range(len(attrs)):\n",
+            "            if hypothesis[j] == 'pi':\n",
+            "                hypothesis[j] = attrs[j]\n",
+            "            elif hypothesis[j] != attrs[j]:\n",
+            "                hypothesis[j] = '?'\n",
+            "print('Final Hypothesis:', hypothesis)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Discuss how negative training instances affect the Find-S algorithm."
+        ],
+        "exercise_code": [
+            "print('Find-S completely ignores negative instances, relying exclusively on positive instances to generalize.')\n"
+        ]
+    },
+    27: {
+        "title": "Stanford CS229 Lec 6: SVM",
+        "summary": "Support Vector Machines, margins, and optimization dual problem.",
+        "theory": [
+            "### Support Vector Classifier Optimization\n",
+            "Objective: Minimize $\\frac{1}{2}\\|w\\|^2$ subject to $y^{(i)}(w^T x^{(i)} + b) \\ge 1$."
+        ],
+        "code": [
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.svm import SVC\n",
+            "\n",
+            "X, y = load_iris(return_X_y=True)\n",
+            "# Binary classification subset\n",
+            "X, y = X[y < 2], y[y < 2]\n",
+            "\n",
+            "svm_model = SVC(kernel='linear')\n",
+            "svm_model.fit(X, y)\n",
+            "print('Support Vectors count:', len(svm_model.support_vectors_))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Output the indices of the support vectors."
+        ],
+        "exercise_code": [
+            "print('Indices:', svm_model.support_)\n"
+        ]
+    },
+    28: {
+        "title": "SVM geometric intuition",
+        "summary": "Hyperplane geometry and support vectors visualization.",
+        "theory": [
+            "### Decision Hyperplane\n",
+            "Maximizing distance (margin) between boundary and support vectors."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import make_blobs\n",
+            "from sklearn.svm import SVC\n",
+            "\n",
+            "X, y = make_blobs(n_samples=40, centers=2, random_state=6)\n",
+            "clf = SVC(kernel='linear', C=1000)\n",
+            "clf.fit(X, y)\n",
+            "\n",
+            "plt.scatter(X[:, 0], X[:, 1], c=y, s=30, cmap=plt.cm.Paired)\n",
+            "# Plot decision function\n",
+            "ax = plt.gca()\n",
+            "xlim = ax.get_xlim()\n",
+            "ylim = ax.get_ylim()\n",
+            "xx = np.linspace(xlim[0], xlim[1], 30)\n",
+            "yy = np.linspace(ylim[0], ylim[1], 30)\n",
+            "YY, XX = np.meshgrid(yy, xx)\n",
+            "xy = np.vstack([XX.ravel(), YY.ravel()]).T\n",
+            "Z = clf.decision_function(xy).reshape(XX.shape)\n",
+            "\n",
+            "ax.contour(XX, YY, Z, colors='k', levels=[-1, 0, 1], alpha=0.5, linestyles=['--', '-', '--'])\n",
+            "ax.scatter(clf.support_vectors_[:, 0], clf.support_vectors_[:, 1], s=100, linewidth=1, facecolors='none', edgecolors='k')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain what happens if data points outside the support vectors are modified."
+        ],
+        "exercise_code": [
+            "print('Nothing happens to the boundary, as the decision hyperplane depends entirely on support vectors.')\n"
+        ]
+    },
+    29: {
+        "title": "SVM hard margin and soft margin math",
+        "summary": "Formulations for hard margin vs soft margin with slack variables.",
+        "theory": [
+            "### Soft Margin Objective\n",
+            "Minimize $\\frac{1}{2}\\|w\\|^2 + C \\sum_{i=1}^m \\xi_i$ (where $\\xi_i \\ge 0$ represents margin violation slack)."
+        ],
+        "code": [
+            "from sklearn.datasets import make_classification\n",
+            "from sklearn.svm import SVC\n",
+            "\n",
+            "X, y = make_classification(n_samples=100, n_features=2, n_redundant=0, random_state=42)\n",
+            "\n",
+            "clf_hard = SVC(kernel='linear', C=100.0) # low slack tolerance\n",
+            "clf_soft = SVC(kernel='linear', C=0.1)   # high slack tolerance\n",
+            "\n",
+            "clf_hard.fit(X, y)\n",
+            "clf_soft.fit(X, y)\n",
+            "print('Hard C support vectors count:', len(clf_hard.support_vectors_))\n",
+            "print('Soft C support vectors count:', len(clf_soft.support_vectors_))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain the regularization role of parameter C."
+        ],
+        "exercise_code": [
+            "print('Large C imposes a high penalty on violations, leading to a narrower margin. Small C allows violations, yielding a wider margin.')\n"
+        ]
+    },
+    30: {
+        "title": "Stanford CS229 Lec 7: Kernels",
+        "summary": "Kernel trick, Mercer's theorem, and non-linear mappings.",
+        "theory": [
+            "### Kernel Representation\n",
+            "Instead of computing $\\Phi(x)$ explicitly, calculate inner product function $K(x, z) = \\Phi(x)^T \\Phi(z)$."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "def rbf_kernel(x1, x2, gamma=1.0):\n",
+            "    return np.exp(-gamma * np.sum((x1 - x2)**2))\n",
+            "\n",
+            "a = np.array([1, 2])\n",
+            "b = np.array([1.5, 2.5])\n",
+            "print('RBF Kernel valuation:', rbf_kernel(a, b))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute the RBF kernel valuation for $a$ and $b$ using gamma = 0.1."
+        ],
+        "exercise_code": [
+            "print('RBF (gamma=0.1):', rbf_kernel(a, b, gamma=0.1))\n"
+        ]
+    },
+    31: {
+        "title": "Kernel trick and Non linear SVM",
+        "summary": "Solving non-linearly separable problems using SVC kernels.",
+        "theory": [
+            "### Mappings in SVM\n",
+            "Circular XOR classification separation using Radial Basis Function (RBF) mapping."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import make_circles\n",
+            "from sklearn.svm import SVC\n",
+            "\n",
+            "X, y = make_circles(n_samples=100, noise=0.1, factor=0.5, random_state=42)\n",
+            "clf_rbf = SVC(kernel='rbf', C=1.0).fit(X, y)\n",
+            "\n",
+            "xx, yy = np.meshgrid(np.linspace(-1.5, 1.5, 100), np.linspace(-1.5, 1.5, 100))\n",
+            "Z = clf_rbf.decision_function(np.c_[xx.ravel(), yy.ravel()]).reshape(xx.shape)\n",
+            "\n",
+            "plt.figure(figsize=(6, 5))\n",
+            "plt.contourf(xx, yy, Z, levels=20, cmap='RdYlBu', alpha=0.8)\n",
+            "plt.scatter(X[:, 0], X[:, 1], c=y, cmap='RdYlBu', edgecolors='k')\n",
+            "plt.title('RBF Kernel SVM Decision Boundary')\n",
+            "plt.colorbar(label='Decision Score')\n",
+            "plt.show()\n",
+            "\n",
+            "clf_linear = SVC(kernel='linear').fit(X, y)\n",
+            "print('Linear kernel accuracy:', clf_linear.score(X, y))\n",
+            "print('RBF kernel accuracy:', clf_rbf.score(X, y))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Fit a Polynomial kernel SVM model on circular dataset and print score."
+        ],
+        "exercise_code": [
+            "clf_poly = SVC(kernel='poly', degree=2).fit(X, y)\n",
+            "print('Polynomial score:', clf_poly.score(X, y))\n"
+        ]
+    },
+    32: {
+        "title": "SVM implementation",
+        "summary": "Practical SVM classification with Scikit-Learn.",
+        "theory": [
+            "### Scikit-Learn SVM API\n",
+            "Tuning parameters `C`, `kernel`, and `gamma` for standard datasets."
+        ],
+        "code": [
+            "from sklearn.datasets import load_wine\n",
+            "from sklearn.svm import SVC\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "wine = load_wine()\n",
+            "X_scaled = StandardScaler().fit_transform(wine.data)\n",
+            "y = wine.target\n",
+            "\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.3, random_state=42)\n",
+            "model = SVC(kernel='rbf', C=1.0, gamma='scale')\n",
+            "model.fit(X_train, y_train)\n",
+            "print('Test Accuracy:', model.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Train SVM with a very small gamma (0.001) and print score."
+        ],
+        "exercise_code": [
+            "model_g = SVC(kernel='rbf', gamma=0.001).fit(X_train, y_train)\n",
+            "print('Test score (gamma=0.001):', model_g.score(X_test, y_test))\n"
+        ]
+    },
+    33: {
+        "title": "Decision Tree intuition and Entropy and Info Gain",
+        "summary": "Node splitting math: Entropy, Gini Impurity, and Information Gain.",
+        "theory": [
+            "### Split Criteria\n",
+            "- **Entropy:** $H(S) = -\\sum p_i \\log_2 p_i$\n",
+            "- **Gini:** $G(S) = 1 - \\sum p_i^2$\n",
+            "- **Information Gain:** $IG(S, A) = H(S) - \\sum \\frac{|S_v|}{|S|} H(S_v)$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "def entropy(probs):\n",
+            "    return -np.sum([p * np.log2(p) for p in probs if p > 0])\n",
+            "\n",
+            "def gini(probs):\n",
+            "    return 1 - np.sum([p**2 for p in probs])\n",
+            "\n",
+            "print('Entropy of [0.5, 0.5] uniform split:', entropy([0.5, 0.5]))\n",
+            "print('Gini Impurity of [0.5, 0.5] uniform split:', gini([0.5, 0.5]))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the entropy of a distribution with classes ratio $[0.9, 0.1]$."
+        ],
+        "exercise_code": [
+            "print('Entropy:', f'{entropy([0.9, 0.1]):.4f}')\n"
+        ]
+    },
+    34: {
+        "title": "ID3, C4.5, CART algorithms",
+        "summary": "Comparing decision tree construction algorithms.",
+        "theory": [
+            "### Tree Generation Algorithms\n",
+            "- **ID3:** Relies on Information Gain. Only supports categorical splits.\n",
+            "- **C4.5:** Uses Gain Ratio to penalize multi-way branching bias.\n",
+            "- **CART:** Uses Gini Impurity. Restricts splits to binary choices."
+        ],
+        "code": [
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "from sklearn.datasets import load_iris\n",
+            "\n",
+            "iris = load_iris()\n",
+            "# CART algorithm is implemented in Scikit-Learn\n",
+            "clf = DecisionTreeClassifier(criterion='gini', random_state=42)\n",
+            "clf.fit(iris.data, iris.target)\n",
+            "print('CART Tree Score:', clf.score(iris.data, iris.target))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Fit the DecisionTreeClassifier using 'entropy' (Information Gain) criterion instead."
+        ],
+        "exercise_code": [
+            "clf_ent = DecisionTreeClassifier(criterion='entropy', random_state=42).fit(iris.data, iris.target)\n",
+            "print('Entropy Tree Score:', clf_ent.score(iris.data, iris.target))\n"
+        ]
+    },
+    35: {
+        "title": "Decision Tree hyperparameters and overfitting",
+        "summary": "Regularizing decision trees to prevent overfitting.",
+        "theory": [
+            "### Controlling Tree Expansion\n",
+            "- `max_depth`: Limits maximum vertical layers.\n",
+            "- `min_samples_split`: Samples needed to split a node.\n",
+            "- `min_samples_leaf`: Minimum samples allowed in a leaf."
+        ],
+        "code": [
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "data = load_breast_cancer()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.3, random_state=42)\n",
+            "\n",
+            "clf_overfit = DecisionTreeClassifier(random_state=42)\n",
+            "clf_overfit.fit(X_train, y_train)\n",
+            "\n",
+            "clf_reg = DecisionTreeClassifier(max_depth=3, min_samples_leaf=5, random_state=42)\n",
+            "clf_reg.fit(X_train, y_train)\n",
+            "\n",
+            "print('Overfit test score:', clf_overfit.score(X_test, y_test))\n",
+            "print('Regularized test score:', clf_reg.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. State the depth of the fully grown overfit tree."
+        ],
+        "exercise_code": [
+            "print('Depth:', clf_overfit.get_depth())\n"
+        ]
+    },
+    36: {
+        "title": "Decision Tree visualization",
+        "summary": "Visualizing fitted decision trees in Python.",
+        "theory": [
+            "### Visualizing Splits\n",
+            "Plotting tree decisions to trace decision nodes and path criteria."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.tree import DecisionTreeClassifier, plot_tree\n",
+            "\n",
+            "iris = load_iris()\n",
+            "clf = DecisionTreeClassifier(max_depth=2, random_state=42)\n",
+            "clf.fit(iris.data, iris.target)\n",
+            "\n",
+            "plt.figure(figsize=(8, 6))\n",
+            "plot_tree(clf, feature_names=iris.feature_names, class_names=iris.target_names, filled=True)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Identify the feature used for the root node split in the visualization."
+        ],
+        "exercise_code": [
+            "print('Root node split feature:', iris.feature_names[clf.tree_.feature[0]])\n"
+        ]
+    },
+    37: {
+        "title": "Decision Tree implementation",
+        "summary": "Practical decision tree classification and feature importance.",
+        "theory": [
+            "### Feature Importance\n",
+            "Impurity reduction importance: total Gini reduction contributed by each feature split."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import load_wine\n",
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "\n",
+            "wine = load_wine()\n",
+            "X = pd.DataFrame(wine.data, columns=wine.feature_names)\n",
+            "y = wine.target\n",
+            "\n",
+            "clf = DecisionTreeClassifier(max_depth=3, random_state=42).fit(X, y)\n",
+            "imp = pd.Series(clf.feature_importances_, index=X.columns).sort_values(ascending=True)\n",
+            "\n",
+            "plt.figure(figsize=(8, 5))\n",
+            "imp.plot(kind='barh', color='teal')\n",
+            "plt.title('Decision Tree Feature Importances (Wine Dataset)')\n",
+            "plt.xlabel('Gini Importance')\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Confirm if the sum of all feature importances totals 1.0."
+        ],
+        "exercise_code": [
+            "print('Sum of importances:', imp.sum())\n"
+        ]
+    },
+    38: {
+        "title": "KNN Classification and finding K",
+        "summary": "KNN classification and choosing the optimal K value.",
+        "theory": [
+            "### Selecting neighbors count (K)\n",
+            "- $K$ too small: Fits noise, high variance.\n",
+            "- $K$ too large: Flat boundaries, high bias."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.neighbors import KNeighborsClassifier\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "iris = load_iris()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2, random_state=42)\n",
+            "\n",
+            "k_values = range(1, 31)\n",
+            "accuracies = []\n",
+            "for k in k_values:\n",
+            "    knn = KNeighborsClassifier(n_neighbors=k).fit(X_train, y_train)\n",
+            "    accuracies.append(knn.score(X_test, y_test))\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.plot(k_values, accuracies, 'bo-')\n",
+            "plt.xlabel('Number of Neighbors K')\n",
+            "plt.ylabel('Test Accuracy')\n",
+            "plt.title('KNN Parameter Tuning: K vs Accuracy')\n",
+            "plt.grid(True)\n",
+            "plt.show()\n",
+            "\n",
+            "print('Test Accuracy (K=5):', accuracies[4])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Evaluate test accuracy for $K = 1$ and $K = 25$."
+        ],
+        "exercise_code": [
+            "print(f'Accuracy K=1: {accuracies[0]:.4f}, K=25: {accuracies[24]:.4f}')\n"
+        ]
+    },
+    39: {
+        "title": "KNN full overview",
+        "summary": "Lazy learner characteristics, distance metrics, and scaling requirements.",
+        "theory": [
+            "### Distance calculation sensitivity\n",
+            "KNN is a lazy learner (no explicit training phase). It is highly sensitive to features magnitude differences."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.neighbors import KNeighborsClassifier\n",
+            "\n",
+            "# Unscaled dataset where feature 1 has large magnitude\n",
+            "X = np.array([[1.0, 1000.0], [1.1, 1010.0], [5.0, 10.0], [5.1, 15.0]])\n",
+            "y = np.array([0, 0, 1, 1])\n",
+            "\n",
+            "knn = KNeighborsClassifier(n_neighbors=1).fit(X, y)\n",
+            "# Predict query point close to class 1 features, but slightly shifted on feature 2\n",
+            "print('Prediction for [5.0, 100.0]:', knn.predict([[5.0, 100.0]])[0])\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Discuss why the model predicted 0 instead of 1."
+        ],
+        "exercise_code": [
+            "print('Distance is dominated by the scale of feature 2, making the query point seem closer to class 0.')\n"
+        ]
+    },
+    40: {
+        "title": "Linear Discriminant Analysis (LDA)",
+        "summary": "Dimensionality reduction and classification using LDA.",
+        "theory": [
+            "### LDA projection objective\n",
+            "Find projection vector $w$ that maximizes the between-class variance relative to within-class variance."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.discriminant_analysis import LinearDiscriminantAnalysis\n",
+            "from sklearn.datasets import load_iris\n",
+            "\n",
+            "iris = load_iris()\n",
+            "lda = LinearDiscriminantAnalysis(n_components=2)\n",
+            "X_r2 = lda.fit_transform(iris.data, iris.target)\n",
+            "\n",
+            "plt.figure(figsize=(6, 5))\n",
+            "for color, i, target_name in zip(['navy', 'turquoise', 'darkorange'], [0, 1, 2], iris.target_names):\n",
+            "    plt.scatter(X_r2[iris.target == i, 0], X_r2[iris.target == i, 1], alpha=.8, color=color, label=target_name)\n",
+            "plt.legend(loc='best', shadow=False, scatterpoints=1)\n",
+            "plt.title('LDA Projection of Iris Dataset')\n",
+            "plt.xlabel('LD 1')\n",
+            "plt.ylabel('LD 2')\n",
+            "plt.grid(True)\n",
+            "plt.show()\n",
+            "\n",
+            "print('Explained variance ratio:', lda.explained_variance_ratio_)\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Verify the accuracy of LDA classifier predictions directly on Iris dataset."
+        ],
+        "exercise_code": [
+            "print('LDA Classification Score:', lda.score(iris.data, iris.target))\n"
+        ]
+    },
+    41: {
+        "title": "Inductive Bias",
+        "summary": "Concept of inductive bias in learning algorithms.",
+        "theory": [
+            "### Inductive Bias Examples\n",
+            "- **Linear Models (Logistic Regression):** Assume the class separation boundary is a linear hyperplane.\n",
+            "- **Decision Trees (CART):** Assume boundaries are orthogonal splits parallel to feature axes.\n",
+            "- **Nearest Neighbors (KNN):** Assume decision boundaries are determined locally by neighborhood clustering (Voronoi-like cells).\n",
+            "- **Support Vector Machines (Kernel SVM):** Assume boundaries can be mapped to high-dimensional spaces to find smooth, maximum-margin non-linear curves."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import make_moons\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "from sklearn.neighbors import KNeighborsClassifier\n",
+            "from sklearn.svm import SVC\n",
+            "\n",
+            "X, y = make_moons(n_samples=150, noise=0.25, random_state=42)\n",
+            "models = {\n",
+            "    'Logistic Regression (Linear Bias)': LogisticRegression(),\n",
+            "    'Decision Tree (Axis-Aligned Bias)': DecisionTreeClassifier(max_depth=4, random_state=42),\n",
+            "    'KNN (K=3) (Local Instance Bias)': KNeighborsClassifier(n_neighbors=3),\n",
+            "    'SVM (RBF) (Radial Distance Bias)': SVC(kernel='rbf', C=1.0, random_state=42)\n",
+            "}\n",
+            "\n",
+            "fig, axes = plt.subplots(2, 2, figsize=(12, 10))\n",
+            "axes = axes.ravel()\n",
+            "xx, yy = np.meshgrid(np.linspace(-2, 3, 100), np.linspace(-1.5, 2, 100))\n",
+            "grid = np.c_[xx.ravel(), yy.ravel()]\n",
+            "\n",
+            "for ax, (name, model) in zip(axes, models.items()):\n",
+            "    model.fit(X, y)\n",
+            "    Z = model.predict(grid).reshape(xx.shape)\n",
+            "    ax.contourf(xx, yy, Z, cmap='RdYlBu', alpha=0.6)\n",
+            "    ax.scatter(X[:, 0], X[:, 1], c=y, cmap='RdYlBu', edgecolors='k')\n",
+            "    ax.set_title(name, fontsize=12)\n",
+            "    ax.grid(True, linestyle=':', alpha=0.5)\n",
+            "\n",
+            "plt.suptitle('Classifier Inductive Bias Comparison (4 Classification Maps)', fontsize=16, y=0.98)\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n",
+            "\n",
+            "print('Inductive bias represents the set of assumptions a learner uses to predict outputs for unseen inputs.')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Contrast preference bias vs restriction bias."
+        ],
+        "exercise_code": [
+            "print('Restriction bias limits the hypothesis space of functional forms. Preference bias prefers certain hypotheses over others within that space.')\n"
+        ]
+    }
+}
+
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -5560,6 +6878,8 @@ def make_populated_notebook(phase_num, topic_num, details):
         emoji = "🧹"
     elif phase_num == 7:
         emoji = "📉"
+    elif phase_num == 8:
+        emoji = "🎯"
     else:
         emoji = "📓"
     
@@ -5674,6 +6994,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(6, idx, PHASE_6_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_07_Regression_Algorithms" and idx in PHASE_7_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(7, idx, PHASE_7_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_08_Classification_Algorithms" and idx in PHASE_8_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(8, idx, PHASE_8_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -5707,11 +7029,44 @@ def generate_roadmap():
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_07_Regression_Algorithms":
                     status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_08_Classification_Algorithms":
+                    status = "✅ Completed"
                 else:
                     status = "📋 Planned"
                     
                 f.write(f"| {idx} | [{title}]({nb_link}) | {category} | {status} |\n")
             
+            # If Phase 8, append Classification mind map
+            if phase["dir_name"] == "PHASE_08_Classification_Algorithms":
+                f.write("\n## 🗺️ Classification Algorithm Map\n\n")
+                f.write("Below is a visual taxonomy map of the classification models covered in this phase:\n\n")
+                f.write("```mermaid\n")
+                f.write("graph TD\n")
+                f.write("    classDef default fill:#f9f9f9,stroke:#333,stroke-width:1px,color:#111;\n")
+                f.write("    classDef generative fill:#e1f5fe,stroke:#0288d1,stroke-width:2px,color:#01579b;\n")
+                f.write("    classDef discriminative fill:#efebe9,stroke:#5d4037,stroke-width:2px,color:#3e2723;\n")
+                f.write("    \n")
+                f.write("    A[Classification Algorithms] --> B[Generative Models]\n")
+                f.write("    A --> C[Discriminative Models]\n")
+                f.write("    \n")
+                f.write("    B --> B1[Gaussian Discriminant Analysis GDA]\n")
+                f.write("    B --> B2[Naive Bayes Gaussian, Multinomial, Bernoulli]\n")
+                f.write("    \n")
+                f.write("    C --> C1[Linear Boundaries]\n")
+                f.write("    C --> C2[Non-Linear Boundaries]\n")
+                f.write("    \n")
+                f.write("    C1 --> C1a[Logistic Regression]\n")
+                f.write("    C1 --> C1b[Linear SVM]\n")
+                f.write("    C1 --> C1c[Linear Discriminant Analysis LDA]\n")
+                f.write("    \n")
+                f.write("    C2 --> C2a[Kernel SVM RBF, Poly]\n")
+                f.write("    C2 --> C2b[K-Nearest Neighbors KNN]\n")
+                f.write("    C2 --> C2c[Decision Trees CART]\n")
+                f.write("    \n")
+                f.write("    class B,B1,B2 generative;\n")
+                f.write("    class C,C1,C2,C1a,C1b,C1c,C2a,C2b,C2c discriminative;\n")
+                f.write("```\n")
+
             # Add section for projects in this phase if they exist
             projects_dir = os.path.join(phase_dir, "Projects")
             if os.path.exists(projects_dir):

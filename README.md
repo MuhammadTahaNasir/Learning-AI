@@ -55,7 +55,7 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Notebooks**: [28 Notebooks](PHASE_07_Regression_Algorithms/)
 
 ### 🎯 [Phase 8: Classification Algorithms](PHASE_08_Classification_Algorithms/)
-**Status**: 🚧 In Progress
+**Status**: ✅ Completed
 - **Topics**: Logistic Regression math & Perceptron, Softmax Regression, evaluation metrics (Confusion Matrix, Precision/Recall, F1, ROC-AUC), Imbalanced data, Naive Bayes variants, SVM math & Kernels, Decision Trees (ID3, CART), KNN.
 - **Projects**:
   - [Titanic Survival Predictor](PHASE_08_Classification_Algorithms/Projects/Titanic_Survival_Predictor/): Classic binary classification pipeline.
