@@ -7326,6 +7326,362 @@ PHASE_9_NOTEBOOK_CONTENTS = {
 }
 
 
+
+PHASE_10_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "PCA Part 1: Geometric intuition",
+        "summary": "Geometric intuition behind Principal Component Analysis: maximizing variance and minimizing projection error.",
+        "theory": [
+            "### Principal Component Analysis (PCA) Intuition\n",
+            "PCA seeks to find a linear projection of high-dimensional data into a lower-dimensional subspace such that:\n",
+            "1. **Variance is Maximized**: The projected data retains as much spread (information) as possible.\n",
+            "2. **Projection Error is Minimized**: The orthogonal distance from the original points to the projection subspace is minimized.\n",
+            "These two objectives are mathematically equivalent."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "from sklearn.decomposition import PCA\n",
+            "\n",
+            "# 1. Load real data (Iris) and pick 2 features for 2D visualization\n",
+            "X = load_iris().data[:, :2] # Sepal length and width\n",
+            "X_scaled = StandardScaler().fit_transform(X)\n",
+            "\n",
+            "# 2. Apply PCA to find the 1st principal component\n",
+            "pca = PCA(n_components=1)\n",
+            "pca.fit(X_scaled)\n",
+            "\n",
+            "# 3. Plot original data and the principal component vector\n",
+            "plt.figure(figsize=(8, 6))\n",
+            "plt.scatter(X_scaled[:, 0], X_scaled[:, 1], alpha=0.5, label='Standardized Data')\n",
+            "\n",
+            "# Draw the principal component axis\n",
+            "mean = np.mean(X_scaled, axis=0)\n",
+            "vector = pca.components_[0] * 3  # Scale for visibility\n",
+            "plt.plot([mean[0] - vector[0], mean[0] + vector[0]], \n",
+            "         [mean[1] - vector[1], mean[1] + vector[1]], \n",
+            "         color='red', linewidth=3, label='1st Principal Component (Max Variance)')\n",
+            "\n",
+            "plt.title('PCA Geometric Intuition (Iris Dataset)')\n",
+            "plt.xlabel('Sepal Length (Standardized)')\n",
+            "plt.ylabel('Sepal Width (Standardized)')\n",
+            "plt.axis('equal')\n",
+            "plt.grid(True, linestyle='--')\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is it important to standardize the data before applying PCA?"
+        ],
+        "exercise_code": [
+            "print('PCA is sensitive to scale. Since it maximizes variance, features with naturally larger numeric scales will artificially dominate the principal components if not standardized.')\n"
+        ]
+    },
+    2: {
+        "title": "PCA Part 2: Math and step by step",
+        "summary": "Mathematical derivation of PCA: Covariance matrix and Eigendecomposition.",
+        "theory": [
+            "### The Mathematics of PCA (5 Steps)\n",
+            "1. **Standardize the dataset**: $Z = \\frac{X - \\mu}{\\sigma}$\n",
+            "2. **Compute Covariance Matrix**: $\\Sigma = \\frac{1}{n-1} Z^T Z$\n",
+            "3. **Compute Eigendecomposition**: $\\Sigma v = \\lambda v$ (where $\\lambda$ are eigenvalues, $v$ are eigenvectors).\n",
+            "4. **Sort Eigenpairs**: Sort eigenvectors by descending eigenvalues to rank them by explained variance.\n",
+            "5. **Projection Matrix**: Select the top $k$ eigenvectors to form matrix $W$, and project data: $X_{pca} = Z W$."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "import seaborn as sns\n",
+            "from sklearn.datasets import load_wine\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "\n",
+            "# 1. Load and Standardize Wine Dataset (13 features)\n",
+            "X, y = load_wine(return_X_y=True)\n",
+            "Z = StandardScaler().fit_transform(X)\n",
+            "\n",
+            "# 2. Compute Covariance Matrix\n",
+            "cov_matrix = np.cov(Z.T)\n",
+            "\n",
+            "# 3 & 4. Eigendecomposition and Sorting\n",
+            "eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)\n",
+            "sorted_idx = np.argsort(eigenvalues)[::-1]\n",
+            "sorted_eigenvalues = eigenvalues[sorted_idx]\n",
+            "\n",
+            "# Visualizations\n",
+            "fig, ax = plt.subplots(1, 2, figsize=(14, 5))\n",
+            "\n",
+            "# Heatmap of Covariance Matrix\n",
+            "sns.heatmap(cov_matrix, cmap='coolwarm', ax=ax[0], square=True)\n",
+            "ax[0].set_title('Feature Covariance Matrix Heatmap')\n",
+            "\n",
+            "# Scree Plot of Eigenvalues\n",
+            "ax[1].plot(range(1, 14), sorted_eigenvalues, 'bo-', linewidth=2)\n",
+            "ax[1].set_title('Scree Plot (Eigenvalues)')\n",
+            "ax[1].set_xlabel('Principal Component Rank')\n",
+            "ax[1].set_ylabel('Eigenvalue (Magnitude of Variance)')\n",
+            "ax[1].grid(True, linestyle=':')\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What does the eigenvector associated with the largest eigenvalue represent?"
+        ],
+        "exercise_code": [
+            "print('It represents the 1st Principal Component, which is the direction in the feature space that captures the absolute maximum variance of the dataset.')\n"
+        ]
+    },
+    3: {
+        "title": "PCA Part 3: Code and visualization",
+        "summary": "Applying PCA using scikit-learn for image compression and variance analysis.",
+        "theory": [
+            "### Cumulative Explained Variance & Dimensionality Reduction\n",
+            "We evaluate how many components to keep by looking at the **Cumulative Explained Variance Ratio**. We can use PCA to compress high-dimensional images (like 64-pixel digits) into a tiny fraction of their original size while retaining visual structure."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "from sklearn.datasets import load_digits\n",
+            "from sklearn.decomposition import PCA\n",
+            "\n",
+            "# Load MNIST digits (8x8 images = 64 dimensions)\n",
+            "digits = load_digits()\n",
+            "X = digits.data\n",
+            "\n",
+            "# Fit PCA without reducing dimensionality to see variance ratio\n",
+            "pca_full = PCA().fit(X)\n",
+            "cumulative_variance = np.cumsum(pca_full.explained_variance_ratio_)\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.plot(cumulative_variance, color='purple', linewidth=2)\n",
+            "plt.axhline(y=0.90, color='r', linestyle='--', label='90% Variance Threshold')\n",
+            "plt.xlabel('Number of Components')\n",
+            "plt.ylabel('Cumulative Explained Variance')\n",
+            "plt.title('Explained Variance vs Components (Digits Dataset)')\n",
+            "plt.legend()\n",
+            "plt.grid(True)\n",
+            "plt.show()\n",
+            "\n",
+            "# Image Compression Example\n",
+            "pca_reduced = PCA(n_components=15) # Retain 15 dims out of 64\n",
+            "X_reduced = pca_reduced.fit_transform(X)\n",
+            "X_reconstructed = pca_reduced.inverse_transform(X_reduced)\n",
+            "\n",
+            "fig, axes = plt.subplots(1, 2, figsize=(6, 3))\n",
+            "axes[0].imshow(X[0].reshape(8, 8), cmap='gray')\n",
+            "axes[0].set_title('Original (64 Dims)')\n",
+            "axes[0].axis('off')\n",
+            "\n",
+            "axes[1].imshow(X_reconstructed[0].reshape(8, 8), cmap='gray')\n",
+            "axes[1].set_title('Compressed (15 Dims)')\n",
+            "axes[1].axis('off')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain why `pca.inverse_transform()` yields an image that looks slightly blurry compared to the original."
+        ],
+        "exercise_code": [
+            "print('The inverse transform attempts to reconstruct the 64-pixel image using only the 15 retained principal components. The blurry artifacts represent the information (variance) that was permanently discarded in the other 49 components.')\n"
+        ]
+    },
+    4: {
+        "title": "Stanford CS229 Lec 15: PCA and ICA",
+        "summary": "Independent Component Analysis (ICA) vs Principal Component Analysis (PCA) and the Cocktail Party Problem.",
+        "theory": [
+            "### PCA vs ICA\n",
+            "- **PCA (Principal Component Analysis):** Finds orthogonal directions of maximum variance. Assumes features are Gaussian-distributed.\n",
+            "- **ICA (Independent Component Analysis):** Finds a non-orthogonal linear transformation that minimizes statistical dependence between components. Assumes features are **Non-Gaussian**. Used extensively to solve the *Blind Source Separation (Cocktail Party) Problem*."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from scipy import signal\n",
+            "from sklearn.decomposition import FastICA, PCA\n",
+            "\n",
+            "# Generate 2 Independent Sources (Sine and Sawtooth)\n",
+            "np.random.seed(42)\n",
+            "time = np.linspace(0, 8, 2000)\n",
+            "s1 = np.sin(2 * time)  # Signal 1\n",
+            "s2 = signal.sawtooth(2 * np.pi * time)  # Signal 2\n",
+            "S = np.c_[s1, s2]\n",
+            "\n",
+            "# Mix Data\n",
+            "A = np.array([[1, 1], [0.5, 2]])  # Mixing matrix\n",
+            "X = np.dot(S, A.T)  # Mixed signals observation\n",
+            "\n",
+            "# Apply PCA and ICA\n",
+            "pca = PCA(n_components=2)\n",
+            "H_pca = pca.fit_transform(X)  # PCA fails to separate independent non-gaussian sources\n",
+            "\n",
+            "ica = FastICA(n_components=2, random_state=42, whiten='unit-variance')\n",
+            "H_ica = ica.fit_transform(X)  # ICA isolates the independent sources\n",
+            "\n",
+            "models = [X, S, H_pca, H_ica]\n",
+            "names = ['Mixed Observations', 'True Sources', 'PCA Recovered', 'ICA Recovered']\n",
+            "colors = ['red', 'steelblue']\n",
+            "\n",
+            "fig, axes = plt.subplots(4, 1, figsize=(8, 8), sharex=True)\n",
+            "for i, (model, name) in enumerate(zip(models, names)):\n",
+            "    axes[i].set_title(name)\n",
+            "    for sig, color in zip(model.T, colors):\n",
+            "        axes[i].plot(sig, color=color)\n",
+            "\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why does PCA fail to recover the original signals in the Cocktail Party problem?"
+        ],
+        "exercise_code": [
+            "print('PCA only looks for orthogonal directions of highest variance. Independent source signals in audio are usually non-orthogonal and non-Gaussian. PCA completely ignores higher-order statistical independence, blending the signals together.')\n"
+        ]
+    },
+    5: {
+        "title": "PCA explained",
+        "summary": "Addressing PCA limitations, non-linear manifolds, and comparing to Kernel PCA.",
+        "theory": [
+            "### Limitations of Linear PCA\n",
+            "PCA is strictly a **linear** transformation. If the data lies on a complex, non-linear manifold (like a sphere, spiral, or nested rings), standard PCA cannot unroll or unfold the data. It will simply crush the data onto a flat hyperplane.\n",
+            "In such cases, non-linear techniques like **Kernel PCA**, **t-SNE**, or **UMAP** are required."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import make_moons\n",
+            "from sklearn.decomposition import PCA, KernelPCA\n",
+            "\n",
+            "# Generate Non-Linear data (Moons)\n",
+            "X, y = make_moons(n_samples=200, noise=0.05, random_state=42)\n",
+            "\n",
+            "# Standard PCA\n",
+            "pca = PCA(n_components=2)\n",
+            "X_pca = pca.fit_transform(X)\n",
+            "\n",
+            "# Kernel PCA (RBF)\n",
+            "kpca = KernelPCA(n_components=2, kernel='rbf', gamma=15)\n",
+            "X_kpca = kpca.fit_transform(X)\n",
+            "\n",
+            "fig, ax = plt.subplots(1, 3, figsize=(15, 4))\n",
+            "\n",
+            "ax[0].scatter(X[:, 0], X[:, 1], c=y, cmap='viridis', edgecolors='k')\n",
+            "ax[0].set_title('Original Non-Linear Data')\n",
+            "\n",
+            "ax[1].scatter(X_pca[:, 0], X_pca[:, 1], c=y, cmap='viridis', edgecolors='k')\n",
+            "ax[1].set_title('Standard PCA (Linear Failure)')\n",
+            "\n",
+            "ax[2].scatter(X_kpca[:, 0], X_kpca[:, 1], c=y, cmap='viridis', edgecolors='k')\n",
+            "ax[2].set_title('Kernel PCA (RBF Unfolding)')\n",
+            "\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What is the fundamental mechanism behind Kernel PCA that allows it to separate non-linear data?"
+        ],
+        "exercise_code": [
+            "print('Kernel PCA uses the kernel trick to implicitly map the data into an extremely high-dimensional space where the non-linear manifold becomes linearly separable, and then performs standard PCA in that space.')\n"
+        ]
+    },
+    6: {
+        "title": "LDA",
+        "summary": "Linear Discriminant Analysis: Supervised dimensionality reduction.",
+        "theory": [
+            "### PCA vs LDA\n",
+            "- **PCA:** Unsupervised. Finds axes that maximize total variance, ignoring class labels.\n",
+            "- **LDA (Linear Discriminant Analysis):** Supervised. Finds axes that maximize the separation (distance) between multiple classes while minimizing the variance within each class."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import load_wine\n",
+            "from sklearn.decomposition import PCA\n",
+            "from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA\n",
+            "from sklearn.preprocessing import StandardScaler\n",
+            "\n",
+            "# Load 13-feature Wine dataset\n",
+            "X, y = load_wine(return_X_y=True)\n",
+            "X_scaled = StandardScaler().fit_transform(X)\n",
+            "\n",
+            "# Apply Unsupervised PCA\n",
+            "pca = PCA(n_components=2)\n",
+            "X_pca = pca.fit_transform(X_scaled)\n",
+            "\n",
+            "# Apply Supervised LDA\n",
+            "lda = LDA(n_components=2)\n",
+            "X_lda = lda.fit_transform(X_scaled, y)\n",
+            "\n",
+            "fig, ax = plt.subplots(1, 2, figsize=(12, 5))\n",
+            "\n",
+            "scatter1 = ax[0].scatter(X_pca[:, 0], X_pca[:, 1], c=y, cmap='Set1', edgecolors='k')\n",
+            "ax[0].set_title('PCA Projection (Unsupervised)')\n",
+            "ax[0].set_xlabel('Principal Component 1')\n",
+            "ax[0].set_ylabel('Principal Component 2')\n",
+            "\n",
+            "scatter2 = ax[1].scatter(X_lda[:, 0], X_lda[:, 1], c=y, cmap='Set1', edgecolors='k')\n",
+            "ax[1].set_title('LDA Projection (Supervised)')\n",
+            "ax[1].set_xlabel('Linear Discriminant 1')\n",
+            "ax[1].set_ylabel('Linear Discriminant 2')\n",
+            "\n",
+            "plt.suptitle('PCA vs LDA on Wine Dataset', fontsize=14, fontweight='bold')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is the maximum number of components in LDA strictly constrained by the number of classes?"
+        ],
+        "exercise_code": [
+            "print('LDA projects data onto the subspace spanned by the class means. If there are C classes, they span at most a (C-1) dimensional subspace. Therefore, max components = C - 1.')\n"
+        ]
+    },
+    7: {
+        "title": "Feature Importance",
+        "summary": "Reducing dimensionality explicitly by dropping least important features using tree-based analysis.",
+        "theory": [
+            "### Feature Selection as Dimensionality Reduction\n",
+            "Instead of mathematically transforming features (like PCA/LDA), we can simply discard irrelevant ones based on model evaluation.\n",
+            "- **Gini/Impurity Importance:** Provided directly by Random Forests. Fast, but biased towards high-cardinality features.\n",
+            "- **Permutation Importance:** Model-agnostic. Evaluates how much validation score drops when a feature column is randomly shuffled."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "data = load_breast_cancer()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, random_state=42)\n",
+            "\n",
+            "clf = RandomForestClassifier(n_estimators=100, random_state=42)\n",
+            "clf.fit(X_train, y_train)\n",
+            "\n",
+            "# Extract top 10 important features\n",
+            "importances = clf.feature_importances_\n",
+            "indices = np.argsort(importances)[-10:] # Top 10\n",
+            "\n",
+            "plt.figure(figsize=(8, 5))\n",
+            "plt.barh(range(len(indices)), importances[indices], color='mediumseagreen', align='center')\n",
+            "plt.yticks(range(len(indices)), [data.feature_names[i] for i in indices])\n",
+            "plt.xlabel('Relative Feature Importance (Gini)')\n",
+            "plt.title('Top 10 Features (Breast Cancer Dataset)')\n",
+            "plt.grid(axis='x', linestyle='--', alpha=0.7)\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Name one advantage of Feature Selection over PCA."
+        ],
+        "exercise_code": [
+            "print('Feature selection preserves the original meaning and units of the features (interpretability). PCA creates new features that are mathematical linear combinations, making them difficult to interpret in business or medical contexts.')\n"
+        ]
+    }
+}
+
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -7468,6 +7824,8 @@ def make_populated_notebook(phase_num, topic_num, details):
         emoji = "🎯"
     elif phase_num == 9:
         emoji = "✅"
+    elif phase_num == 10:
+        emoji = "📉"
     else:
         emoji = "📓"
     
@@ -7586,6 +7944,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(8, idx, PHASE_8_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_09_Model_Evaluation_Validation" and idx in PHASE_9_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(9, idx, PHASE_9_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_10_Dimensionality_Reduction" and idx in PHASE_10_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(10, idx, PHASE_10_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -7622,6 +7982,8 @@ def generate_roadmap():
                 elif phase["dir_name"] == "PHASE_08_Classification_Algorithms":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_09_Model_Evaluation_Validation":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_10_Dimensionality_Reduction":
                     status = "✅ Completed"
                 else:
                     status = "📋 Planned"
