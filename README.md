@@ -66,13 +66,13 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Topics**: Cross-validation (K-Fold, LOOCV), learning theory, hyperparameter tuning (Optuna), SMOTE, error analysis, debugging ML models.
 - **Notebooks**: [17 Notebooks](PHASE_09_Model_Evaluation_Validation/)
 
-### 📐 [Phase 10: Dimensionality Reduction](PHASE_10_Dimensionality_Reduction/)
-**Status**: 📋 Planned
+### 📉 [Phase 10: Dimensionality Reduction](PHASE_10_Dimensionality_Reduction/)
+**Status**: ✅ Completed
 - **Topics**: PCA (Geometric intuition, mathematical derivation, code), Stanford CS229 PCA + ICA, LDA, Feature Importance.
 - **Notebooks**: [7 Notebooks](PHASE_10_Dimensionality_Reduction/)
 
-### 🌲 [Phase 11: Ensemble Methods](PHASE_11_Ensemble_Methods/)
-**Status**: 📋 Planned
+### 🌳 [Phase 11: Ensemble Methods](PHASE_11_Ensemble_Methods/)
+**Status**: ✅ Completed
 - **Topics**: Voting Classifiers/Regressors, Bagging & Random Forests (OOB Score, Feature Importance), Boosting (AdaBoost, Gradient Boosting, XGBoost), Stacking & Blending.
 - **Notebooks**: [18 Notebooks](PHASE_11_Ensemble_Methods/)
 

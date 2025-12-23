@@ -7682,6 +7682,585 @@ PHASE_10_NOTEBOOK_CONTENTS = {
 }
 
 
+
+PHASE_11_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Intro to Ensemble Learning",
+        "summary": "The wisdom of the crowd: aggregating predictions to improve performance.",
+        "theory": [
+            "### Ensemble Learning\n",
+            "Ensemble learning relies on the **Wisdom of the Crowd**. By aggregating the predictions of a group of diverse, moderately performing predictors (weak learners), we can often construct a single strong learner.\n",
+            "For this to work effectively, the models should be as **independent** as possible (making different types of errors)."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "\n",
+            "# Simulating the Law of Large Numbers for Ensembles\n",
+            "coin_tosses = (np.random.rand(10000, 10) < 0.51).astype(int) # 51% biased coin\n",
+            "cumulative_heads_ratio = np.cumsum(coin_tosses, axis=0) / np.arange(1, 10001).reshape(-1, 1)\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.plot(cumulative_heads_ratio[:, 0], label='1 Weak Learner (Coin)')\n",
+            "plt.plot(cumulative_heads_ratio[:, 1:4], alpha=0.5)\n",
+            "plt.axhline(y=0.51, color='k', linestyle='--', label='51% Probability')\n",
+            "plt.axhline(y=0.50, color='r', linestyle='--', label='50% Boundary')\n",
+            "plt.title('Law of Large Numbers in Ensembles')\n",
+            "plt.xlabel('Number of Tosses (or Trees)')\n",
+            "plt.ylabel('Heads Ratio')\n",
+            "plt.legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is diversity among the models important in an ensemble?"
+        ],
+        "exercise_code": [
+            "print('If all models are identical, they will make the exact same errors. Diversity ensures their errors are uncorrelated, allowing the majority vote to correct individual mistakes.')\n"
+        ]
+    },
+    2: {
+        "title": "Stanford CS229 Lec 9: Decision Trees and Ensemble theory",
+        "summary": "Notes on the theoretical foundations of Ensembles based on Stanford CS229.",
+        "theory": [
+            "### Ensemble Theory (Stanford CS229)\n",
+            "- **Bias-Variance Decomposition:** Error = Bias + Variance + Noise.\n",
+            "- **Bagging (Bootstrap Aggregation):** Reduces **Variance** without increasing bias by averaging independent models trained on bootstrap samples.\n",
+            "- **Boosting:** Reduces **Bias** (and often variance) by sequentially training models to correct the errors of previous ones."
+        ],
+        "code": [
+            "print('Ensembles inherently manipulate the Bias-Variance tradeoff.')\n",
+            "print('- Complex Trees: High Variance, Low Bias -> Bagging fixes Variance.')\n",
+            "print('- Shallow Stumps: High Bias, Low Variance -> Boosting fixes Bias.')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Does bagging work well with linear regression?"
+        ],
+        "exercise_code": [
+            "print('Not very well. Linear regression is a stable, low-variance model. Bagging only provides significant improvements on unstable, high-variance models like unpruned Decision Trees.')\n"
+        ]
+    },
+    3: {
+        "title": "Voting Classifier: Hard and Soft",
+        "summary": "Implementing Hard (majority) and Soft (probability) Voting classifiers.",
+        "theory": [
+            "### Hard vs Soft Voting\n",
+            "- **Hard Voting:** Each classifier gets 1 vote for a class. The class with the most votes wins.\n",
+            "- **Soft Voting:** Each classifier outputs a probability. The ensemble averages the probabilities and picks the class with the highest average. (Requires classifiers that support `predict_proba`)."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import make_moons\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.ensemble import RandomForestClassifier, VotingClassifier\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "from sklearn.svm import SVC\n",
+            "from sklearn.metrics import accuracy_score\n",
+            "\n",
+            "X, y = make_moons(n_samples=500, noise=0.30, random_state=42)\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)\n",
+            "\n",
+            "log_clf = LogisticRegression(random_state=42)\n",
+            "rnd_clf = RandomForestClassifier(random_state=42)\n",
+            "svm_clf = SVC(probability=True, random_state=42)\n",
+            "\n",
+            "voting_clf = VotingClassifier(\n",
+            "    estimators=[('lr', log_clf), ('rf', rnd_clf), ('svc', svm_clf)],\n",
+            "    voting='soft'\n",
+            ")\n",
+            "\n",
+            "for clf in (log_clf, rnd_clf, svm_clf, voting_clf):\n",
+            "    clf.fit(X_train, y_train)\n",
+            "    y_pred = clf.predict(X_test)\n",
+            "    print(f'{clf.__class__.__name__:25s} Accuracy: {accuracy_score(y_test, y_pred):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why does Soft Voting usually achieve higher performance than Hard Voting?"
+        ],
+        "exercise_code": [
+            "print('Soft voting gives more weight to highly confident votes. If a model is 99% sure, it carries more mathematical weight than a model that is only 51% sure.')\n"
+        ]
+    },
+    4: {
+        "title": "Voting Regressor",
+        "summary": "Combining multiple regression models.",
+        "theory": [
+            "### Voting Regressor\n",
+            "In regression, voting implies averaging the numerical predictions of all the base estimators."
+        ],
+        "code": [
+            "from sklearn.datasets import fetch_california_housing\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.ensemble import VotingRegressor, RandomForestRegressor\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "from sklearn.tree import DecisionTreeRegressor\n",
+            "from sklearn.metrics import mean_squared_error\n",
+            "\n",
+            "data = fetch_california_housing()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(data.data[:1000], data.target[:1000], random_state=42)\n",
+            "\n",
+            "reg1 = LinearRegression()\n",
+            "reg2 = RandomForestRegressor(random_state=42, n_estimators=50)\n",
+            "reg3 = DecisionTreeRegressor(random_state=42, max_depth=5)\n",
+            "\n",
+            "ereg = VotingRegressor(estimators=[('lr', reg1), ('rf', reg2), ('dt', reg3)])\n",
+            "ereg.fit(X_train, y_train)\n",
+            "reg1.fit(X_train, y_train) # Fit standalone reg1 so we can compare its prediction\n",
+            "\n",
+            "print(f'Linear Reg MSE: {mean_squared_error(y_test, reg1.predict(X_test)):.3f}')\n",
+            "print(f'Voting Reg MSE: {mean_squared_error(y_test, ereg.predict(X_test)):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Can a Voting Regressor perform worse than its best individual estimator?"
+        ],
+        "exercise_code": [
+            "print('Yes, if the other estimators in the ensemble are extremely poor, their predictions will drag the average down.')\n"
+        ]
+    },
+    5: {
+        "title": "Bagging full series",
+        "summary": "Bootstrap Aggregation applied to decision trees.",
+        "theory": [
+            "### Bagging (Bootstrap Aggregation)\n",
+            "1. **Bootstrap**: Sample the training set with replacement to create $m$ different training sets.\n",
+            "2. **Aggregation**: Train a base estimator on each subset. Average their predictions (regression) or take majority vote (classification)."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import make_circles\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.ensemble import BaggingClassifier\n",
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "from sklearn.metrics import accuracy_score\n",
+            "\n",
+            "X, y = make_circles(n_samples=500, factor=0.5, noise=0.25, random_state=42)\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)\n",
+            "\n",
+            "tree_clf = DecisionTreeClassifier(random_state=42)\n",
+            "bag_clf = BaggingClassifier(\n",
+            "    DecisionTreeClassifier(random_state=42),\n",
+            "    n_estimators=100, max_samples=100, bootstrap=True, random_state=42\n",
+            ")\n",
+            "\n",
+            "tree_clf.fit(X_train, y_train)\n",
+            "bag_clf.fit(X_train, y_train)\n",
+            "\n",
+            "print(f'Single Tree Accuracy: {accuracy_score(y_test, tree_clf.predict(X_test)):.3f}')\n",
+            "print(f'Bagging Accuracy:     {accuracy_score(y_test, bag_clf.predict(X_test)):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What is the difference between Pasting and Bagging?"
+        ],
+        "exercise_code": [
+            "print('Bagging samples the training data WITH replacement. Pasting samples the training data WITHOUT replacement.')\n"
+        ]
+    },
+    6: {
+        "title": "Random Forest intuition and bias variance",
+        "summary": "Random Forest = Bagging + Random Feature Selection.",
+        "theory": [
+            "### Random Forest Intuition\n",
+            "A Random Forest is fundamentally a Bagging ensemble of Decision Trees. However, it introduces an extra layer of randomness: when splitting a node, it only considers a **random subset of features** (usually $\\sqrt{n}$).\n",
+            "This forces the trees to be even more uncorrelated, which drastically reduces Variance at the cost of a slight increase in Bias."
+        ],
+        "code": [
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "from sklearn.datasets import load_wine\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "X, y = load_wine(return_X_y=True)\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)\n",
+            "\n",
+            "rf_clf = RandomForestClassifier(n_estimators=100, max_leaf_nodes=16, random_state=42)\n",
+            "rf_clf.fit(X_train, y_train)\n",
+            "\n",
+            "print(f'Random Forest Accuracy on Wine: {rf_clf.score(X_test, y_test):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why restrict the number of features considered at each split?"
+        ],
+        "exercise_code": [
+            "print('If you do not restrict features, the strongest predictive feature will be chosen at the root node of almost every tree, making all the trees highly correlated and identical at the top. Restricting features forces trees to use secondary features, ensuring diversity.')\n"
+        ]
+    },
+    7: {
+        "title": "Bagging vs Random Forest",
+        "summary": "Comparing explicit BaggingClassifier with RandomForestClassifier.",
+        "theory": [
+            "### Bagging vs Random Forest\n",
+            "In Scikit-Learn, `RandomForestClassifier` is heavily optimized. It is functionally identical to using a `BaggingClassifier` wrapping `DecisionTreeClassifier(splitter='best')`, but with `max_features` restricted."
+        ],
+        "code": [
+            "from sklearn.ensemble import BaggingClassifier, RandomForestClassifier\n",
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "\n",
+            "bag_clf = BaggingClassifier(\n",
+            "    DecisionTreeClassifier(max_features='sqrt', max_leaf_nodes=16),\n",
+            "    n_estimators=100, random_state=42\n",
+            ")\n",
+            "\n",
+            "rf_clf = RandomForestClassifier(n_estimators=100, max_leaf_nodes=16, random_state=42)\n",
+            "print('Both approaches yield highly similar functional ensembles under the hood.')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. When would you use BaggingClassifier instead of RandomForestClassifier?"
+        ],
+        "exercise_code": [
+            "print('If you want to bag an algorithm that is NOT a decision tree (e.g., Bagging SVMs or Bagging Logistic Regressions), you must use BaggingClassifier.')\n"
+        ]
+    },
+    8: {
+        "title": "Random Forest hyperparameters and tuning",
+        "summary": "Tuning `n_estimators`, `max_depth`, and `max_features`.",
+        "theory": [
+            "### Tuning Random Forests\n",
+            "- `n_estimators`: More trees = less variance, but diminishing returns and slower training.\n",
+            "- `max_depth`: Limits tree size, prevents overfitting.\n",
+            "- `max_features`: Smaller values = less variance, more bias."
+        ],
+        "code": [
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "from sklearn.model_selection import GridSearchCV\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "\n",
+            "X, y = load_breast_cancer(return_X_y=True)\n",
+            "\n",
+            "param_grid = {\n",
+            "    'n_estimators': [50, 100],\n",
+            "    'max_depth': [None, 5, 10],\n",
+            "    'max_features': ['sqrt', 'log2']\n",
+            "}\n",
+            "\n",
+            "rf = RandomForestClassifier(random_state=42)\n",
+            "grid_search = GridSearchCV(rf, param_grid, cv=3, n_jobs=-1)\n",
+            "grid_search.fit(X, y)\n",
+            "\n",
+            "print(f'Best Parameters: {grid_search.best_params_}')\n",
+            "print(f'Best CV Score: {grid_search.best_score_:.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Can you overfit a Random Forest by adding too many trees (`n_estimators`)?"
+        ],
+        "exercise_code": [
+            "print('No. Because trees are averaged, adding more trees mathematically converges the variance. It will never overfit just by adding more trees (it just wastes compute). Overfitting in RF comes from tree depth.')\n"
+        ]
+    },
+    9: {
+        "title": "OOB Score",
+        "summary": "Out-of-Bag Evaluation for Bagged ensembles.",
+        "theory": [
+            "### Out-of-Bag (OOB) Evaluation\n",
+            "In bagging with replacement, on average, a tree only sees about 63% of the training instances. The remaining 37% are **out-of-bag (OOB)**.\n",
+            "Since the tree never saw these instances during training, we can use them as an automatic validation set without needing a separate validation split!"
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "from sklearn.datasets import make_classification\n",
+            "import warnings\n",
+            "warnings.filterwarnings('ignore') # Suppress OOB warnings for low tree counts\n",
+            "\n",
+            "X, y = make_classification(n_samples=500, n_features=10, random_state=42)\n",
+            "\n",
+            "oob_scores = []\n",
+            "n_estimators_range = range(20, 150, 10)\n",
+            "\n",
+            "for n in n_estimators_range:\n",
+            "    rf = RandomForestClassifier(n_estimators=n, oob_score=True, random_state=42, n_jobs=-1)\n",
+            "    rf.fit(X, y)\n",
+            "    oob_scores.append(rf.oob_score_)\n",
+            "\n",
+            "plt.plot(n_estimators_range, oob_scores, marker='o', color='teal')\n",
+            "plt.title('OOB Accuracy vs Number of Trees')\n",
+            "plt.xlabel('n_estimators')\n",
+            "plt.ylabel('OOB Score')\n",
+            "plt.grid(True)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why does the OOB score curve flatten out as `n_estimators` increases?"
+        ],
+        "exercise_code": [
+            "print('As the forest grows, the variance reduction from averaging converges. Additional trees provide negligible improvement to the ensemble decision boundary.')\n"
+        ]
+    },
+    10: {
+        "title": "Feature Importance using RF and DT",
+        "summary": "Evaluating feature importance internally through Gini reduction.",
+        "theory": [
+            "### Feature Importance\n",
+            "Random Forests measure how much a feature reduces impurity (Gini/Entropy) across all nodes in all trees. It is a fast, built-in way to perform Feature Selection."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "\n",
+            "data = load_breast_cancer()\n",
+            "rf = RandomForestClassifier(n_estimators=100, random_state=42)\n",
+            "rf.fit(data.data, data.target)\n",
+            "\n",
+            "importances = rf.feature_importances_\n",
+            "indices = np.argsort(importances)[-8:] # Top 8 features\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.barh(range(len(indices)), importances[indices], color='darkorange')\n",
+            "plt.yticks(range(len(indices)), [data.feature_names[i] for i in indices])\n",
+            "plt.title('Random Forest Feature Importances')\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What is a key flaw of Random Forest Gini importance?"
+        ],
+        "exercise_code": [
+            "print('It is biased towards high-cardinality continuous features. Permutation importance is usually a better, unbiased metric.')\n"
+        ]
+    },
+    11: {
+        "title": "AdaBoost intuition and math and code",
+        "summary": "Adaptive Boosting: learning from past mistakes by updating instance weights.",
+        "theory": [
+            "### AdaBoost (Adaptive Boosting)\n",
+            "Unlike Bagging (which is parallel), Boosting is **sequential**. AdaBoost pays attention to training instances that the previous predictor underfitted.\n",
+            "It does this by increasing the relative weight of misclassified instances. The next predictor is forced to focus on these hard cases."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import warnings\n",
+            "warnings.filterwarnings('ignore') # Suppress FutureWarning for AdaBoost defaults\n",
+            "from sklearn.ensemble import AdaBoostClassifier\n",
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "from sklearn.datasets import make_moons\n",
+            "\n",
+            "X, y = make_moons(n_samples=300, noise=0.25, random_state=42)\n",
+            "\n",
+            "ada_clf = AdaBoostClassifier(\n",
+            "    DecisionTreeClassifier(max_depth=1), n_estimators=50,\n",
+            "    learning_rate=0.5, random_state=42\n",
+            ")\n",
+            "ada_clf.fit(X, y)\n",
+            "\n",
+            "print(f'AdaBoost Accuracy: {ada_clf.score(X, y):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why are decision stumps (depth=1) often used as the base estimator for AdaBoost?"
+        ],
+        "exercise_code": [
+            "print('Because boosting drastically reduces bias. If you start with a high-variance tree, boosting will overfit horribly. Stumps have extremely high bias, making them perfect candidates for boosting.')\n"
+        ]
+    },
+    12: {
+        "title": "Bagging vs Boosting",
+        "summary": "Comparing parallel Variance-reduction vs sequential Bias-reduction.",
+        "theory": [
+            "### Bagging vs Boosting\n",
+            "- **Bagging:** Parallel. Each model is built independently. Fixes Variance. Prevents Overfitting. Use complex trees.\n",
+            "- **Boosting:** Sequential. Each model corrects the previous model's errors. Fixes Bias. Prone to Overfitting. Use simple stumps."
+        ],
+        "code": [
+            "print('Bagging = Democracy (Averaging distinct opinions)')\n",
+            "print('Boosting = Assembly Line (Each worker fixes the defects left by the previous worker)')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. If a model is severely overfitting the training data, which ensemble method is most appropriate?"
+        ],
+        "exercise_code": [
+            "print('Bagging (e.g., Random Forest). Bagging reduces variance and helps prevent overfitting, whereas Boosting reduces bias and can exacerbate overfitting on noisy data.')\n"
+        ]
+    },
+    13: {
+        "title": "Boosting implementation",
+        "summary": "Understanding Gradient Boosting concepts conceptually.",
+        "theory": [
+            "### How Gradient Boosting Works\n",
+            "Instead of tweaking instance weights like AdaBoost, Gradient Boosting tries to fit the new predictor to the **residual errors** made by the previous predictor."
+        ],
+        "code": [
+            "print('1. Fit Tree1 on (X, y)')\n",
+            "print('2. Calculate residuals: y2 = y - Tree1(X)')\n",
+            "print('3. Fit Tree2 on (X, y2)')\n",
+            "print('4. Final Prediction = Tree1(X) + Tree2(X)')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. In Gradient Boosting, what exactly is the target variable for the second tree in the ensemble?"
+        ],
+        "exercise_code": [
+            "print('The target variable for the second tree is the residual error (the difference between the actual label and the prediction of the first tree).')\n"
+        ]
+    },
+    14: {
+        "title": "Gradient Boosting full series",
+        "summary": "Gradient Boosting Regressors and early stopping.",
+        "theory": [
+            "### Gradient Boosting in Scikit-Learn\n",
+            "The `GradientBoostingRegressor` fits regression trees on the negative gradient of the loss function (residuals)."
+        ],
+        "code": [
+            "from sklearn.ensemble import GradientBoostingRegressor\n",
+            "from sklearn.datasets import fetch_california_housing\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.metrics import mean_squared_error\n",
+            "\n",
+            "data = fetch_california_housing()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(data.data[:1000], data.target[:1000], random_state=42)\n",
+            "\n",
+            "gbrt = GradientBoostingRegressor(max_depth=2, n_estimators=100, learning_rate=0.1, random_state=42)\n",
+            "gbrt.fit(X_train, y_train)\n",
+            "\n",
+            "print(f'GBRT MSE: {mean_squared_error(y_test, gbrt.predict(X_test)):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What is the effect of lowering the learning rate in Gradient Boosting?"
+        ],
+        "exercise_code": [
+            "print('Lowering the learning rate shrinks the contribution of each tree. You will need more trees (n_estimators) to fit the data, but it usually generalizes better.')\n"
+        ]
+    },
+    15: {
+        "title": "XGBoost full series",
+        "summary": "Extreme Gradient Boosting: The Kaggle King.",
+        "theory": [
+            "### XGBoost (eXtreme Gradient Boosting)\n",
+            "An optimized, highly scalable implementation of Gradient Boosting. It includes:\n",
+            "1. System optimization (cache awareness, parallelization).\n",
+            "2. Regularization (L1/L2 penalties) to prevent overfitting.\n",
+            "3. Built-in handling for missing values."
+        ],
+        "code": [
+            "import xgboost as xgb\n",
+            "from sklearn.datasets import fetch_california_housing\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.metrics import mean_squared_error\n",
+            "import warnings\n",
+            "warnings.filterwarnings('ignore')\n",
+            "\n",
+            "data = fetch_california_housing()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(data.data[:1000], data.target[:1000], random_state=42)\n",
+            "\n",
+            "xgb_reg = xgb.XGBRegressor(objective='reg:squarederror', max_depth=3, n_estimators=100, learning_rate=0.1)\n",
+            "xgb_reg.fit(X_train, y_train)\n",
+            "\n",
+            "print(f'XGBoost MSE: {mean_squared_error(y_test, xgb_reg.predict(X_test)):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why does XGBoost generally outperform Scikit-Learn's GradientBoosting?"
+        ],
+        "exercise_code": [
+            "print('XGBoost applies Newton Boosting (using 2nd order derivatives of the loss function) and enforces strict L1/L2 regularization on the leaf weights, making it faster to converge and much less prone to overfitting.')\n"
+        ]
+    },
+    16: {
+        "title": "Stacking and Blending",
+        "summary": "Using a Meta-Learner to aggregate predictions.",
+        "theory": [
+            "### Stacking (Stacked Generalization)\n",
+            "Instead of using trivial functions (like hard voting) to aggregate predictions, why don't we train a model to perform the aggregation?\n",
+            "1. Train base models (e.g., SVM, Random Forest).\n",
+            "2. Feed their predictions as *input features* to a final **Meta-Learner** (e.g., Logistic Regression) which makes the final prediction."
+        ],
+        "code": [
+            "from sklearn.ensemble import StackingClassifier, RandomForestClassifier\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "from sklearn.svm import SVC\n",
+            "from sklearn.datasets import make_classification\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "X, y = make_classification(n_samples=500, random_state=42)\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)\n",
+            "\n",
+            "estimators = [\n",
+            "    ('rf', RandomForestClassifier(n_estimators=10, random_state=42)),\n",
+            "    ('svr', SVC(random_state=42))\n",
+            "]\n",
+            "clf = StackingClassifier(\n",
+            "    estimators=estimators, final_estimator=LogisticRegression()\n",
+            ")\n",
+            "clf.fit(X_train, y_train)\n",
+            "\n",
+            "print(f'Stacking Classifier Accuracy: {clf.score(X_test, y_test):.3f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What is Blending compared to Stacking?"
+        ],
+        "exercise_code": [
+            "print('Blending uses a held-out validation set to train the meta-learner, whereas strict Stacking uses out-of-fold predictions from Cross-Validation. Blending is faster but uses less data for training.')\n"
+        ]
+    },
+    17: {
+        "title": "Bagging vs Boosting vs Stacking",
+        "summary": "Summary comparison of the big three ensemble frameworks.",
+        "theory": [
+            "### The Big Three Summarized\n",
+            "| Feature | Bagging | Boosting | Stacking |\n",
+            "|---|---|---|---|\n",
+            "| Paradigm | Parallel | Sequential | Meta-Learning |\n",
+            "| Focus | Reduce Variance | Reduce Bias | Learn best combinations |\n",
+            "| Base Models | Same type (homogeneous) | Same type (homogeneous) | Different types (heterogeneous) |\n",
+            "| Algorithm | Random Forest | XGBoost | StackingClassifier |"
+        ],
+        "code": [
+            "print('When in doubt: Start with Random Forest (requires almost no tuning). Then move to XGBoost if you need to squeeze out maximum performance.')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is Stacking generally better suited for Kaggle competitions than production environments?"
+        ],
+        "exercise_code": [
+            "print('Stacking creates highly complex, black-box meta-models that are computationally expensive to infer and incredibly difficult to maintain and explain in production, despite their fractional accuracy gains.')\n"
+        ]
+    },
+    18: {
+        "title": "Random Forest: Step wise explanation",
+        "summary": "Deep dive into navigating an individual estimator inside a Random Forest.",
+        "theory": [
+            "### Exploring the Forest\n",
+            "A Random Forest is just an array of `DecisionTreeClassifier` objects. You can access individual trees using the `.estimators_` attribute."
+        ],
+        "code": [
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "from sklearn.datasets import load_iris\n",
+            "\n",
+            "X, y = load_iris(return_X_y=True)\n",
+            "rf = RandomForestClassifier(n_estimators=3, max_depth=2, random_state=42)\n",
+            "rf.fit(X, y)\n",
+            "\n",
+            "# Accessing the 1st Tree in the Forest\n",
+            "first_tree = rf.estimators_[0]\n",
+            "print(f'Type of 1st tree: {type(first_tree)}')\n",
+            "print(f'Depth of 1st tree: {first_tree.get_depth()}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Since you can access individual trees using `.estimators_`, could you plot or print the rules of a single tree inside a Random Forest?"
+        ],
+        "exercise_code": [
+            "from sklearn.tree import export_text\n",
+            "from sklearn.datasets import load_iris\n",
+            "\n",
+            "# Yes! We can print the text representation of the 1st tree.\n",
+            "tree_rules = export_text(first_tree, feature_names=load_iris().feature_names)\n",
+            "print(tree_rules)\n"
+        ]
+    }
+}
+
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -7826,6 +8405,8 @@ def make_populated_notebook(phase_num, topic_num, details):
         emoji = "✅"
     elif phase_num == 10:
         emoji = "📉"
+    elif phase_num == 11:
+        emoji = "🌳"
     else:
         emoji = "📓"
     
@@ -7946,6 +8527,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(9, idx, PHASE_9_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_10_Dimensionality_Reduction" and idx in PHASE_10_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(10, idx, PHASE_10_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_11_Ensemble_Methods" and idx in PHASE_11_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(11, idx, PHASE_11_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -7984,6 +8567,8 @@ def generate_roadmap():
                 elif phase["dir_name"] == "PHASE_09_Model_Evaluation_Validation":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_10_Dimensionality_Reduction":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_11_Ensemble_Methods":
                     status = "✅ Completed"
                 else:
                     status = "📋 Planned"
