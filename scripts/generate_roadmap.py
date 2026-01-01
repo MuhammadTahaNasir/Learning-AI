@@ -6740,6 +6740,592 @@ PHASE_8_NOTEBOOK_CONTENTS = {
 }
 
 
+
+PHASE_9_NOTEBOOK_CONTENTS = {
+    1: {
+        "title": "Training & Testing Phase",
+        "summary": "Overview of model validation splitting, statistical independence, and dataset partitioning.",
+        "theory": [
+            "### 1. Dataset Partitioning\n",
+            "- **Training set:** Used by the model to fit weights and parameters.\n",
+            "- **Testing set:** Kept completely isolated during training to evaluate generalized performance.\n",
+            "- **Independence assumption:** Data points in train and test sets must be independent and identically distributed (i.i.d.). Data leakage occurs when test set statistical information leaks into training."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.datasets import make_classification\n",
+            "\n",
+            "X, y = make_classification(n_samples=200, n_features=2, n_informative=2, n_redundant=0, random_state=42)\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)\n",
+            "\n",
+            "plt.figure(figsize=(6, 4))\n",
+            "plt.bar(['Train Set', 'Test Set'], [len(X_train), len(X_test)], color=['skyblue', 'salmon'])\n",
+            "plt.title('Dataset Split Sizes')\n",
+            "plt.ylabel('Number of Samples')\n",
+            "plt.show()\n",
+            "print(f'Train set size: {len(X_train)}, Test set size: {len(X_test)}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain why a test size of 99% is problematic."
+        ],
+        "exercise_code": [
+            "print('A test size of 99% leaves only 1% of the data for training, which will cause the model to severely underfit and represent the data poorly.')\n"
+        ]
+    },
+    2: {
+        "title": "Classic vs Adaptive Machine",
+        "summary": "Batch learning vs Adaptive/Online learning systems.",
+        "theory": [
+            "### Batch vs Online Learning\n",
+            "- **Classic (Batch) Learning:** Models are trained offline on a static, complete dataset. Model updates require retraining from scratch.\n",
+            "- **Adaptive (Online) Learning:** Models update incrementally by consuming a stream of instances. Fits scenarios with concept drift or hardware constraints."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "from sklearn.linear_model import SGDClassifier\n",
+            "\n",
+            "# Simulate stream of data\n",
+            "clf = SGDClassifier(loss='log_loss', random_state=42)\n",
+            "X_stream = np.random.randn(10, 5)\n",
+            "y_stream = np.random.randint(0, 2, size=10)\n",
+            "\n",
+            "# Online training using partial_fit\n",
+            "for i in range(len(X_stream)):\n",
+            "    clf.partial_fit(X_stream[i:i+1], y_stream[i:i+1], classes=[0, 1])\n",
+            "\n",
+            "print('Successfully completed online incremental training steps!')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Define concept drift."
+        ],
+        "exercise_code": [
+            "print('Concept drift refers to the statistical properties of the target variable changing over time in unforeseen ways, degrading model performance.')\n"
+        ]
+    },
+    3: {
+        "title": "Basics of Training and Testing",
+        "summary": "Train/test evaluation metrics and standard scikit-learn API usage.",
+        "theory": [
+            "### Basic Validation Flow\n",
+            "Evaluating model predictions against true labels using scikit-learn model fitting API."
+        ],
+        "code": [
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.neighbors import KNeighborsClassifier\n",
+            "\n",
+            "X, y = load_iris(return_X_y=True)\n",
+            "X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)\n",
+            "clf = KNeighborsClassifier(n_neighbors=3).fit(X_train, y_train)\n",
+            "print('Train Score:', clf.score(X_train, y_train))\n",
+            "print('Test Score:', clf.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What is the risk of tuning hyperparameters directly on the test set?"
+        ],
+        "exercise_code": [
+            "print('Tuning hyperparameters on the test set causes data leakage (optimizing for the test set specifically), leading to optimistic but biased performance estimates.')\n"
+        ]
+    },
+    4: {
+        "title": "Stanford CS229 Lec 8: Data splits and Cross Validation theory",
+        "summary": "Generalization error bounds, Hoeffding's inequality, Empirical Risk Minimization (ERM), and uniform convergence bounds.",
+        "theory": [
+            "### Empirical Risk Minimization (ERM)\n",
+            "- **Empirical Risk (Train Error):** $\\hat{\\epsilon}(h) = \\frac{1}{m} \\sum_{i=1}^m I(h(x^{(i)}) \\neq y^{(i)})$\n",
+            "- **Generalization Error:** $\\epsilon(h) = P_{(x,y) \\sim D}(h(x) \\neq y)$\n",
+            "- **Hoeffding's Inequality:** $P(|\\hat{\\epsilon}(h) - \\epsilon(h)| > \\gamma) \\le 2e^{-2\\gamma^2 m}$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "def hoeffding_bound(m, gamma):\n",
+            "    return 2 * np.exp(-2 * (gamma ** 2) * m)\n",
+            "\n",
+            "print('Bound for m=100, gamma=0.1:', hoeffding_bound(100, 0.1))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Calculate the bound for $m=1000$ and $\\gamma=0.05$."
+        ],
+        "exercise_code": [
+            "print('Bound:', hoeffding_bound(1000, 0.05))\n"
+        ]
+    },
+    5: {
+        "title": "Stanford CS229 Discussion: Learning Theory",
+        "summary": "Stanford CS229 discussion on learning theory, VC dimension, and sample complexity.",
+        "theory": [
+            "### VC Dimension\n",
+            "- **Shattering:** A hypothesis space $H$ shatters a set of points if it can separate all possible label assignments.\n",
+            "- **VC Dimension:** Size of largest set shattered by $H$. Sample complexity bound:\n",
+            "  $$m = O\\left(\\frac{1}{\\epsilon} \\log \\frac{1}{\\delta} + \\frac{VC(H)}{\\epsilon} \\log \\frac{1}{\\epsilon}\\right)$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "def sample_complexity(vc_dim, epsilon=0.05, delta=0.05):\n",
+            "    return (1.0 / epsilon) * (np.log(1.0 / delta) + vc_dim * np.log(1.0 / epsilon))\n",
+            "\n",
+            "print('Required samples for VC=3 (Linear Classifier in 2D):', int(sample_complexity(3)))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Compute sample complexity for $VC=10$."
+        ],
+        "exercise_code": [
+            "print('Samples for VC=10:', int(sample_complexity(10)))\n"
+        ]
+    },
+    6: {
+        "title": "Cross Validation",
+        "summary": "Hold-out validation vs K-Fold cross-validation comparison.",
+        "theory": [
+            "### Cross-Validation Concept\n",
+            "Reduces bias of hold-out split evaluation by rotating training and validation partitions."
+        ],
+        "code": [
+            "from sklearn.model_selection import cross_val_score\n",
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.svm import SVC\n",
+            "\n",
+            "X, y = load_iris(return_X_y=True)\n",
+            "scores = cross_val_score(SVC(), X, y, cv=5)\n",
+            "print('Cross-Validation Accuracies:', scores)\n",
+            "print('Mean Accuracy:', scores.mean())\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. List one limitation of cross-validation."
+        ],
+        "exercise_code": [
+            "print('Cross-validation is computationally expensive because the model must be trained and evaluated k times.')\n"
+        ]
+    },
+    7: {
+        "title": "K Fold Cross Validation",
+        "summary": "K-Fold CV mechanics.",
+        "theory": [
+            "### Split Visualization\n",
+            "Partitioning dataset into $K$ mutual subsets, using one as validation and $K-1$ as training."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.model_selection import KFold\n",
+            "\n",
+            "kf = KFold(n_splits=5, shuffle=True, random_state=42)\n",
+            "X = np.arange(25)\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "for i, (train_idx, val_idx) in enumerate(kf.split(X)):\n",
+            "    plt.scatter(train_idx, [i]*len(train_idx), color='blue', marker='o', label='Train' if i==0 else \"\")\n",
+            "    plt.scatter(val_idx, [i]*len(val_idx), color='red', marker='x', label='Validation' if i==0 else \"\")\n",
+            "plt.yticks(range(5), [f'Fold {i+1}' for i in range(5)])\n",
+            "plt.xlabel('Sample Index')\n",
+            "plt.title('K-Fold Cross-Validation Splitting')\n",
+            "plt.legend()\n",
+            "plt.grid(True, linestyle=':', alpha=0.6)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain why `shuffle=True` is crucial when K-Folding sorted datasets."
+        ],
+        "exercise_code": [
+            "print('If the dataset is sorted by class label, each fold without shuffling will contain highly skewed or single-class distributions, causing model evaluation to fail.')\n"
+        ]
+    },
+    8: {
+        "title": "LOOCV and Leave P Out",
+        "summary": "Leave-One-Out (LOOCV) and Leave-P-Out CV techniques.",
+        "theory": [
+            "### LOOCV Properties\n",
+            "- **Leave-One-Out (LOOCV):** Fits models using $K=N$. Gives unbiased estimates but high variance.\n",
+            "- **Leave-P-Out:** Leaves $P$ samples for validation."
+        ],
+        "code": [
+            "from sklearn.model_selection import LeaveOneOut\n",
+            "from sklearn.linear_model import LogisticRegression\n",
+            "from sklearn.datasets import load_iris\n",
+            "import numpy as np\n",
+            "\n",
+            "X, y = load_iris(return_X_y=True)\n",
+            "X = np.vstack([X[:15], X[50:65]])\n",
+            "y = np.hstack([y[:15], y[50:65]])\n",
+            "\n",
+            "loo = LeaveOneOut()\n",
+            "scores = []\n",
+            "for train_idx, test_idx in loo.split(X):\n",
+            "    X_train, X_test = X[train_idx], X[test_idx]\n",
+            "    y_train, y_test = y[train_idx], y[test_idx]\n",
+            "    model = LogisticRegression().fit(X_train, y_train)\n",
+            "    scores.append(model.score(X_test, y_test))\n",
+            "\n",
+            "print('LOOCV Mean Accuracy:', np.mean(scores))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. What makes LOOCV computationally prohibitive for large datasets?"
+        ],
+        "exercise_code": [
+            "print('LOOCV requires training the model N times. For a dataset of size N = 100,000, training 100,000 models is computationally infeasible.')\n"
+        ]
+    },
+    9: {
+        "title": "Overfitting and Underfitting deep dive",
+        "summary": "Underfitting/Overfitting definition and polynomials.",
+        "theory": [
+            "### Visualizing Capacity\n",
+            "Varying model parameter complexity (degree of polynomial expansion) changes decision flexibility."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.pipeline import make_pipeline\n",
+            "from sklearn.preprocessing import PolynomialFeatures\n",
+            "from sklearn.linear_model import LinearRegression\n",
+            "\n",
+            "np.random.seed(42)\n",
+            "X = np.sort(np.random.rand(30) * 5)\n",
+            "y = np.sin(X) + np.random.randn(30) * 0.15\n",
+            "X = X[:, np.newaxis]\n",
+            "\n",
+            "degrees = [1, 3, 15]\n",
+            "plt.figure(figsize=(12, 4))\n",
+            "X_plot = np.linspace(0, 5, 100)[:, np.newaxis]\n",
+            "\n",
+            "for i, deg in enumerate(degrees):\n",
+            "    model = make_pipeline(PolynomialFeatures(deg), LinearRegression())\n",
+            "    model.fit(X, y)\n",
+            "    plt.subplot(1, 3, i+1)\n",
+            "    plt.scatter(X, y, color='black')\n",
+            "    plt.plot(X_plot, model.predict(X_plot), label=f'Degree {deg}')\n",
+            "    plt.ylim(-1.5, 1.5)\n",
+            "    plt.title(f'Degree {deg} (\"Underfit\" if deg==1 else \"Good\" if deg==3 else \"Overfit\")')\n",
+            "    plt.legend()\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. How does adding L2 regularization (Ridge) affect a high-degree polynomial regression model?"
+        ],
+        "exercise_code": [
+            "print('L2 regularization penalizes large coefficient weights, flattening the model curves and reducing overfitting by introducing a small bias in exchange for a large variance reduction.')\n"
+        ]
+    },
+    10: {
+        "title": "Model Complexity vs Error",
+        "summary": "Train error vs validation error relationship.",
+        "theory": [
+            "### U-Shaped Curves\n",
+            "As capacity grows, training set error goes to zero, but validation set error begins to rise as generalization fails."
+        ],
+        "code": [
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "from sklearn.tree import DecisionTreeClassifier\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "\n",
+            "data = load_breast_cancer()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(data.data, data.target, test_size=0.3, random_state=42)\n",
+            "\n",
+            "depths = range(1, 15)\n",
+            "train_errors = []\n",
+            "test_errors = []\n",
+            "\n",
+            "for d in depths:\n",
+            "    clf = DecisionTreeClassifier(max_depth=d, random_state=42).fit(X_train, y_train)\n",
+            "    train_errors.append(1 - clf.score(X_train, y_train))\n",
+            "    test_errors.append(1 - clf.score(X_test, y_test))\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.plot(depths, train_errors, 'b-o', label='Training Error')\n",
+            "plt.plot(depths, test_errors, 'r-o', label='Testing Error')\n",
+            "plt.xlabel('Tree Max Depth (Model Complexity)')\n",
+            "plt.ylabel('Classification Error Rate')\n",
+            "plt.title('Model Complexity vs Train/Test Error')\n",
+            "plt.legend()\n",
+            "plt.grid(True)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Identify the optimal tree depth range based on the generated plot."
+        ],
+        "exercise_code": [
+            "optimal_depth = depths[np.argmin(test_errors)]\n",
+            "print(f'Optimal Depth is at max_depth = {optimal_depth} where validation error is minimized before overfitting begins.')\n"
+        ]
+    },
+    11: {
+        "title": "Bias Variance Tradeoff",
+        "summary": "Mathematical derivation of the bias-variance decomposition.",
+        "theory": [
+            "### Mathematical Derivation\n",
+            "Decomposing expected prediction error into Squared Bias, Variance, and Irreducible Noise:\n",
+            "$$E[(y - \\hat{f}(x))^2] = \\text{Bias}[\\hat{f}(x)]^2 + \\text{Var}[\\hat{f}(x)] + \\sigma^2$$"
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "np.random.seed(42)\n",
+            "true_f = lambda x: 2 * x + 1.5\n",
+            "\n",
+            "x_query = 2.0\n",
+            "predictions = []\n",
+            "for _ in range(50):\n",
+            "    x_train = np.random.uniform(0, 4, 10)\n",
+            "    y_train = true_f(x_train) + np.random.normal(0, 0.5, 10)\n",
+            "    coef, intercept = np.polyfit(x_train, y_train, 1)\n",
+            "    predictions.append(coef * x_query + intercept)\n",
+            "\n",
+            "pred_mean = np.mean(predictions)\n",
+            "bias_sq = (pred_mean - true_f(x_query)) ** 2\n",
+            "variance = np.var(predictions)\n",
+            "print(f'Query true value: {true_f(x_query)}')\n",
+            "print(f'Query mean prediction: {pred_mean:.4f}')\n",
+            "print(f'Squared Bias: {bias_sq:.6f}')\n",
+            "print(f'Model Variance: {variance:.6f}')\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Describe how model bias and variance behave as capacity increases."
+        ],
+        "exercise_code": [
+            "print('As model capacity increases, bias decreases (model fits training data better) while variance increases (model becomes sensitive to noise).')\n"
+        ]
+    },
+    12: {
+        "title": "Imbalanced Data and SMOTE and Oversampling",
+        "summary": "SMOTE and minority oversampling.",
+        "theory": [
+            "### Balancing Distributions\n",
+            "- **Oversampling:** Duplicating minority class observations.\n",
+            "- **SMOTE:** Synthetic Minority Over-sampling Technique interpolates new data points along lines joining local neighbors."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.datasets import make_classification\n",
+            "\n",
+            "X, y = make_classification(n_samples=200, n_features=2, n_redundant=0, n_clusters_per_class=1, weights=[0.9, 0.1], random_state=42)\n",
+            "\n",
+            "minority_idx = np.where(y == 1)[0]\n",
+            "majority_idx = np.where(y == 0)[0]\n",
+            "num_to_add = len(majority_idx) - len(minority_idx)\n",
+            "\n",
+            "np.random.seed(42)\n",
+            "oversampled_noise = np.random.normal(0, 0.1, size=(num_to_add, 2))\n",
+            "synthetic_X = X[np.random.choice(minority_idx, num_to_add)] + oversampled_noise\n",
+            "\n",
+            "X_resampled = np.vstack([X, synthetic_X])\n",
+            "y_resampled = np.hstack([y, np.ones(num_to_add)])\n",
+            "\n",
+            "fig, axes = plt.subplots(1, 2, figsize=(10, 4))\n",
+            "axes[0].scatter(X[y==0, 0], X[y==0, 1], color='blue', alpha=0.6, label='Majority')\n",
+            "axes[0].scatter(X[y==1, 0], X[y==1, 1], color='red', alpha=0.6, label='Minority')\n",
+            "axes[0].set_title('Before Oversampling')\n",
+            "axes[0].legend()\n",
+            "\n",
+            "axes[1].scatter(X_resampled[y_resampled==0, 0], X_resampled[y_resampled==0, 1], color='blue', alpha=0.6, label='Majority')\n",
+            "axes[1].scatter(X_resampled[y_resampled==1, 0], X_resampled[y_resampled==1, 1], color='red', alpha=0.6, label='Oversampled')\n",
+            "axes[1].set_title('After Oversampling')\n",
+            "axes[1].legend()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is evaluation using raw accuracy misleading on imbalanced datasets?"
+        ],
+        "exercise_code": [
+            "print('For a dataset with 95% majority samples, a dummy model predicting majority class gets 95% accuracy while failing to identify any minority class instances.')\n"
+        ]
+    },
+    13: {
+        "title": "Hyperparameter Tuning with Optuna",
+        "summary": "Search space, trials, and automated parameter tuning.",
+        "theory": [
+            "### Optimization Algorithms\n",
+            "Optuna optimizes hyperparameters using Tree-structured Parzen Estimators (TPE) to suggest parameters dynamically."
+        ],
+        "code": [
+            "# Uncomment and run the line below if you need to install Optuna:\n",
+            "# !pip install optuna\n",
+            "\n",
+            "import optuna\n",
+            "import matplotlib.pyplot as plt\n",
+            "import numpy as np\n",
+            "from sklearn.datasets import load_breast_cancer\n",
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "from sklearn.model_selection import cross_val_score\n",
+            "\n",
+            "optuna.logging.set_verbosity(optuna.logging.WARNING)\n",
+            "\n",
+            "def objective(trial):\n",
+            "    n_estimators = trial.suggest_int('n_estimators', 10, 50)\n",
+            "    max_depth = trial.suggest_int('max_depth', 2, 8)\n",
+            "    X, y = load_breast_cancer(return_X_y=True)\n",
+            "    clf = RandomForestClassifier(n_estimators=n_estimators, max_depth=max_depth, random_state=42)\n",
+            "    return cross_val_score(clf, X, y, cv=3).mean()\n",
+            "\n",
+            "study = optuna.create_study(direction='maximize')\n",
+            "study.optimize(objective, n_trials=15)\n",
+            "\n",
+            "print('Best trial parameters:', study.best_params)\n",
+            "print('Best cross-validation accuracy:', study.best_value)\n",
+            "\n",
+            "# Extract optimization history\n",
+            "trial_values = [t.value for t in study.trials if t.value is not None]\n",
+            "best_values = np.maximum.accumulate(trial_values)\n",
+            "\n",
+            "# Plot optimization history\n",
+            "plt.figure(figsize=(9, 4.5))\n",
+            "plt.plot(trial_values, 'o-', color='#1f77b4', label='Trial Objective Value', alpha=0.7)\n",
+            "plt.plot(best_values, 'r--', drawstyle='steps-post', label='Best Value So Far', linewidth=2)\n",
+            "plt.xlabel('Trial Number')\n",
+            "plt.ylabel('Mean Accuracy')\n",
+            "plt.title('Optuna Hyperparameter Optimization History', fontsize=12, fontweight='bold')\n",
+            "plt.grid(True, linestyle=':', alpha=0.6)\n",
+            "plt.legend(loc='lower right')\n",
+            "plt.tight_layout()\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Explain the difference between `suggest_int` and `suggest_float` in Optuna."
+        ],
+        "exercise_code": [
+            "print('suggest_int samples discrete integer parameters, while suggest_float samples continuous real-valued parameters within specified ranges.')\n"
+        ]
+    },
+    14: {
+        "title": "Random State",
+        "summary": "Pseudo-random number generators, seed settings, and ML reproducibility.",
+        "theory": [
+            "### Deterministic Pseudo-Randomness\n",
+            "Standardizes model weight initialization and data split indices to allow comparative experimentation."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "\n",
+            "np.random.seed(42)\n",
+            "arr1 = np.random.rand(3)\n",
+            "np.random.seed(42)\n",
+            "arr2 = np.random.rand(3)\n",
+            "print('Array 1:', arr1)\n",
+            "print('Array 2 (using same seed):', arr2)\n",
+            "print('Are arrays identical?:', np.allclose(arr1, arr2))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Why is it crucial to set a fixed random state during experimental testing?"
+        ],
+        "exercise_code": [
+            "print('Setting random state ensures reproducibility, so that model accuracy improvements are due to code/parameter changes rather than random split differences.')\n"
+        ]
+    },
+    15: {
+        "title": "Accuracy Score explained",
+        "summary": "Mathematical calculation of accuracy, binary vs multiclass accuracy, and limits on unbalanced data.",
+        "theory": [
+            "### Accuracy Math\n",
+            "Accuracy = $\\frac{TP + TN}{TP + TN + FP + FN}$"
+        ],
+        "code": [
+            "from sklearn.metrics import accuracy_score\n",
+            "import numpy as np\n",
+            "\n",
+            "y_true = np.array([0, 1, 2, 0, 1, 2])\n",
+            "y_pred = np.array([0, 1, 1, 0, 1, 2])\n",
+            "print('Calculated accuracy score:', accuracy_score(y_true, y_pred))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Express accuracy calculation manually in Python."
+        ],
+        "exercise_code": [
+            "manual_acc = np.mean(y_true == y_pred)\n",
+            "print('Manual Accuracy calculation:', manual_acc)\n"
+        ]
+    },
+    16: {
+        "title": "Steps to build any ML model",
+        "summary": "Detailed step-by-step checklist of end-to-end ML workflows.",
+        "theory": [
+            "### ML Process Lifecycle\n",
+            "1. Ingestion, 2. EDA, 3. Split, 4. Feature Selection/Engineering, 5. Baselines, 6. Hyperparameter Tuning, 7. Final Evaluation."
+        ],
+        "code": [
+            "import pandas as pd\n",
+            "from sklearn.datasets import load_iris\n",
+            "from sklearn.model_selection import train_test_split\n",
+            "from sklearn.ensemble import RandomForestClassifier\n",
+            "\n",
+            "iris = load_iris()\n",
+            "X_train, X_test, y_train, y_test = train_test_split(iris.data, iris.target, test_size=0.2, random_state=42)\n",
+            "model = RandomForestClassifier(random_state=42).fit(X_train, y_train)\n",
+            "print('Built pipeline score:', model.score(X_test, y_test))\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Describe the purpose of a baseline model."
+        ],
+        "exercise_code": [
+            "print('A baseline model provides a simple, standard benchmark performance level (e.g., majority class prediction or simple linear model) that complex models must beat.')\n"
+        ]
+    },
+    17: {
+        "title": "Stanford CS229 Lec 12: Debugging ML and Error Analysis",
+        "summary": "Learning curves, diagnosing bias vs variance, and error analysis.",
+        "theory": [
+            "### Learning Diagnostics\n",
+            "- **High Bias (Underfitting):** Train and test errors are high and close. Getting more data will not help.\n",
+            "- **High Variance (Overfitting):** Large gap between train (low) and test (high) errors. Getting more data helps."
+        ],
+        "code": [
+            "import numpy as np\n",
+            "import matplotlib.pyplot as plt\n",
+            "from sklearn.model_selection import learning_curve\n",
+            "from sklearn.linear_model import Ridge\n",
+            "from sklearn.datasets import make_regression\n",
+            "\n",
+            "X, y = make_regression(n_samples=150, n_features=10, noise=5.0, random_state=42)\n",
+            "train_sizes, train_scores, test_scores = learning_curve(\n",
+            "    Ridge(alpha=10.0), X, y, cv=5, train_sizes=np.linspace(0.1, 1.0, 10), scoring='neg_mean_squared_error', random_state=42\n",
+            ")\n",
+            "\n",
+            "train_rmse = np.sqrt(-np.mean(train_scores, axis=1))\n",
+            "test_rmse = np.sqrt(-np.mean(test_scores, axis=1))\n",
+            "\n",
+            "plt.figure(figsize=(8, 4))\n",
+            "plt.plot(train_sizes, train_rmse, 'b-o', label='Training Error')\n",
+            "plt.plot(train_sizes, test_rmse, 'r-o', label='Validation Error')\n",
+            "plt.xlabel('Training Set Size')\n",
+            "plt.ylabel('RMSE Error')\n",
+            "plt.title('Learning Curves (Diagnosing Bias vs Variance)')\n",
+            "plt.legend()\n",
+            "plt.grid(True)\n",
+            "plt.show()\n"
+        ],
+        "exercises": [
+            "### Exercises\n",
+            "1. Describe how to resolve a High Variance issue diagnosed from learning curves."
+        ],
+        "exercise_code": [
+            "print('High Variance can be resolved by getting more training data, reducing the feature space, increasing regularization, or simplifying the model architecture.')\n"
+        ]
+    }
+}
+
+
 def sanitize_filename(name):
     """Clean the topic name to make it a valid filename."""
     chars_to_replace = [" — ", " —", "— ", "—", " + ", " +", "+ ", "+", " & ", " &", "& ", "&", " / ", " /", "/ ", "/", " ", ",", ".", ":", "(", ")", "[", "]", "?", "!", "→", "–"]
@@ -6880,6 +7466,8 @@ def make_populated_notebook(phase_num, topic_num, details):
         emoji = "📉"
     elif phase_num == 8:
         emoji = "🎯"
+    elif phase_num == 9:
+        emoji = "✅"
     else:
         emoji = "📓"
     
@@ -6996,6 +7584,8 @@ def generate_roadmap():
                 nb_json = make_populated_notebook(7, idx, PHASE_7_NOTEBOOK_CONTENTS[idx])
             elif phase["dir_name"] == "PHASE_08_Classification_Algorithms" and idx in PHASE_8_NOTEBOOK_CONTENTS:
                 nb_json = make_populated_notebook(8, idx, PHASE_8_NOTEBOOK_CONTENTS[idx])
+            elif phase["dir_name"] == "PHASE_09_Model_Evaluation_Validation" and idx in PHASE_9_NOTEBOOK_CONTENTS:
+                nb_json = make_populated_notebook(9, idx, PHASE_9_NOTEBOOK_CONTENTS[idx])
             else:
                 nb_json = make_template_notebook(title, idx, category)
                 
@@ -7030,6 +7620,8 @@ def generate_roadmap():
                 elif phase["dir_name"] == "PHASE_07_Regression_Algorithms":
                     status = "✅ Completed"
                 elif phase["dir_name"] == "PHASE_08_Classification_Algorithms":
+                    status = "✅ Completed"
+                elif phase["dir_name"] == "PHASE_09_Model_Evaluation_Validation":
                     status = "✅ Completed"
                 else:
                     status = "📋 Planned"

@@ -62,7 +62,7 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Notebooks**: [41 Notebooks](PHASE_08_Classification_Algorithms/)
 
 ### ✅ [Phase 9: Model Evaluation & Validation](PHASE_09_Model_Evaluation_Validation/)
-**Status**: 📋 Planned
+**Status**: ✅ Completed
 - **Topics**: Cross-validation (K-Fold, LOOCV), learning theory, hyperparameter tuning (Optuna), SMOTE, error analysis, debugging ML models.
 - **Notebooks**: [17 Notebooks](PHASE_09_Model_Evaluation_Validation/)
 
