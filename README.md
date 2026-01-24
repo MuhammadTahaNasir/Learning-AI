@@ -1,13 +1,21 @@
-# Complete Machine Learning Roadmap
+<div align="center">
+  <h1>🧠 Classical Machine Learning from Scratch</h1>
+  <p><i>A comprehensive, structured learning path and reference guide for mastering Classical Machine Learning.</i></p>
 
-A comprehensive, structured learning path for mastering classical Machine Learning from scratch, covering Python, Math, NumPy, Pandas, Data Visualization, Data Preprocessing, Regression, Classification, Model Evaluation, Dimensionality Reduction, Ensemble Methods, and Unsupervised Clustering.
+  [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg?style=flat&logo=python&logoColor=white)](https://www.python.org)
+  [![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange.svg?style=flat&logo=jupyter)](https://jupyter.org)
+  [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-1.4+-F7931E.svg?style=flat&logo=scikit-learn&logoColor=white)](https://scikit-learn.org)
+  [![Status](https://img.shields.io/badge/Status-100%25%20Completed-brightgreen.svg?style=flat)]()
+</div>
+
+---
 
 ## 🎯 Overview
 
-This repository contains a complete Machine Learning roadmap divided into **12 structured phases**, designed to take you from basic programming concepts to industry-ready ML algorithms and system design. 
+This repository contains a complete Machine Learning roadmap divided into **12 structured phases**. It is designed to take you from basic programming concepts and mathematical foundations (Linear Algebra & Calculus) straight through to industry-ready Classical ML algorithms.
 
-- **⏱️ Target Timeline:** June 2025 to January 2026
-- **🏆 Outcome:** Solid mathematical understanding and hands-on coding expertise in classical ML algorithms.
+- **🏆 Outcome:** Solid mathematical understanding and hands-on coding expertise in classical ML algorithms, from building models from scratch to high-performance Scikit-Learn pipelines.
+- **📂 Content:** Over 200 fully executed Jupyter Notebooks, mathematical derivations, and real-world Capstone Projects.
 
 ---
 
@@ -76,10 +84,10 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 - **Topics**: Voting Classifiers/Regressors, Bagging & Random Forests (OOB Score, Feature Importance), Boosting (AdaBoost, Gradient Boosting, XGBoost), Stacking & Blending.
 - **Notebooks**: [18 Notebooks](PHASE_11_Ensemble_Methods/)
 
-### 🔵 [Phase 12: Unsupervised Learning (Clustering)](PHASE_12_Unsupervised_Learning_Clustering/)
-**Status**: 📋 Planned
-- **Topics**: K-Means & K-Means++, Elbow Method, Hierarchical Clustering (Agglomerative, Divisive, Linkage methods), DBSCAN, K-Medoids, EM Algorithm, Recommendation Systems.
-- **Notebooks**: [13 Notebooks](PHASE_12_Unsupervised_Learning_Clustering/)
+### 🌌 [Phase 12: Unsupervised Learning (Clustering)](PHASE_12_Unsupervised_Learning_Clustering/)
+**Status**: ✅ Completed
+- **Topics**: K-Means & K-Means++, Elbow Method, Hierarchical Clustering (Agglomerative, Divisive, Linkage methods), DBSCAN, K-Medoids.
+- **Notebooks**: [10 Notebooks](PHASE_12_Unsupervised_Learning_Clustering/)
 
 ---
 
@@ -95,44 +103,44 @@ This repository contains a complete Machine Learning roadmap divided into **12 s
 
 ## 📁 Repository Structure
 
-```
-Learning-AI/
-├── PHASE_01_Python_Fundamentals/
-│   ├── 01_values_expressions_statements.ipynb
-│   └── ...
-├── PHASE_02_Math_Stats_Probability/
-│   ├── Projects/Linear_Algebra_Operations/
-│   ├── 01_intro_to_ml_history.ipynb
-│   └── ...
-├── PHASE_03_NumPy/
-├── PHASE_04_Pandas_Data_Loading/
-├── PHASE_05_Data_Visualization/
-│   ├── Projects/ThinkBoard/
-│   └── ...
-├── PHASE_06_Data_Preprocessing_Feature_Engineering/
-├── PHASE_07_Regression_Algorithms/
-│   ├── Projects/Gradient_Descent_Simulation/
-│   └── ...
-├── PHASE_08_Classification_Algorithms/
-│   ├── Projects/Titanic_Survival_Predictor/
-│   └── ...
-├── PHASE_09_Model_Evaluation_Validation/
-├── PHASE_10_Dimensionality_Reduction/
-├── PHASE_11_Ensemble_Methods/
-├── PHASE_12_Unsupervised_Learning_Clustering/
-├── scripts/
-│   └── generate_roadmap.py
-└── README.md
+```text
+📦 Classical-Machine-Learning
+┣ 📂 PHASE_01_Python_Fundamentals/
+┣ 📂 PHASE_02_Math_Stats_Probability/
+┃ ┣ 📂 Projects/
+┃ ┃ ┗ 📜 Linear_Algebra_Operations
+┃ ┗ 📜 37 Notebooks...
+┣ 📂 PHASE_03_NumPy/
+┣ 📂 PHASE_04_Pandas_Data_Loading/
+┣ 📂 PHASE_05_Data_Visualization/
+┃ ┣ 📂 Projects/
+┃ ┃ ┗ 📜 ThinkBoard Dashboard
+┃ ┗ 📜 8 Notebooks...
+┣ 📂 PHASE_06_Data_Preprocessing_Feature_Engineering/
+┣ 📂 PHASE_07_Regression_Algorithms/
+┃ ┣ 📂 Projects/
+┃ ┃ ┗ 📜 Gradient_Descent_Simulation
+┃ ┗ 📜 28 Notebooks...
+┣ 📂 PHASE_08_Classification_Algorithms/
+┃ ┣ 📂 Projects/
+┃ ┃ ┗ 📜 Titanic_Survival_Predictor
+┃ ┗ 📜 41 Notebooks...
+┣ 📂 PHASE_09_Model_Evaluation_Validation/
+┣ 📂 PHASE_10_Dimensionality_Reduction/
+┣ 📂 PHASE_11_Ensemble_Methods/
+┣ 📂 PHASE_12_Unsupervised_Learning_Clustering/
+┗ 📜 README.md
 ```
 
 ---
 
-## 🚀 Getting Started
+## 📖 How to Use This Repository
 
-1. **Clone the Repo:** Clone this to your local environment.
-2. **Review Python Basics (Phase 1):** Skim if you are rusty, skip if you are confident.
-3. **Work through Jupyter Notebooks:** Open the relevant `.ipynb` file in each phase, study the resources linked inside, write notes, and complete the exercise cells.
-4. **Build Projects:** Ensure you complete the key projects marked in each phase to consolidate your learning.
+This repository serves as a comprehensive, completed reference guide for Classical Machine Learning. It is not an interactive course, but a curated collection of fully executed notebooks containing mathematical derivations, code implementations from scratch, and real-world projects.
+
+- **For Reference:** Navigate to any specific phase directory to read the Jupyter Notebooks.
+- **For Code Examples:** Use the Scikit-Learn implementation notebooks to see how algorithms are applied to real datasets.
+- **For Math Intuition:** Review the "Math & Intuition" and "Stanford CS229" notebooks for deep dives into the underlying calculus and linear algebra of each algorithm.
 
 ---
 
